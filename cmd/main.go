@@ -8,8 +8,9 @@ import (
 	"os"
 	"time"
 )
-const doDelete = true
-const siteId = 39
+
+const doDelete = false
+const siteId = 900000
 
 func main() {
 
@@ -22,8 +23,6 @@ func main() {
 	pw := os.Getenv("pw")
 
 	fmt.Printf("un: %s, pw: %s", un, pw)
-
-
 
 	api := client.Client{}
 	api.Init()
@@ -59,20 +58,20 @@ func main() {
 		for _, point := range pointResp.Assets {
 			fmt.Printf("  Point: %s, id: %d\n", point.Name, point.ID)
 
-			if doDelete{
+			if doDelete {
 				pointRes := api.DeletePoint(point.ID)
 				time.Sleep(250 * time.Nanosecond)
 				fmt.Printf("   Deleted: %s\n", pointRes.Message)
 			}
 		}
 
-		if doDelete{
+		if doDelete {
 			equipDel := api.DeleteEquip(equip.ID)
 			fmt.Printf(" Equip Deleted: %s\n", equipDel.Message)
 		}
 	}
 
-	if doDelete{
+	if doDelete {
 
 		siteDel := api.DeleteSite(siteId)
 		fmt.Printf(" Site Deleted: %s", siteDel.Message)

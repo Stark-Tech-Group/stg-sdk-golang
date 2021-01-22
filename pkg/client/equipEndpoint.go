@@ -3,14 +3,14 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"go-scripts/internal/response"
+	"starktechgroup/stg-sdk-golang/pkg/api/response"
 )
 
 type equipEndpoint struct{
 	client *Client
 }
 
-func (equipEndpoint *equipEndpoint) delete(id int) (*response.Delete, error){
+func (equipEndpoint *equipEndpoint) delete(id int) (*response.DeleteResponse, error){
 
 	resp, err := equipEndpoint.client.delete(equipUrl(equipEndpoint.client.host, id))
 
@@ -18,7 +18,7 @@ func (equipEndpoint *equipEndpoint) delete(id int) (*response.Delete, error){
 		return nil, err
 	}
 
-	deleteResp := response.Delete{}
+	deleteResp := response.DeleteResponse{}
 
 	err = json.Unmarshal(resp, &deleteResp)
 

@@ -1,6 +1,6 @@
 package response
 
-type Delete struct {
+type DeleteResponse struct {
 	Message string `json:"message"`
 	Code    string `json:"code"`
 }

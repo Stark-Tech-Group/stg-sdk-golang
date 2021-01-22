@@ -1,4 +1,4 @@
-module starktechgroup/stg-sdk-golang
+module github.com/Stark-Tech-Group/stg-sdk-golang
 
 go 1.15
 

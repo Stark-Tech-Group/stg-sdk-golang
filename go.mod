@@ -1,4 +1,4 @@
-module go-scripts
+module starktechgroup/stg-sdk-golang
 
 go 1.15
 

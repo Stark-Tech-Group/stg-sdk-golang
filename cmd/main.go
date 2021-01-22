@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/client"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"starktechgroup/stg-sdk-golang/pkg/client"
-	"starktechgroup/stg-sdk-golang/pkg/env"
 	"time"
 )
 
@@ -16,6 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
 
 	un := os.Getenv(env.STG_SDK_API_UN)
 	pw := os.Getenv(env.STG_SDK_API_PW)

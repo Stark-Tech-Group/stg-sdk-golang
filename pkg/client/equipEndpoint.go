@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"starktechgroup/stg-sdk-golang/pkg/api/response"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
 type equipEndpoint struct{

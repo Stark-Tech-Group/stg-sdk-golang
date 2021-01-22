@@ -3,11 +3,11 @@ package client
 import (
 	"bytes"
 	"fmt"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"starktechgroup/stg-sdk-golang/pkg/api/response"
-	"starktechgroup/stg-sdk-golang/pkg/env"
 )
 
 type Client struct{

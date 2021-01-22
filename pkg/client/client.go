@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go-scripts/internal/response"
+	"go-scripts/pkg/env"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -32,7 +33,7 @@ func(client *Client) Init() *Client{
 	client.equipEndpoint = equipEndpoint{client}
 	client.siteEndpoint = siteEndpoint{client}
 	client.httpClient = &http.Client{}
-	client.host = os.Getenv("host")
+	client.host = os.Getenv(env.STG_SDK_API_HOST)
 
 	fmt.Printf("Host: %s\n", client.host)
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"go-scripts/pkg/client"
+	"go-scripts/pkg/env"
 	"log"
 	"os"
 	"time"
@@ -19,8 +20,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	un := os.Getenv("un")
-	pw := os.Getenv("pw")
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
 
 	fmt.Printf("un: %s, pw: %s", un, pw)
 

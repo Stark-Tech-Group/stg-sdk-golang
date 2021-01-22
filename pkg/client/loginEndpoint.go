@@ -3,14 +3,14 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"go-scripts/internal/response"
+	"starktechgroup/stg-sdk-golang/pkg/api/response"
 )
 
 type loginEndpoint struct{
 	client *Client
 }
 
-func (loginEndpoint *loginEndpoint) login(un string, pw string) (*response.Auth, error){
+func (loginEndpoint *loginEndpoint) login(un string, pw string) (*response.AuthResponse, error){
 	requestBody, err := json.Marshal(map[string]string{
 		"username": un,
 		"password": pw,
@@ -22,7 +22,7 @@ func (loginEndpoint *loginEndpoint) login(un string, pw string) (*response.Auth,
 
 	resp, err := loginEndpoint.client.post(loginUrl(loginEndpoint.client.host), requestBody)
 
-	login := response.Auth{}
+	login := response.AuthResponse{}
 	err = json.Unmarshal(resp, &login)
 
 	if err != nil{

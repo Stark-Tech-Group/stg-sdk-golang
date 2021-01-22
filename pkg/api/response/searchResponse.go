@@ -1,6 +1,6 @@
 package response
 
-type Search struct {
+type SearchResponse struct {
 	Count       int    `json:"count"`
 	CurrentPage int    `json:"currentPage"`
 	PageSize    int    `json:"pageSize"`

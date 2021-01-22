@@ -3,11 +3,11 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"go-scripts/internal/response"
-	"go-scripts/pkg/env"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"starktechgroup/stg-sdk-golang/pkg/api/response"
+	"starktechgroup/stg-sdk-golang/pkg/env"
 )
 
 type Client struct{
@@ -18,7 +18,7 @@ type Client struct{
 	pointEndpoint pointEndpoint
 	equipEndpoint equipEndpoint
 	siteEndpoint siteEndpoint
-	auth *response.Auth
+	auth *response.AuthResponse
 	httpClient *http.Client
 	host string
 }
@@ -48,11 +48,10 @@ func (client *Client) Login(un string, pw string){
 		panic(err)
 	}
 
-	fmt.Printf("Login: %s\n", login.AccessToken)
 	client.auth = login
 }
 
-func (client *Client) ApiStatus() *response.ApiStatus{
+func (client *Client) ApiStatus() *response.StatusResponse {
 	status, err := client.apiStatusEndpoint.get()
 
 	if err != nil{
@@ -62,7 +61,7 @@ func (client *Client) ApiStatus() *response.ApiStatus{
 	return status
 }
 
-func(client *Client) Search(body SearchBody) *response.Search{
+func(client *Client) Search(body SearchBody) *response.SearchResponse {
 	search, err := client.searchEndpoint.search(body)
 
 	if err != nil{
@@ -72,7 +71,7 @@ func(client *Client) Search(body SearchBody) *response.Search{
 	return search
 }
 
-func(client *Client) DeletePoint(id int) *response.Delete{
+func(client *Client) DeletePoint(id int) *response.DeleteResponse {
 	deleteResp, err := client.pointEndpoint.delete(id)
 
 	if err != nil {
@@ -82,7 +81,7 @@ func(client *Client) DeletePoint(id int) *response.Delete{
 	return deleteResp
 }
 
-func(client *Client) DeleteEquip(id int) *response.Delete{
+func(client *Client) DeleteEquip(id int) *response.DeleteResponse {
 	deleteResp, err := client.equipEndpoint.delete(id)
 
 	if err != nil {
@@ -92,7 +91,7 @@ func(client *Client) DeleteEquip(id int) *response.Delete{
 	return deleteResp
 }
 
-func(client *Client) DeleteSite(id int) *response.Delete{
+func(client *Client) DeleteSite(id int) *response.DeleteResponse {
 	deleteResp, err := client.siteEndpoint.delete(id)
 
 	if err != nil {

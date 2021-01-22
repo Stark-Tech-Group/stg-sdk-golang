@@ -3,15 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"go-scripts/pkg/client"
-	"go-scripts/pkg/env"
 	"log"
 	"os"
+	"starktechgroup/stg-sdk-golang/pkg/client"
+	"starktechgroup/stg-sdk-golang/pkg/env"
 	"time"
 )
-
-const doDelete = false
-const siteId = 900000
 
 func main() {
 
@@ -23,8 +20,6 @@ func main() {
 	un := os.Getenv(env.STG_SDK_API_UN)
 	pw := os.Getenv(env.STG_SDK_API_PW)
 
-	fmt.Printf("un: %s, pw: %s", un, pw)
-
 	api := client.Client{}
 	api.Init()
 	apiStatus := api.ApiStatus()
@@ -34,11 +29,9 @@ func main() {
 	api.Login(un, pw)
 
 	equipSearchBody := client.SearchBody{
-		Query:       fmt.Sprintf("equip siteId=%d", siteId),
+		Query:       fmt.Sprintf("equip"),
 		CurrentPage: 1,
-		PageSize:    1000,
-		Sort:        "name",
-		Order:       "asc",
+		PageSize:    50,
 	}
 
 	equipResp := api.Search(equipSearchBody)
@@ -46,36 +39,5 @@ func main() {
 	for _, equip := range equipResp.Assets {
 		fmt.Printf(" Equip: %s, id: %d\n", equip.Name, equip.ID)
 
-		pointSearchBody := client.SearchBody{
-			Query:       fmt.Sprintf("point equipId=%d", equip.ID),
-			CurrentPage: 1,
-			PageSize:    1000,
-			Sort:        "name",
-			Order:       "asc",
-		}
-
-		pointResp := api.Search(pointSearchBody)
-
-		for _, point := range pointResp.Assets {
-			fmt.Printf("  Point: %s, id: %d\n", point.Name, point.ID)
-
-			if doDelete {
-				pointRes := api.DeletePoint(point.ID)
-				time.Sleep(250 * time.Nanosecond)
-				fmt.Printf("   Deleted: %s\n", pointRes.Message)
-			}
-		}
-
-		if doDelete {
-			equipDel := api.DeleteEquip(equip.ID)
-			fmt.Printf(" Equip Deleted: %s\n", equipDel.Message)
-		}
 	}
-
-	if doDelete {
-
-		siteDel := api.DeleteSite(siteId)
-		fmt.Printf(" Site Deleted: %s", siteDel.Message)
-	}
-
 }

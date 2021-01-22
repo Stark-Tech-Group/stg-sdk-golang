@@ -3,21 +3,21 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"go-scripts/internal/response"
+	"starktechgroup/stg-sdk-golang/pkg/api/response"
 )
 
 type apiStatusEndpoint struct {
 	client *Client
 }
 
-func (endpoint *apiStatusEndpoint) get() (*response.ApiStatus, error){
+func (endpoint *apiStatusEndpoint) get() (*response.StatusResponse, error){
 	resp, err := endpoint.client.get(apiStatusUrl(endpoint.client.host))
 
 	if err != nil{
 		return nil, err
 	}
 
-	apiStatus := response.ApiStatus{}
+	apiStatus := response.StatusResponse{}
 	err = json.Unmarshal(resp, &apiStatus)
 
 	if err != nil{

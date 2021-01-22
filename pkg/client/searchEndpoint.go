@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"go-scripts/internal/response"
+	"starktechgroup/stg-sdk-golang/pkg/api/response"
 )
 
 type searchEndpoint struct{
@@ -14,11 +14,9 @@ type SearchBody struct {
 	Query       string `json:"query"`
 	CurrentPage int    `json:"currentPage"`
 	PageSize    int    `json:"pageSize"`
-	Sort        string `json:"sort"`
-	Order       string `json:"order"`
 }
 
-func(searchEndpoint *searchEndpoint) search (searchBody SearchBody) (*response.Search, error){
+func(searchEndpoint *searchEndpoint) search (searchBody SearchBody) (*response.SearchResponse, error){
 	requestBody, err := json.Marshal(searchBody)
 
 	if err != nil{
@@ -31,7 +29,7 @@ func(searchEndpoint *searchEndpoint) search (searchBody SearchBody) (*response.S
 		return nil, err
 	}
 
-	search := response.Search{}
+	search := response.SearchResponse{}
 
 	err = json.Unmarshal(resp, &search)
 

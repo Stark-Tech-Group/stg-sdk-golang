@@ -23,7 +23,6 @@ type Client struct{
 	host string
 }
 
-
 func(client *Client) Init() *Client{
 	client.apiStatusEndpoint = apiStatusEndpoint{client}
 	client.loginEndpoint = loginEndpoint{client}
@@ -153,4 +152,16 @@ func(client *Client) doRequest( req *http.Request) ([]byte, error){
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func(client *Client) getSiteEndPoint() siteEndpoint {
+	return client.siteEndpoint
+}
+
+func(client *Client) getEquipEndpoint() equipEndpoint {
+	return client.equipEndpoint
+}
+
+func(client *Client) getPointEndpoint() pointEndpoint {
+	return client.pointEndpoint
 }

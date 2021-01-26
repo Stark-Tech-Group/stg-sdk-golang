@@ -6,11 +6,11 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
-type equipEndpoint struct{
+type EquipEndpoint struct{
 	client *Client
 }
 
-func (equipEndpoint *equipEndpoint) delete(id int) (*response.DeleteResponse, error){
+func (equipEndpoint *EquipEndpoint) delete(id int) (*response.DeleteResponse, error){
 
 	resp, err := equipEndpoint.client.delete(equipUrl(equipEndpoint.client.host, id))
 

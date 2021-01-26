@@ -13,25 +13,24 @@ import (
 type Client struct{
 
 	apiStatusEndpoint apiStatusEndpoint
-	loginEndpoint loginEndpoint
-	searchEndpoint searchEndpoint
-	pointEndpoint pointEndpoint
-	equipEndpoint equipEndpoint
-	siteEndpoint siteEndpoint
-	auth *response.AuthResponse
-	httpClient *http.Client
-	host string
+	loginEndpoint     loginEndpoint
+	searchEndpoint    searchEndpoint
+	pointEndpoint     pointEndpoint
+	equipEndpoint     EquipEndpoint
+	siteEndpoint      SiteEndpoint
+	auth              *response.AuthResponse
+	httpClient        *http.Client
+	host              string
 }
-
 
 func(client *Client) Init() *Client{
 	client.apiStatusEndpoint = apiStatusEndpoint{client}
 	client.loginEndpoint = loginEndpoint{client}
 	client.searchEndpoint = searchEndpoint{client}
 	client.pointEndpoint = pointEndpoint{client}
-	client.equipEndpoint = equipEndpoint{client}
-	client.equipEndpoint = equipEndpoint{client}
-	client.siteEndpoint = siteEndpoint{client}
+	client.equipEndpoint = EquipEndpoint{client}
+	client.equipEndpoint = EquipEndpoint{client}
+	client.siteEndpoint = SiteEndpoint{client}
 	client.httpClient = &http.Client{}
 	client.host = os.Getenv(env.STG_SDK_API_HOST)
 
@@ -112,45 +111,54 @@ func (client *Client) get(url string) ([]byte, error){
 		return nil, err
 	}
 
-
 	return ioutil.ReadAll(resp.Body)
 }
 
 func (client *Client) post(url string, requestBody []byte) ([]byte, error){
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
 }
 
 func (client *Client) delete(url string) ([]byte, error){
-
-	req, _ := http.NewRequest("DELETE", url, nil)
-
-	client.setHeader(req)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
 }
 
 func (client *Client) authPost(url string, requestBody []byte) ([]byte, error){
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-
-	client.setHeader(req)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
-
 }
 
 func (client *Client) setHeader(req *http.Request){
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s",client.auth.AccessToken))
-	req.Header.Set("Content-Type", "application/json")
+	if client.auth != nil {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
+		req.Header.Set("Content-Type", "application/json")
+	}
 }
 
 func(client *Client) doRequest( req *http.Request) ([]byte, error){
+	client.setHeader(req)
 	resp, err := client.httpClient.Do(req)
 
 	if err != nil{
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func(client *Client) GetSiteEndpoint() SiteEndpoint {
+	return client.siteEndpoint
 }

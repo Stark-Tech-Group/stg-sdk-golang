@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -39,6 +38,29 @@ func main() {
 
 	for _, equip := range equipResp.Assets {
 		fmt.Printf(" Equip: %s, id: %d\n", equip.Name, equip.ID)
-
 	}
+
+	testEquip()
+}
+
+func testEquip() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+
+	api := client.Client{}
+	api.Init()
+	api.Login(un, pw)
+
+	siteApi := api.GetSiteEndpoint()
+	site, err := siteApi.Get(1)
+	if err != nil {
+		log.Fatalf("error getting site. %v", err)
+	}
+	log.Printf( "site %s", site.Name)
+
+
 }

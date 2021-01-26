@@ -39,6 +39,8 @@ func main() {
 	for _, equip := range equipResp.Assets {
 		fmt.Printf(" Equip: %s, id: %d\n", equip.Name, equip.ID)
 	}
+
+	testEquip()
 }
 
 func testEquip() {
@@ -53,7 +55,12 @@ func testEquip() {
 	api.Init()
 	api.Login(un, pw)
 
-	equipEndpoint := api.
+	siteApi := api.GetSiteEndpoint()
+	site, err := siteApi.Get(1)
+	if err != nil {
+		log.Fatalf("error getting site. %v", err)
+	}
+	log.Printf( "site %s", site.Name)
 
 
 }

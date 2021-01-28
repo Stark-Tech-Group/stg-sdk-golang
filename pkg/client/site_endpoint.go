@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type siteEndpoint struct{
+type SiteEndpoint struct{
 	client *Client
 }
 
-func (siteEndpoint *siteEndpoint) delete(id int) (*response.DeleteResponse, error){
+func (siteEndpoint *SiteEndpoint) delete(id int) (*response.DeleteResponse, error){
 
 	resp, err := siteEndpoint.client.delete(siteUrl(siteEndpoint.client.host, id))
 
@@ -35,4 +36,18 @@ func sitesUrl(host string) string {
 
 func siteUrl(host string , id int) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
+}
+
+func (siteEndpoint *SiteEndpoint) Get(id int) (domain.Site, error) {
+	var site domain.Site
+	resp, err := siteEndpoint.client.get(siteUrl(siteEndpoint.client.host, id))
+
+	if err != nil { return site, err }
+
+	err = json.Unmarshal(resp, &site)
+	if err != nil{
+		return site, err
+	}
+
+	return site, nil
 }

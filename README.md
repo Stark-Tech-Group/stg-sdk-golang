@@ -1,5 +1,5 @@
 # stg-sdk-golang
-
+![Build-Test](https://github.com/Stark-Tech-Group/stg-sdk-golang/workflows/Go/badge.svg)
 GoLang sdk for The Stark Platform
 
 ## :wrench: Setup 

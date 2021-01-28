@@ -57,14 +57,14 @@ func (client *Client) ApiStatus() (*response.StatusResponse, error) {
 	return status, nil
 }
 
-func(client *Client) Search(body SearchBody) *response.SearchResponse {
+func(client *Client) Search(body SearchBody) (*response.SearchResponse, error) {
 	search, err := client.searchEndpoint.search(body)
 
 	if err != nil{
-		panic(err)
+		return nil, err
 	}
 
-	return search
+	return search, nil
 }
 
 func(client *Client) DeletePoint(id int) *response.DeleteResponse {
@@ -113,40 +113,50 @@ func (client *Client) get(url string) ([]byte, error){
 }
 
 func (client *Client) post(url string, requestBody []byte) ([]byte, error){
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
 }
 
 func (client *Client) delete(url string) ([]byte, error){
-
-	req, _ := http.NewRequest("DELETE", url, nil)
-
-	client.setHeader(req)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
 }
 
 func (client *Client) authPost(url string, requestBody []byte) ([]byte, error){
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-
-	client.setHeader(req)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+	if err != nil{
+		return nil, err
+	}
 
 	return client.doRequest(req)
-
 }
 
 func (client *Client) setHeader(req *http.Request){
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s",client.auth.AccessToken))
-	req.Header.Set("Content-Type", "application/json")
+	if client.auth != nil {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
+		req.Header.Set("Content-Type", "application/json")
+	}
 }
 
 func(client *Client) doRequest( req *http.Request) ([]byte, error){
+	client.setHeader(req)
 	resp, err := client.httpClient.Do(req)
 
 	if err != nil{
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func(client *Client) GetSiteEndpoint() SiteEndpoint {
+	return client.siteEndpoint
 }

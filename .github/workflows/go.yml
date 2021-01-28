@@ -20,4 +20,4 @@ jobs:
         go-version: 1.15
 
     - name: Test
-      run: go env -v ./cmd/
+      run: go test -v ./cmd

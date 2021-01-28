@@ -4,35 +4,33 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 type Client struct{
 
 	apiStatusEndpoint apiStatusEndpoint
-	loginEndpoint     loginEndpoint
-	searchEndpoint    searchEndpoint
-	pointEndpoint     pointEndpoint
-	equipEndpoint     EquipEndpoint
-	siteEndpoint      SiteEndpoint
-	auth              *response.AuthResponse
-	httpClient        *http.Client
-	host              string
+	loginEndpoint loginEndpoint
+	searchEndpoint searchEndpoint
+	pointEndpoint pointEndpoint
+	equipEndpoint EquipEndpoint
+	siteEndpoint SiteEndpoint
+	auth *response.AuthResponse
+	httpClient *http.Client
+	host string
 }
 
-func(client *Client) Init() *Client{
+
+func(client *Client) Init(host string) *Client{
 	client.apiStatusEndpoint = apiStatusEndpoint{client}
 	client.loginEndpoint = loginEndpoint{client}
 	client.searchEndpoint = searchEndpoint{client}
 	client.pointEndpoint = pointEndpoint{client}
 	client.equipEndpoint = EquipEndpoint{client}
-	client.equipEndpoint = EquipEndpoint{client}
 	client.siteEndpoint = SiteEndpoint{client}
 	client.httpClient = &http.Client{}
-	client.host = os.Getenv(env.STG_SDK_API_HOST)
+	client.host = host
 
 	fmt.Printf("Host: %s\n", client.host)
 
@@ -40,24 +38,23 @@ func(client *Client) Init() *Client{
 }
 
 
-func (client *Client) Login(un string, pw string){
+func (client *Client) Login(un string, pw string) (*response.AuthResponse, error){
 	login, err := client.loginEndpoint.login(un, pw)
 
 	if err != nil{
-		panic(err)
+		return nil, err
 	}
 
 	client.auth = login
+	return client.auth, nil
 }
 
-func (client *Client) ApiStatus() *response.StatusResponse {
+func (client *Client) ApiStatus() (*response.StatusResponse, error) {
 	status, err := client.apiStatusEndpoint.get()
 
-	if err != nil{
-		panic(err)
-	}
+	if err != nil {return nil, err }
 
-	return status
+	return status, nil
 }
 
 func(client *Client) Search(body SearchBody) *response.SearchResponse {
@@ -111,54 +108,45 @@ func (client *Client) get(url string) ([]byte, error){
 		return nil, err
 	}
 
+
 	return ioutil.ReadAll(resp.Body)
 }
 
 func (client *Client) post(url string, requestBody []byte) ([]byte, error){
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 
-	if err != nil{
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 
 	return client.doRequest(req)
 }
 
 func (client *Client) delete(url string) ([]byte, error){
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil{
-		return nil, err
-	}
+
+	req, _ := http.NewRequest("DELETE", url, nil)
+
+	client.setHeader(req)
 
 	return client.doRequest(req)
 }
 
 func (client *Client) authPost(url string, requestBody []byte) ([]byte, error){
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-	if err != nil{
-		return nil, err
-	}
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+
+	client.setHeader(req)
 
 	return client.doRequest(req)
+
 }
 
 func (client *Client) setHeader(req *http.Request){
-	if client.auth != nil {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
-		req.Header.Set("Content-Type", "application/json")
-	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s",client.auth.AccessToken))
+	req.Header.Set("Content-Type", "application/json")
 }
 
 func(client *Client) doRequest( req *http.Request) ([]byte, error){
-	client.setHeader(req)
 	resp, err := client.httpClient.Do(req)
 
 	if err != nil{
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
-}
-
-func(client *Client) GetSiteEndpoint() SiteEndpoint {
-	return client.siteEndpoint
 }

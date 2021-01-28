@@ -12,15 +12,12 @@ type SiteEndpoint struct{
 }
 
 func (siteEndpoint *SiteEndpoint) delete(id int) (*response.DeleteResponse, error){
-
 	resp, err := siteEndpoint.client.delete(siteUrl(siteEndpoint.client.host, id))
-
 	if err != nil{
 		return nil, err
 	}
 
 	deleteResp := response.DeleteResponse{}
-
 	err = json.Unmarshal(resp, &deleteResp)
 
 	if err != nil{
@@ -40,6 +37,7 @@ func siteUrl(host string , id int) string {
 
 func (siteEndpoint *SiteEndpoint) Get(id int) (domain.Site, error) {
 	var site domain.Site
+
 	resp, err := siteEndpoint.client.get(siteUrl(siteEndpoint.client.host, id))
 
 	if err != nil { return site, err }

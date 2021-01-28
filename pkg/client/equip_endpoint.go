@@ -10,10 +10,13 @@ type EquipEndpoint struct{
 	client *Client
 }
 
+func (equipEndpoint *EquipEndpoint) host() string {
+	return equipEndpoint.client.host
+}
+
 func (equipEndpoint *EquipEndpoint) delete(id int) (*response.DeleteResponse, error){
 
-	resp, err := equipEndpoint.client.delete(equipUrl(equipEndpoint.client.host, id))
-
+	resp, err := equipEndpoint.client.delete(equipUrl(equipEndpoint.host(), id))
 	if err != nil{
 		return nil, err
 	}

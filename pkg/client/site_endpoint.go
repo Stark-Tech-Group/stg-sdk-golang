@@ -35,7 +35,15 @@ func siteUrl(host string , id int) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
 }
 
-func (siteEndpoint *SiteEndpoint) Get(id int) (domain.Site, error) {
+func (siteEndpoint *SiteEndpoint) host() string {
+	return siteEndpoint.client.host
+}
+
+func (siteEndpoint *SiteEndpoint) BaseUrl() string {
+	return fmt.Sprintf("%s/core/sites", siteEndpoint.client.host)
+}
+
+func (siteEndpoint *SiteEndpoint) GetOne(id int) (domain.Site, error) {
 	var site domain.Site
 
 	resp, err := siteEndpoint.client.get(siteUrl(siteEndpoint.client.host, id))
@@ -48,4 +56,25 @@ func (siteEndpoint *SiteEndpoint) Get(id int) (domain.Site, error) {
 	}
 
 	return site, nil
+}
+
+func (siteEndpoint *SiteEndpoint) GetAll() (domain.Sites, error) {
+	var sites domain.Sites
+	url := siteEndpoint.BaseUrl() + "/"
+	resp, err := siteEndpoint.client.get(url)
+
+	if err != nil { return sites, err }
+
+
+
+
+	err = json.Unmarshal(resp, &sites)
+
+	fmt.Printf("Count: %s\n", sites.Count)
+
+	if err != nil{
+		return sites, err
+	}
+
+	return sites, nil
 }

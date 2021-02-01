@@ -101,11 +101,16 @@ func(client *Client) DeleteSite(id int) *response.DeleteResponse {
 
 func (client *Client) get(url string) ([]byte, error){
 	req, _ := http.NewRequest("GET", url, nil)
+	client.setHeader(req)
 
 	resp, err := client.httpClient.Do(req)
 
 	if err != nil{
 		return nil, err
+	}
+
+	if resp.StatusCode >= 299 {
+		return nil, fmt.Errorf("unexpected response code [%s]", resp.Status)
 	}
 
 

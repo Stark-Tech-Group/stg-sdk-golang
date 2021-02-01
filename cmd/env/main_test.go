@@ -11,7 +11,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	err := godotenv.Load("../.env.test")
+	err := godotenv.Load("../../.env.test")
 	if err != nil {
 		log.Fatal("Error loading .env.test file", err)
 	}
@@ -27,7 +27,7 @@ func TestApiStatus(t *testing.T) {
 
 	status, err := api.ApiStatus()
 	if err != nil {
-		t.Error("Failed to get api status")
+		t.Error("Failed to get apis status")
 	}
 
 	fmt.Printf(" Api = { Build: %x, Version: %s, Date: %d }",
@@ -54,6 +54,31 @@ func TestApiSearch(t *testing.T) {
 	_, err := api.Search(equipSearchBody)
 	if err != nil {
 		t.Error("Failed to get search", err)
+	}
+}
+
+func TestGetAllSites(t *testing.T) {
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	api := client.Client{}
+	api.Init(host)
+
+	api.Login(un, pw)
+
+	fmt.Printf("un: %s\n", un)
+
+	endpoint := api.GetSiteEndpoint()
+	sites, err := endpoint.GetAll()
+
+	if err != nil {
+		t.Error("Failed to get SiteEndpoint.GetAll", err)
+	}
+	fmt.Printf("count: %x\n", sites.Count)
+
+	for _, site := range sites.Sites {
+		fmt.Printf("Site: %p\n", &site)
 	}
 
 }

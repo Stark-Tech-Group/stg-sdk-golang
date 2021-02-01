@@ -43,6 +43,9 @@ func (siteEndpoint *SiteEndpoint) BaseUrl() string {
 	return fmt.Sprintf("%s/core/sites", siteEndpoint.client.host)
 }
 
+/*
+returns one site provided the id
+ */
 func (siteEndpoint *SiteEndpoint) GetOne(id int) (domain.Site, error) {
 	var site domain.Site
 
@@ -57,7 +60,9 @@ func (siteEndpoint *SiteEndpoint) GetOne(id int) (domain.Site, error) {
 
 	return site, nil
 }
-
+/*
+returns all the sites the current auth has access to
+ */
 func (siteEndpoint *SiteEndpoint) GetAll() (domain.Sites, error) {
 	var sites domain.Sites
 	url := siteEndpoint.BaseUrl() + "/"
@@ -65,12 +70,7 @@ func (siteEndpoint *SiteEndpoint) GetAll() (domain.Sites, error) {
 
 	if err != nil { return sites, err }
 
-
-
-
 	err = json.Unmarshal(resp, &sites)
-
-	fmt.Printf("Count: %s\n", sites.Count)
 
 	if err != nil{
 		return sites, err

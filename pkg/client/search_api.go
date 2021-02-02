@@ -41,5 +41,5 @@ func(searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error)
 }
 
 func searchUrl(host string) string{
-	return fmt.Sprintf("%s/core/Search/assets", host)
+	return fmt.Sprintf("%s/core/search/assets", host)
 }

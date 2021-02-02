@@ -9,8 +9,11 @@ type SearchResponse struct {
 	Order       string `json:"order"`
 	Query       struct {
 		Val     string        `json:"val"`
-		Markers []string `json:"markers"`
-		Tags    []string `json:"tags"`
+		Markers []struct {
+			Key string      `json:"key"`
+			Val interface{} `json:"val"`
+		} `json:"markers"`
+		Tags   	[]interface{} `json:"tags"`
 		Types   []struct{
 			Key string `json:"key"`
 			Val string `json:"val"`

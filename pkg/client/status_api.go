@@ -6,12 +6,12 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
-type apiStatusEndpoint struct {
+type StatusApi struct {
 	client *Client
 }
 
-func (endpoint *apiStatusEndpoint) get() (*response.StatusResponse, error){
-	resp, err := endpoint.client.get(apiStatusUrl(endpoint.client.host))
+func (statusApi *StatusApi) get() (*response.StatusResponse, error){
+	resp, err := statusApi.client.get(apiStatusUrl(statusApi.client.host))
 
 	if err != nil{
 		return nil, err

@@ -10,25 +10,25 @@ import (
 
 type Client struct{
 
-	apiStatusEndpoint apiStatusEndpoint
-	loginEndpoint loginEndpoint
-	searchEndpoint searchEndpoint
-	pointEndpoint pointEndpoint
-	equipEndpoint EquipEndpoint
-	siteEndpoint SiteEndpoint
-	auth *response.AuthResponse
-	httpClient *http.Client
-	host string
+	StatusApi     StatusApi
+	loginEndpoint authApi
+	SearchApi     SearchApi
+	PointApi      PointApi
+	EquipApi      EquipApi
+	SiteApi       SiteApi
+	auth          *response.AuthResponse
+	httpClient    *http.Client
+	host          string
 }
 
 
 func(client *Client) Init(host string) *Client{
-	client.apiStatusEndpoint = apiStatusEndpoint{client}
-	client.loginEndpoint = loginEndpoint{client}
-	client.searchEndpoint = searchEndpoint{client}
-	client.pointEndpoint = pointEndpoint{client}
-	client.equipEndpoint = EquipEndpoint{client}
-	client.siteEndpoint = SiteEndpoint{client}
+	client.StatusApi = StatusApi{client}
+	client.loginEndpoint = authApi{client}
+	client.SearchApi = SearchApi{client}
+	client.PointApi = PointApi{client}
+	client.EquipApi = EquipApi{client}
+	client.SiteApi = SiteApi{client}
 	client.httpClient = &http.Client{}
 	client.host = host
 
@@ -50,15 +50,15 @@ func (client *Client) Login(un string, pw string) (*response.AuthResponse, error
 }
 
 func (client *Client) ApiStatus() (*response.StatusResponse, error) {
-	status, err := client.apiStatusEndpoint.get()
+	status, err := client.StatusApi.get()
 
 	if err != nil {return nil, err }
 
 	return status, nil
 }
 
-func(client *Client) Search(body SearchBody) (*response.SearchResponse, error) {
-	search, err := client.searchEndpoint.search(body)
+func(client *Client) Search(body Query) (*response.SearchResponse, error) {
+	search, err := client.SearchApi.Search(body)
 
 	if err != nil{
 		return nil, err
@@ -68,7 +68,7 @@ func(client *Client) Search(body SearchBody) (*response.SearchResponse, error) {
 }
 
 func(client *Client) DeletePoint(id int) *response.DeleteResponse {
-	deleteResp, err := client.pointEndpoint.delete(id)
+	deleteResp, err := client.PointApi.delete(id)
 
 	if err != nil {
 		panic(err)
@@ -78,7 +78,7 @@ func(client *Client) DeletePoint(id int) *response.DeleteResponse {
 }
 
 func(client *Client) DeleteEquip(id int) *response.DeleteResponse {
-	deleteResp, err := client.equipEndpoint.delete(id)
+	deleteResp, err := client.EquipApi.delete(id)
 
 	if err != nil {
 		panic(err)
@@ -88,7 +88,7 @@ func(client *Client) DeleteEquip(id int) *response.DeleteResponse {
 }
 
 func(client *Client) DeleteSite(id int) *response.DeleteResponse {
-	deleteResp, err := client.siteEndpoint.delete(id)
+	deleteResp, err := client.SiteApi.delete(id)
 
 	if err != nil {
 		panic(err)
@@ -160,8 +160,4 @@ func(client *Client) doRequest( req *http.Request) ([]byte, error){
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
-}
-
-func(client *Client) GetSiteEndpoint() SiteEndpoint {
-	return client.siteEndpoint
 }

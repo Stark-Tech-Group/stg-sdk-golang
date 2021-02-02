@@ -6,24 +6,24 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
-type searchEndpoint struct{
+type SearchApi struct{
 	client *Client
 }
 
-type SearchBody struct {
+type Query struct {
 	Query       string `json:"query"`
 	CurrentPage int    `json:"currentPage"`
 	PageSize    int    `json:"pageSize"`
 }
 
-func(searchEndpoint *searchEndpoint) search (searchBody SearchBody) (*response.SearchResponse, error){
-	requestBody, err := json.Marshal(searchBody)
+func(searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error){
+	requestBody, err := json.Marshal(query)
 
 	if err != nil{
 		return nil, err
 	}
 
-	resp, err := searchEndpoint.client.authPost(searchUrl(searchEndpoint.client.host), requestBody)
+	resp, err := searchApi.client.authPost(searchUrl(searchApi.client.host), requestBody)
 
 	if err != nil{
 		return nil, err
@@ -41,5 +41,5 @@ func(searchEndpoint *searchEndpoint) search (searchBody SearchBody) (*response.S
 }
 
 func searchUrl(host string) string{
-	return fmt.Sprintf("%s/core/search/assets", host)
+	return fmt.Sprintf("%s/core/Search/assets", host)
 }

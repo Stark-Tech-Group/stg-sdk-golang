@@ -45,7 +45,7 @@ func TestApiSearch(t *testing.T) {
 
 	api.Login(un, pw)
 
-	equipSearchBody := client.SearchBody{
+	equipSearchBody := client.Query{
 		Query:       fmt.Sprintf("equip"),
 		CurrentPage: 1,
 		PageSize:    50,
@@ -69,11 +69,11 @@ func TestGetAllSites(t *testing.T) {
 
 	fmt.Printf("un: %s\n", un)
 
-	endpoint := api.GetSiteEndpoint()
-	sites, err := endpoint.GetAll()
+	siteApi := api.SiteApi
+	sites, err := siteApi.GetAll()
 
 	if err != nil {
-		t.Error("Failed to get SiteEndpoint.GetAll", err)
+		t.Error("Failed to get SiteApi.GetAll", err)
 	}
 	fmt.Printf("count: %x\n", sites.Count)
 

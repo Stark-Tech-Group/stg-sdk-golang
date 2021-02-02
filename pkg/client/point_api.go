@@ -6,13 +6,13 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
-type pointEndpoint struct{
+type PointApi struct{
 	client *Client
 }
 
-func (pointEndpoint *pointEndpoint) delete(id int) (*response.DeleteResponse, error){
+func (pointApi *PointApi) delete(id int) (*response.DeleteResponse, error){
 
-	resp, err := pointEndpoint.client.delete(pointUrl(pointEndpoint.client.host, id))
+	resp, err := pointApi.client.delete(pointUrl(pointApi.client.host, id))
 
 	if err != nil{
 		return nil, err

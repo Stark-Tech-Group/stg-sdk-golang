@@ -7,12 +7,12 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type SiteEndpoint struct{
+type SiteApi struct{
 	client *Client
 }
 
-func (siteEndpoint *SiteEndpoint) delete(id int) (*response.DeleteResponse, error){
-	resp, err := siteEndpoint.client.delete(siteUrl(siteEndpoint.client.host, id))
+func (siteApi *SiteApi) delete(id int) (*response.DeleteResponse, error){
+	resp, err := siteApi.client.delete(siteUrl(siteApi.client.host, id))
 	if err != nil{
 		return nil, err
 	}
@@ -35,21 +35,21 @@ func siteUrl(host string , id int) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
 }
 
-func (siteEndpoint *SiteEndpoint) host() string {
-	return siteEndpoint.client.host
+func (siteApi *SiteApi) host() string {
+	return siteApi.client.host
 }
 
-func (siteEndpoint *SiteEndpoint) BaseUrl() string {
-	return fmt.Sprintf("%s/core/sites", siteEndpoint.client.host)
+func (siteApi *SiteApi) BaseUrl() string {
+	return fmt.Sprintf("%s/core/sites", siteApi.client.host)
 }
 
 /*
 returns one site provided the id
  */
-func (siteEndpoint *SiteEndpoint) GetOne(id int) (domain.Site, error) {
+func (siteApi *SiteApi) GetOne(id int) (domain.Site, error) {
 	var site domain.Site
 
-	resp, err := siteEndpoint.client.get(siteUrl(siteEndpoint.client.host, id))
+	resp, err := siteApi.client.get(siteUrl(siteApi.client.host, id))
 
 	if err != nil { return site, err }
 
@@ -63,10 +63,10 @@ func (siteEndpoint *SiteEndpoint) GetOne(id int) (domain.Site, error) {
 /*
 returns all the sites the current auth has access to
  */
-func (siteEndpoint *SiteEndpoint) GetAll() (domain.Sites, error) {
+func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
 	var sites domain.Sites
-	url := siteEndpoint.BaseUrl() + "/"
-	resp, err := siteEndpoint.client.get(url)
+	url := siteApi.BaseUrl() + "/"
+	resp, err := siteApi.client.get(url)
 
 	if err != nil { return sites, err }
 

@@ -1,12 +1,20 @@
 package domain
 
+type Equips struct {
+	Count	int32 		`json:"count"`
+	Equips 	[]*Equip	`json:"equips"`
+}
+
 type Equip struct {
-	Name string `json:"name"`
-	Ref string `json:"ref"`
-	Id int32 `json:"id"`
-	Points []*Point `json:"points"`
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	Enabled bool `json:"enabled"`
-	Description string `json:"description"`
+	Id 			int32 		`json:"id"`
+	Ref 		string 		`json:"ref"`
+	Name 		string 		`json:"name"`
+	Points 		[]*Point 	`json:"points"`
+	Site 		*Site  		`json:"site"`
+	Latitude	float64 	`json:"latitude"`
+	Longitude 	float64 	`json:"longitude"`
+	Enabled 	bool 		`json:"enabled"`
+	Description	string 		`json:"description"`
+	Conn	*Conn			`json:"conn"`
+	Audit	*Audit			`json:"audit"`
 }

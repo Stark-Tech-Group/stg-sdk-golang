@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
 type EquipApi struct{
@@ -38,4 +39,29 @@ func equipsUrl(host string) string {
 
 func equipUrl(host string , id int) string {
 	return fmt.Sprintf("%s/%d", equipsUrl(host), id)
+}
+
+func (equipApi *EquipApi) BaseUrl() string {
+	return fmt.Sprintf("%s/core/equips", equipApi.client.host)
+}
+
+func (equipApi *EquipApi) CreateOne(ask domain.Equip) (domain.Equip, error) {
+	url := equipApi.BaseUrl()
+	body, err := json.Marshal(ask)
+
+	var equip domain.Equip
+	if err != nil {
+		return equip, err
+	}
+
+	resp, err := equipApi.client.post(url, body)
+	if err != nil {
+		return equip, err
+	}
+	err = json.Unmarshal(resp, &equip)
+	if err != nil {
+		return equip, err
+	}
+
+	return equip, nil
 }

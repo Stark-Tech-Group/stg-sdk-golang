@@ -80,3 +80,23 @@ func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
 	return sites, nil
 }
 
+func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
+	url := siteApi.BaseUrl()
+	body, err := json.Marshal(ask)
+
+	var site domain.Site
+	if err != nil {
+		return site, err
+	}
+
+	resp, err := siteApi.client.post(url, body)
+	if err != nil {
+		return site, err
+	}
+	err = json.Unmarshal(resp, &site)
+	if err != nil {
+		return site, err
+	}
+
+	return site, nil
+}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
 type PointApi struct{
@@ -36,3 +37,29 @@ func pointsUrl(host string) string {
 func pointUrl(host string , id int) string {
 	return fmt.Sprintf("%s/%d", pointsUrl(host), id)
 }
+
+func (pointApi *PointApi) BaseUrl() string {
+	return fmt.Sprintf("%s/core/points", pointApi.client.host)
+}
+
+func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
+	url := pointApi.BaseUrl()
+	body, err := json.Marshal(ask)
+
+	var point domain.Point
+	if err != nil {
+		return point, err
+	}
+
+	resp, err := pointApi.client.post(url, body)
+	if err != nil {
+		return point, err
+	}
+	err = json.Unmarshal(resp, &point)
+	if err != nil {
+		return point, err
+	}
+
+	return point, nil
+}
+

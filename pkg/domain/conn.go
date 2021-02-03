@@ -7,6 +7,9 @@ type Conns struct {
 
 type Conn struct {
 	Id   	int    	`json:"id"`
-	Name 	string 	`json:"name"`
+	Ref 	string 	`json:"ref"`
+	Enabled	bool 	`json:"enabled"`
+	Name 	string	`json:"name"`
 	Type 	string 	`json:"type"`
+	Audit	*Audit	`json:"audit"`
 }

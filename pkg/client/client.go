@@ -16,6 +16,7 @@ type Client struct{
 	EquipApi      	EquipApi
 	SiteApi       	SiteApi
 	ProfileApi		ProfileApi
+	ConnApi			ConnApi
 	/**/
 	loginEndpoint 	authApi
 	auth          *response.AuthResponse
@@ -35,6 +36,7 @@ func(client *Client) Init(host string) *Client{
 	client.PointApi 	= PointApi{client:client}
 	client.EquipApi 	= EquipApi{client:client}
 	client.SiteApi 		= SiteApi{client:client}
+	client.ConnApi 		= ConnApi{client:client}
 
 	return client
 }

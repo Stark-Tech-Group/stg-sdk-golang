@@ -109,3 +109,25 @@ func TestGetAllProfiles(t *testing.T) {
 	}
 
 }
+
+func TestGetAllConns(t *testing.T) {
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	api := client.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	connApi := api.ConnApi
+	items, err := connApi.GetAll()
+
+	if err != nil { t.Error("failed", err) }
+
+	fmt.Printf("count: %x\n", items.Count)
+
+	for _, item := range items.Conns {
+		fmt.Printf("conn: %p\n", &item)
+	}
+
+}

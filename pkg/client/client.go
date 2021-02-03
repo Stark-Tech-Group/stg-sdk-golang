@@ -10,12 +10,14 @@ import (
 
 type Client struct{
 
-	StatusApi     StatusApi
-	loginEndpoint authApi
-	SearchApi     SearchApi
-	PointApi      PointApi
-	EquipApi      EquipApi
-	SiteApi       SiteApi
+	StatusApi     	StatusApi
+	SearchApi     	SearchApi
+	PointApi     	PointApi
+	EquipApi      	EquipApi
+	SiteApi       	SiteApi
+	ProfileApi		ProfileApi
+	/**/
+	loginEndpoint 	authApi
 	auth          *response.AuthResponse
 	httpClient    *http.Client
 	host          string
@@ -23,16 +25,16 @@ type Client struct{
 
 
 func(client *Client) Init(host string) *Client{
-	client.StatusApi = StatusApi{client}
 	client.loginEndpoint = authApi{client}
-	client.SearchApi = SearchApi{client}
-	client.PointApi = PointApi{client}
-	client.EquipApi = EquipApi{client}
-	client.SiteApi = SiteApi{client}
 	client.httpClient = &http.Client{}
 	client.host = host
 
-	fmt.Printf("Host: %s\n", client.host)
+	client.StatusApi 	= StatusApi{client:client}
+	client.ProfileApi 	= ProfileApi{client: client}
+	client.SearchApi 	= SearchApi{client:client}
+	client.PointApi 	= PointApi{client:client}
+	client.EquipApi 	= EquipApi{client:client}
+	client.SiteApi 		= SiteApi{client:client}
 
 	return client
 }

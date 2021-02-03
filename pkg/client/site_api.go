@@ -60,6 +60,7 @@ func (siteApi *SiteApi) GetOne(id int) (domain.Site, error) {
 
 	return site, nil
 }
+
 /*
 returns all the sites the current auth has access to
  */
@@ -78,3 +79,4 @@ func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
 
 	return sites, nil
 }
+

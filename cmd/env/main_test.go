@@ -70,15 +70,42 @@ func TestGetAllSites(t *testing.T) {
 	fmt.Printf("un: %s\n", un)
 
 	siteApi := api.SiteApi
-	sites, err := siteApi.GetAll()
+	items, err := siteApi.GetAll()
 
 	if err != nil {
-		t.Error("Failed to get SiteApi.GetAll", err)
+		t.Error("failed", err)
 	}
-	fmt.Printf("count: %x\n", sites.Count)
+	fmt.Printf("count: %x\n", items.Count)
 
-	for _, site := range sites.Sites {
-		fmt.Printf("Site: %p\n", &site)
+	for _, item := range items.Sites {
+		fmt.Printf("Site: %p\n", &item)
+	}
+
+}
+
+func TestGetAllProfiles(t *testing.T) {
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	api := client.Client{}
+	api.Init(host)
+
+	api.Login(un, pw)
+
+	fmt.Printf("un: %s\n", un)
+
+	profileApi := api.ProfileApi
+	items, err := profileApi.GetAll()
+
+	if err != nil {
+		t.Error("failed", err)
+	}
+
+	fmt.Printf("count: %x\n", items.Count)
+
+	for _, item := range items.Profiles {
+		fmt.Printf("profile: %p\n", &item)
 	}
 
 }

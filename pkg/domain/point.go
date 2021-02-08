@@ -10,7 +10,7 @@ type Point struct {
 	Ref 		string 	`json:"ref"`
 	Name 		string 	`json:"site"`
 	Description	string 	`json:"description"`
-	Urid		interface{} `json:"urid"`
+	Urid		Urid `json:"urid"`
 	Unit 		string 	`json:"unit"`
 	Enabled		bool 	`json:"enabled"`
 	Equip 		*Equip  `json:"equip"`

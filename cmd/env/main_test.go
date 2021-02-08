@@ -129,5 +129,37 @@ func TestGetAllConns(t *testing.T) {
 	for _, item := range items.Conns {
 		fmt.Printf("conn: %p\n", &item)
 	}
-
 }
+
+/*
+func TestAzure(t *testing.T) {
+
+
+	az :=	os.Getenv(env.STG_WEATHER_EVENT_HUB_CONN)
+
+	fmt.Printf("az: %s\n",az)
+	api := azure.EventHubApi{}
+	api.Init(az)
+
+
+	event := map[string]interface{}{
+		"ts": time.Now().Unix(),
+		"device_id": "123456789",
+		"oaTmpF": 1.0,
+		"oaRh": 2.0,
+		"oaCond": 3.0,
+	}
+
+
+	var data []byte
+	data, err := json.Marshal(event)
+	if err != nil { t.Error("failed", err) }
+
+	err = api.Send(data)
+	if err != nil { t.Error("failed", err) }
+
+
+
+	//fmt.Printf("data: %p\n", &data)
+}
+*/

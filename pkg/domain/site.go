@@ -21,4 +21,5 @@ type Site struct{
 	GeoAddress2 	string 		`json:"geoAddress2"`
 	GeoPostalCode 	string 		`json:"geoPostalCode"`
 	Audit 			*Audit		`json:"audit"`
+	Conn			*Conn		`json:"conn"`
 }

@@ -6,14 +6,15 @@ type Points struct {
 }
 
 type Point struct {
-	Id 			int32 	`json:"id"`
-	Ref 		string 	`json:"ref"`
-	Name 		string 	`json:"site"`
-	Description	string 	`json:"description"`
-	Urid		Urid `json:"urid"`
-	Unit 		string 	`json:"unit"`
-	Enabled		bool 	`json:"enabled"`
-	Equip 		*Equip  `json:"equip"`
-	Conn		*Conn	`json:"conn"`
-	Audit		*Audit	`json:"audit"`
+	Id 			int32 		`json:"id"`
+	Ref 		string 		`json:"ref"`
+	Name 		string 		`json:"site"`
+	Description	string 		`json:"description"`
+	Urid		Urid 		`json:"urid"`
+	PointType	PointType 	`json:"pointType"`
+	Unit 		string 		`json:"unit"`
+	Enabled		bool 		`json:"enabled"`
+	Equip 		*Equip  	`json:"equip"`
+	Conn		*Conn		`json:"conn"`
+	Audit		*Audit		`json:"audit"`
 }

@@ -63,3 +63,19 @@ func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
 	return point, nil
 }
 
+func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value string) error {
+	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
+	ask := domain.Tag{Name: name, Value: value}
+
+	body, err := json.Marshal(ask)
+	if err != nil {
+		return err
+	}
+
+	_, err = pointApi.client.post(url, body)
+	if err != nil {
+		return err
+	}
+
+	return  nil
+}

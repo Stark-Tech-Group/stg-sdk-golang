@@ -65,3 +65,20 @@ func (equipApi *EquipApi) CreateOne(ask domain.Equip) (domain.Equip, error) {
 
 	return equip, nil
 }
+
+func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value string) error {
+	url := fmt.Sprintf("%s/%v/tags", equipApi.BaseUrl(), equip.Id)
+	ask := domain.Tag{Name: name, Value: value}
+
+	body, err := json.Marshal(ask)
+	if err != nil {
+		return err
+	}
+
+	_, err = equipApi.client.post(url, body)
+	if err != nil {
+		return err
+	}
+
+	return  nil
+}

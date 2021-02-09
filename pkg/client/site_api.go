@@ -100,3 +100,20 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 
 	return site, nil
 }
+
+func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) error {
+	url := fmt.Sprintf("%s/%v/tags", siteApi.BaseUrl(), site.Id)
+	ask := domain.Tag{Name: name, Value: value}
+
+	body, err := json.Marshal(ask)
+	if err != nil {
+		return err
+	}
+
+	_, err = siteApi.client.post(url, body)
+	if err != nil {
+		return err
+	}
+
+	return  nil
+}

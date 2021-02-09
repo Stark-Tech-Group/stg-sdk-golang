@@ -6,6 +6,7 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type Client struct{
@@ -164,4 +165,10 @@ func(client *Client) doRequest( req *http.Request) ([]byte, error){
 		return nil, err
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func (client *Client) scrub(in []byte) []byte {
+	str := string(in)
+
+	strings.Replace("id: 0,", )
 }

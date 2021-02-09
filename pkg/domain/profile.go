@@ -6,12 +6,12 @@ type Profiles struct {
 }
 
 type Profile struct {
-	Id        	int         `json:"id"`
-	Name        string      `json:"name"`
+	Id        	int         `json:"id,omitempty"`
+	Name        string      `json:"name,omitempty"`
 	Version     int         `json:"version"`
 	Ref         string      `json:"ref"`
 	Enabled     bool        `json:"enabled"`
-	Description	interface{} `json:"description"`
+	Description	interface{} `json:"description,omitempty"`
 	Links       struct {
 		Type string `json:"type"`
 		Self string `json:"self"`

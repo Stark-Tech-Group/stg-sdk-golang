@@ -6,10 +6,10 @@ type Conns struct {
 }
 
 type Conn struct {
-	Id   	int    	`json:"id"`
-	Ref 	string 	`json:"ref"`
+	Id   	int    	`json:"id,omitempty"`
+	Ref 	string 	`json:"ref,omitempty"`
 	Enabled	bool 	`json:"enabled"`
-	Name 	string	`json:"name"`
+	Name 	string	`json:"name,omitempty"`
 	Type 	string 	`json:"type"`
 	Audit	*Audit	`json:"audit"`
 }

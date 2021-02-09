@@ -6,15 +6,15 @@ type Equips struct {
 }
 
 type Equip struct {
-	Id 			int32 		`json:"id"`
-	Ref 		string 		`json:"ref"`
+	Id 			int32 		`json:"id,omitempty"`
+	Ref 		string 		`json:"ref,omitempty"`
 	Name 		string 		`json:"name"`
 	Points 		[]*Point 	`json:"points"`
 	Site 		*Site  		`json:"site"`
-	Latitude	float64 	`json:"latitude"`
-	Longitude 	float64 	`json:"longitude"`
+	Latitude	float64 	`json:"latitude,omitempty"`
+	Longitude 	float64 	`json:"longitude,omitempty"`
 	Enabled 	bool 		`json:"enabled"`
-	Description	string 		`json:"description"`
+	Description	string 		`json:"description,omitempty"`
 	Conn	*Conn			`json:"conn"`
 	Audit	*Audit			`json:"audit"`
 }

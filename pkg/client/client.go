@@ -146,6 +146,8 @@ func (client *Client) setHeader(req *http.Request){
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
 		req.Header.Set("Content-Type", "application/json")
 	}
+
+	req.Header.Set("Client-ID", "sdk-golang")
 }
 
 func(client *Client) doRequest( req *http.Request) ([]byte, error){

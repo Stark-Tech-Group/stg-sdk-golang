@@ -140,14 +140,6 @@ func (client *Client) delete(url string) ([]byte, error){
 	return client.doRequest(req)
 }
 
-func (client *Client) authPost(url string, requestBody []byte) ([]byte, error){
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-	if err != nil{
-		return nil, err
-	}
-
-	return client.doRequest(req)
-}
 
 func (client *Client) setHeader(req *http.Request){
 	if client.auth != nil {
@@ -159,10 +151,14 @@ func (client *Client) setHeader(req *http.Request){
 func(client *Client) doRequest( req *http.Request) ([]byte, error){
 	client.setHeader(req)
 	resp, err := client.httpClient.Do(req)
+	if err != nil { return nil, err }
 
-	if err != nil{
-		return nil, err
+	if resp.StatusCode > 0 && resp.StatusCode < 300 {
+		// ok status
+		return ioutil.ReadAll(resp.Body)
 	}
-	return ioutil.ReadAll(resp.Body)
+
+	return nil, fmt.Errorf("unexpected response code [%s]", resp.Status)
+
 }
 

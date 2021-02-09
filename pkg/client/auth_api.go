@@ -32,6 +32,25 @@ func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthRespons
 	return &login, nil
 }
 
-func loginUrl(host string) string{
+func loginUrl(host string) string {
 	return fmt.Sprintf("%s/login", host)
+}
+
+func meUrl(host string) string {
+	return fmt.Sprintf("%s/core/persons/me", host)
+}
+
+/**
+Refreshes the current user's keychain
+ */
+func (authApi *authApi) RefreshKeychain() error{
+	url := meUrl(authApi.client.host) + "/refreshKeychain"
+
+	_, err := authApi.client.post(url, nil)
+
+	if err != nil{
+		return err
+	}
+
+	return nil
 }

@@ -8,7 +8,7 @@ type Points struct {
 type Point struct {
 	Id 			int32 		`json:"id,omitempty"`
 	Ref 		string 		`json:"ref,omitempty"`
-	Name 		string 		`json:"site"`
+	Name 		string 		`json:"name"`
 	Description	string 		`json:"description,omitempty"`
 	Urid		Urid 		`json:"urid"`
 	PointType	PointType 	`json:"pointType"`

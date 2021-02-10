@@ -1,4 +1,4 @@
-package client
+package starkapi
 
 import (
 	"encoding/json"

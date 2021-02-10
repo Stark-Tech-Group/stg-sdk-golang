@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/client"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"github.com/joho/godotenv"
 	"log"

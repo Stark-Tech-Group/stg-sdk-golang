@@ -1,4 +1,4 @@
-package client
+package starkapi
 
 import (
 	"encoding/json"
@@ -16,6 +16,20 @@ type Query struct {
 	PageSize    int    `json:"pageSize"`
 }
 
+/*
+convenience func to Search(Query)
+ */
+func(searchApi *SearchApi) SearchText(query string, page int, size int) (*response.SearchResponse, error){
+	return searchApi.Search(Query{
+		Query: query,
+		 CurrentPage: page,
+		 PageSize: size,
+	})
+}
+
+/**
+Search using a query
+ */
 func(searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error){
 	requestBody, err := json.Marshal(query)
 
@@ -23,7 +37,7 @@ func(searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error)
 		return nil, err
 	}
 
-	resp, err := searchApi.client.authPost(searchUrl(searchApi.client.host), requestBody)
+	resp, err := searchApi.client.post(searchUrl(searchApi.client.host), requestBody)
 
 	if err != nil{
 		return nil, err

@@ -76,6 +76,27 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 	return equips, nil
 }
 
+func (equipApi *EquipApi) UpdateOne(ask domain.Equip) (domain.Equip, error) {
+	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), ask.Id)
+	body, err := json.Marshal(ask)
+
+	var equip domain.Equip
+	if err != nil {
+		return equip, err
+	}
+
+	resp, err := equipApi.client.post(url, body)
+	if err != nil {
+		return equip, err
+	}
+	err = json.Unmarshal(resp, &equip)
+	if err != nil {
+		return equip, err
+	}
+
+	return equip, nil
+}
+
 func (equipApi *EquipApi) CreateOne(ask domain.Equip) (domain.Equip, error) {
 	url := equipApi.BaseUrl()
 	body, err := json.Marshal(ask)

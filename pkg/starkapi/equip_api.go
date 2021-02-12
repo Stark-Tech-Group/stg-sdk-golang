@@ -76,16 +76,10 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 	return equips, nil
 }
 
-func (equipApi *EquipApi) UpdateOne(id int, ask interface{}) (domain.Equip, error) {
+func (equipApi *EquipApi) UpdateOne(id int, body []byte) (domain.Equip, error) {
 	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
 
-	body, err := json.Marshal(ask)
-
 	var equip domain.Equip
-	if err != nil {
-		return equip, err
-	}
-
 	resp, err := equipApi.client.put(url, body)
 	if err != nil {
 		return equip, err

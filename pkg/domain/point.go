@@ -10,6 +10,7 @@ type Point struct {
 	Ref 		string 		`json:"ref,omitempty"`
 	Name 		string 		`json:"name"`
 	Description	string 		`json:"description,omitempty"`
+	RemoteRef	string		`json:"remoteRef,omitempty"`
 	Urid		Urid 		`json:"urid"`
 	PointType	PointType 	`json:"pointType"`
 	Unit 		string 		`json:"unit"`

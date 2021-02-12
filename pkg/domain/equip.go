@@ -11,6 +11,7 @@ type Equip struct {
 	Name 		string 		`json:"name"`
 	Points 		[]*Point 	`json:"points"`
 	Site 		*Site  		`json:"site"`
+	RemoteRef	string		`json:"remoteRef,omitempty"`
 	Latitude	float64 	`json:"latitude,omitempty"`
 	Longitude 	float64 	`json:"longitude,omitempty"`
 	Enabled 	bool 		`json:"enabled"`

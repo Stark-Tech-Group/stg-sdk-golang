@@ -45,6 +45,37 @@ func (equipApi *EquipApi) BaseUrl() string {
 	return fmt.Sprintf("%s/core/equips", equipApi.client.host)
 }
 
+func (equipApi *EquipApi) GetOne(id int) (domain.Equip, error) {
+	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
+
+	var equip domain.Equip
+
+	resp, err := equipApi.client.get(url)
+	if err != nil {
+		return equip, err
+	}
+	err = json.Unmarshal(resp, &equip)
+	if err != nil {
+		return equip, err
+	}
+
+	return equip, nil
+}
+
+func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
+	url := fmt.Sprintf("%s/", equipApi.BaseUrl())
+
+	var equips domain.Equips
+
+	resp, err := equipApi.client.get(url)
+	if err != nil { return equips, err }
+
+	err = json.Unmarshal(resp, &equips)
+	if err != nil { return equips, err }
+
+	return equips, nil
+}
+
 func (equipApi *EquipApi) CreateOne(ask domain.Equip) (domain.Equip, error) {
 	url := equipApi.BaseUrl()
 	body, err := json.Marshal(ask)

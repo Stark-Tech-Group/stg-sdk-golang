@@ -2,19 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
-	"github.com/joho/godotenv"
-	"log"
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
 	"os"
 	"testing"
 )
 
 func TestMain(m *testing.M) {
-	err := godotenv.Load("../../.env.test")
-	if err != nil {
-		log.Fatal("Error loading .env.test file", err)
-	}
+	//err := godotenv.Load("../../.env.test")
+	//if err != nil {
+//		log.Fatal("Error loading .env.test file", err)/
+	//}
 	code := m.Run()
 
 	os.Exit(code)
@@ -22,7 +20,7 @@ func TestMain(m *testing.M) {
 
 func TestApiStatus(t *testing.T) {
 	host := os.Getenv(env.STG_SDK_API_HOST)
-	api := client.Client{}
+	api := starkapi.Client{}
 	api.Init(host)
 
 	status, err := api.ApiStatus()
@@ -40,12 +38,12 @@ func TestApiSearch(t *testing.T) {
 	pw := 	os.Getenv(env.STG_SDK_API_PW)
 	host :=	os.Getenv(env.STG_SDK_API_HOST)
 
-	api := client.Client{}
+	api := starkapi.Client{}
 	api.Init(host)
 
 	api.Login(un, pw)
 
-	equipSearchBody := client.Query{
+	equipSearchBody := starkapi.Query{
 		Query:       fmt.Sprintf("equip"),
 		CurrentPage: 1,
 		PageSize:    50,
@@ -62,7 +60,7 @@ func TestGetAllSites(t *testing.T) {
 	pw := 	os.Getenv(env.STG_SDK_API_PW)
 	host :=	os.Getenv(env.STG_SDK_API_HOST)
 
-	api := client.Client{}
+	api := starkapi.Client{}
 	api.Init(host)
 
 	api.Login(un, pw)
@@ -88,7 +86,7 @@ func TestGetAllProfiles(t *testing.T) {
 	pw := 	os.Getenv(env.STG_SDK_API_PW)
 	host :=	os.Getenv(env.STG_SDK_API_HOST)
 
-	api := client.Client{}
+	api := starkapi.Client{}
 	api.Init(host)
 
 	api.Login(un, pw)
@@ -115,7 +113,7 @@ func TestGetAllConns(t *testing.T) {
 	pw := 	os.Getenv(env.STG_SDK_API_PW)
 	host :=	os.Getenv(env.STG_SDK_API_HOST)
 
-	api := client.Client{}
+	api := starkapi.Client{}
 	api.Init(host)
 	api.Login(un, pw)
 
@@ -128,6 +126,27 @@ func TestGetAllConns(t *testing.T) {
 
 	for _, item := range items.Conns {
 		fmt.Printf("conn: %p\n", &item)
+	}
+}
+
+func TestGetAllEquips(t *testing.T) {
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	api := starkapi.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	equipApi := api.EquipApi
+	items, err := equipApi.GetAll()
+
+	if err != nil { t.Error("failed", err) }
+
+	fmt.Printf("count: %x\n", items.Count)
+
+	for _, item := range items.Equips {
+		fmt.Printf("equip: %p\n", &item)
 	}
 }
 

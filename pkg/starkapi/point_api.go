@@ -70,7 +70,7 @@ func (pointApi *PointApi) UpdateOne(ask domain.Point) (domain.Point, error) {
 	var point domain.Point
 	if err != nil { return point, err }
 
-	resp, err := pointApi.client.post(url, body)
+	resp, err := pointApi.client.put(url, body)
 	if err != nil { return point, err }
 
 	err = json.Unmarshal(resp, &point)

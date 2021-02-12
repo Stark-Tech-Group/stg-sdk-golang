@@ -131,6 +131,17 @@ func (client *Client) post(url string, requestBody []byte) ([]byte, error){
 	return client.doRequest(req)
 }
 
+func (client *Client) put(url string, requestBody []byte) ([]byte, error){
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
+
+	if err != nil{
+		return nil, err
+	}
+
+	return client.doRequest(req)
+}
+
+
 func (client *Client) delete(url string) ([]byte, error){
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil{

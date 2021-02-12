@@ -85,7 +85,7 @@ func (equipApi *EquipApi) UpdateOne(ask domain.Equip) (domain.Equip, error) {
 		return equip, err
 	}
 
-	resp, err := equipApi.client.post(url, body)
+	resp, err := equipApi.client.put(url, body)
 	if err != nil {
 		return equip, err
 	}

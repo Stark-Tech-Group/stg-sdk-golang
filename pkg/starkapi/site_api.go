@@ -101,6 +101,22 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 	return site, nil
 }
 
+func (siteApi *SiteApi) UpdateOne(ask domain.Site) (domain.Site, error) {
+	url := fmt.Sprintf("%s/%v", siteApi.BaseUrl(), ask.Id)
+	body, err := json.Marshal(ask)
+
+	var site domain.Site
+	if err != nil { return site, err }
+
+	resp, err := siteApi.client.put(url, body)
+	if err != nil { return site, err }
+
+	err = json.Unmarshal(resp, &site)
+	if err != nil { return site, err }
+
+	return site, nil
+}
+
 func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) error {
 	url := fmt.Sprintf("%s/%v/tags", siteApi.BaseUrl(), site.Id)
 	ask := domain.Tag{Name: name, Value: value}

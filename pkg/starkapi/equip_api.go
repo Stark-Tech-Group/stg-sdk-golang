@@ -76,8 +76,9 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 	return equips, nil
 }
 
-func (equipApi *EquipApi) UpdateOne(ask domain.Equip) (domain.Equip, error) {
-	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), ask.Id)
+func (equipApi *EquipApi) UpdateOne(id int, ask interface{}) (domain.Equip, error) {
+	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
+
 	body, err := json.Marshal(ask)
 
 	var equip domain.Equip

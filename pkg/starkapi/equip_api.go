@@ -76,18 +76,16 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 	return equips, nil
 }
 
-func (equipApi *EquipApi) UpdateOne(id int, body []byte) (domain.Equip, error) {
+
+func (equipApi *EquipApi) UpdateOne(id int, jsonBody []byte) (domain.Equip, error) {
 	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
 
 	var equip domain.Equip
-	resp, err := equipApi.client.put(url, body)
-	if err != nil {
-		return equip, err
-	}
+	resp, err := equipApi.client.put(url, jsonBody)
+	if err != nil { return equip, err }
+
 	err = json.Unmarshal(resp, &equip)
-	if err != nil {
-		return equip, err
-	}
+	if err != nil { return equip, err }
 
 	return equip, nil
 }

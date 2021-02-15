@@ -63,14 +63,11 @@ func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
 	return point, nil
 }
 
-func (pointApi *PointApi) UpdateOne(ask domain.Point) (domain.Point, error) {
-	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), ask.Id)
-	body, err := json.Marshal(ask)
+func (pointApi *PointApi) UpdateOne(id int, jsonBody []byte)(domain.Point, error) {
+	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 
 	var point domain.Point
-	if err != nil { return point, err }
-
-	resp, err := pointApi.client.put(url, body)
+	resp, err := pointApi.client.put(url, jsonBody)
 	if err != nil { return point, err }
 
 	err = json.Unmarshal(resp, &point)

@@ -25,16 +25,16 @@ Stark Tech Group is a leader in facility optimization, aligning technology with 
 Getting the most recent value for a pointId
 ```go
 
-	api := starkapi.Client{}
-	api.Init(host)
-	api.Login(un, pw)
+api := starkapi.Client{}
+api.Init(host)
+api.Login(un, pw)
 
-	pointApi := api.PointApi
+pointApi := api.PointApi
 
-	pointId := 100
-	curVal, err := pointApi.CurVal(pointId)
+pointId := 100
+curVal, err := pointApi.CurVal(pointId)
  
-  fmt.Printf("cur val: %v\n", curVal.Read.Val)
+ fmt.Printf("cur val: %v\n", curVal.Read.Val)
 
 ```
 
@@ -42,16 +42,16 @@ Getting the most recent value for a pointId
 Getting 1000 history reads from a pointId and unix epoch start and end
 ```go
 
-	api := starkapi.Client{}
-	api.Init(host)
-	api.Login(un, pw)
+api := starkapi.Client{}
+api.Init(host)
+api.Login(un, pw)
 
-	pointApi := api.PointApi
+pointApi := api.PointApi
 
-	pointId, limit, start, end := 100, 1000, 1614024121, 1614110821
-	hisRead, err := pointApi.HisRead(pointId, int16(limit), int64(start), int64(end))
+pointId, limit, start, end := 100, 1000, 1614024121, 1614110821
+hisRead, err := pointApi.HisRead(pointId, int16(limit), int64(start), int64(end))
   
-	for _, his := range hisRead.His {
-		fmt.Printf("his read val: %v\n", his.Val)
-	}
+for _, his := range hisRead.His {
+	fmt.Printf("his read val: %v\n", his.Val)
+}
 ```

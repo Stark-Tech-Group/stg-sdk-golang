@@ -6,14 +6,19 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
+const (
+	username = "username"
+	password = "password"
+)
+
 type authApi struct{
 	client *Client
 }
 
 func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthResponse, error){
 	requestBody, err := json.Marshal(map[string]string{
-		"username": un,
-		"password": pw,
+		username: un,
+		password: pw,
 	})
 
 	if err != nil{

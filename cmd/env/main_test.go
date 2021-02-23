@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
+	"log"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -148,6 +150,74 @@ func TestGetAllEquips(t *testing.T) {
 	for _, item := range items.Equips {
 		fmt.Printf("equip: %p\n", &item)
 	}
+}
+func TestGetOnePoint(t *testing.T) {
+
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	testId := 3857
+
+	api := starkapi.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	pointApi := api.PointApi
+	point, err := pointApi.GetOne(testId)
+
+	if err != nil { t.Error("failed", err) }
+
+	if testId != int(point.Id) { t.Fail() }
+}
+
+func TestCurValPoint(t *testing.T) {
+
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	testId := 3857
+
+	api := starkapi.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	pointApi := api.PointApi
+
+	for i := 0; i < 10; i++ {
+		curVal, err := pointApi.CurVal(testId)
+		if err != nil { t.Error("failed", err) }
+
+		log.Printf("curVal: %v", curVal.Read.Val)
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func TestHisReadPoint(t *testing.T) {
+
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	testId := 3857
+
+	api := starkapi.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	pointApi := api.PointApi
+
+	hisRead, err := pointApi.HisRead(testId, int16(1000), int64(1614024121), int64(1614110821))
+	if err != nil { t.Error("failed", err) }
+	fmt.Printf("count: %x\n", hisRead.Size)
+
+	for _, his := range hisRead.His {
+		fmt.Printf("val: %v\n", his.Val)
+	}
+
+
+
 }
 
 /*

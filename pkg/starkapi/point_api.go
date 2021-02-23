@@ -92,3 +92,45 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 
 	return  nil
 }
+
+func (pointApi *PointApi) GetOne(id int) (domain.Point, error) {
+	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
+
+	var point domain.Point
+
+	resp, err := pointApi.client.get(url)
+	if err != nil { return point, err }
+
+	err = json.Unmarshal(resp, &point)
+	if err != nil { return point, err }
+
+	return point, nil
+}
+
+func (pointApi *PointApi) CurVal(id int) (domain.CurVal, error) {
+	url := fmt.Sprintf("%s/%v/%s", pointApi.BaseUrl(), id, "curVal")
+
+	var curVal domain.CurVal
+
+	resp, err := pointApi.client.get(url)
+	if err != nil { return curVal, err }
+
+	err = json.Unmarshal(resp, &curVal)
+	if err != nil { return curVal, err }
+
+	return curVal, nil
+}
+
+func (pointApi *PointApi) HisRead(id int, limit int16, start int64, end int64) (domain.HisRead, error) {
+	url := fmt.Sprintf("%s/%v/%s?limit=%v&start=%v&end=%v", pointApi.BaseUrl(), id, "hisRead", limit, start, end)
+
+	var hisRead domain.HisRead
+
+	resp, err := pointApi.client.get(url)
+	if err != nil { return hisRead, err }
+
+	err = json.Unmarshal(resp, &hisRead)
+	if err != nil { return hisRead, err }
+
+	return hisRead, nil
+}

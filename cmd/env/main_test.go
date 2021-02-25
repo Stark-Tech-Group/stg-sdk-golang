@@ -200,15 +200,14 @@ func TestHisReadPoint(t *testing.T) {
 	pw := 	os.Getenv(env.STG_SDK_API_PW)
 	host :=	os.Getenv(env.STG_SDK_API_HOST)
 
-	testId := 3857
-
 	api := starkapi.Client{}
 	api.Init(host)
 	api.Login(un, pw)
 
 	pointApi := api.PointApi
 
-	hisRead, err := pointApi.HisRead(testId, int16(1000), int64(1614024121), int64(1614110821))
+	pointId, limit, start, end := 3857, 1000, 1614024121, 1614110821
+	hisRead, err := pointApi.HisRead(pointId, int16(limit), int64(start), int64(end))
 	if err != nil { t.Error("failed", err) }
 	fmt.Printf("count: %x\n", hisRead.Size)
 

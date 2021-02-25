@@ -11,7 +11,7 @@ type PointApi struct{
 	client *Client
 }
 
-func (pointApi *PointApi) delete(id int) (*response.DeleteResponse, error){
+func (pointApi *PointApi) delete(id uint32) (*response.DeleteResponse, error){
 
 	resp, err := pointApi.client.delete(pointUrl(pointApi.client.host, id))
 
@@ -34,7 +34,7 @@ func pointsUrl(host string) string {
 	return fmt.Sprintf("%s/core/points",host)
 }
 
-func pointUrl(host string , id int) string {
+func pointUrl(host string , id uint32) string {
 	return fmt.Sprintf("%s/%d", pointsUrl(host), id)
 }
 
@@ -63,7 +63,7 @@ func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
 	return point, nil
 }
 
-func (pointApi *PointApi) UpdateOne(id int, jsonBody []byte)(domain.Point, error) {
+func (pointApi *PointApi) UpdateOne(id uint32, jsonBody []byte)(domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 
 	var point domain.Point
@@ -93,7 +93,7 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 	return  nil
 }
 
-func (pointApi *PointApi) GetOne(id int) (domain.Point, error) {
+func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 
 	var point domain.Point
@@ -107,7 +107,7 @@ func (pointApi *PointApi) GetOne(id int) (domain.Point, error) {
 	return point, nil
 }
 
-func (pointApi *PointApi) CurVal(id int) (domain.CurVal, error) {
+func (pointApi *PointApi) CurVal(id uint32) (domain.CurVal, error) {
 	url := fmt.Sprintf("%s/%v/%s", pointApi.BaseUrl(), id, "curVal")
 
 	var curVal domain.CurVal
@@ -121,7 +121,7 @@ func (pointApi *PointApi) CurVal(id int) (domain.CurVal, error) {
 	return curVal, nil
 }
 
-func (pointApi *PointApi) HisRead(id int, limit int16, start int64, end int64) (domain.HisRead, error) {
+func (pointApi *PointApi) HisRead(id uint32, limit uint16, start uint64, end uint64) (domain.HisRead, error) {
 	url := fmt.Sprintf("%s/%v/%s?limit=%v&start=%v&end=%v", pointApi.BaseUrl(), id, "hisRead", limit, start, end)
 
 	var hisRead domain.HisRead

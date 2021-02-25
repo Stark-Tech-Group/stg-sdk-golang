@@ -10,6 +10,7 @@ import (
 
 type Client struct{
 
+	AssetTreeApi	AssetTreeApi
 	StatusApi     	StatusApi
 	SearchApi     	SearchApi
 	PointApi     	PointApi
@@ -37,6 +38,7 @@ func(client *Client) Init(host string) *Client{
 	client.EquipApi 	= EquipApi{client:client}
 	client.SiteApi 		= SiteApi{client:client}
 	client.ConnApi 		= ConnApi{client:client}
+	client.AssetTreeApi	= AssetTreeApi{client:client}
 
 	return client
 }
@@ -54,7 +56,7 @@ func (client *Client) Login(un string, pw string) (*response.AuthResponse, error
 }
 
 func (client *Client) ApiStatus() (*response.StatusResponse, error) {
-	status, err := client.StatusApi.get()
+	status, err := client.StatusApi.Get()
 
 	if err != nil {return nil, err }
 
@@ -71,7 +73,7 @@ func(client *Client) Search(body Query) (*response.SearchResponse, error) {
 	return search, nil
 }
 
-func(client *Client) DeletePoint(id int) *response.DeleteResponse {
+func(client *Client) DeletePoint(id uint32) *response.DeleteResponse {
 	deleteResp, err := client.PointApi.delete(id)
 
 	if err != nil {
@@ -81,7 +83,7 @@ func(client *Client) DeletePoint(id int) *response.DeleteResponse {
 	return deleteResp
 }
 
-func(client *Client) DeleteEquip(id int) *response.DeleteResponse {
+func(client *Client) DeleteEquip(id uint32) *response.DeleteResponse {
 	deleteResp, err := client.EquipApi.delete(id)
 
 	if err != nil {
@@ -91,7 +93,7 @@ func(client *Client) DeleteEquip(id int) *response.DeleteResponse {
 	return deleteResp
 }
 
-func(client *Client) DeleteSite(id int) *response.DeleteResponse {
+func(client *Client) DeleteSite(id uint32) *response.DeleteResponse {
 	deleteResp, err := client.SiteApi.delete(id)
 
 	if err != nil {

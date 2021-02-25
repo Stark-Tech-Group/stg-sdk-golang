@@ -10,7 +10,7 @@ type StatusApi struct {
 	client *Client
 }
 
-func (statusApi *StatusApi) get() (*response.StatusResponse, error){
+func (statusApi *StatusApi) Get() (*response.StatusResponse, error){
 	resp, err := statusApi.client.get(apiStatusUrl(statusApi.client.host))
 
 	if err != nil{

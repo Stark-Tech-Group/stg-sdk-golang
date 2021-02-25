@@ -19,7 +19,7 @@ func (profileApi *ProfileApi) url() string {
 }
 
 
-func (profileApi *ProfileApi) GetOne(id int) (domain.Profile, error) {
+func (profileApi *ProfileApi) GetOne(id uint32) (domain.Profile, error) {
 	var profile domain.Profile
 
 	resp, err := profileApi.client.get(fmt.Sprintf("%s/%d", profileApi.url(), id))

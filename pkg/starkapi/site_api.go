@@ -11,7 +11,7 @@ type SiteApi struct{
 	client *Client
 }
 
-func (siteApi *SiteApi) delete(id int) (*response.DeleteResponse, error){
+func (siteApi *SiteApi) delete(id uint32) (*response.DeleteResponse, error){
 	resp, err := siteApi.client.delete(siteUrl(siteApi.client.host, id))
 	if err != nil{
 		return nil, err
@@ -31,7 +31,7 @@ func sitesUrl(host string) string {
 	return fmt.Sprintf("%s/core/sites",host)
 }
 
-func siteUrl(host string , id int) string {
+func siteUrl(host string , id uint32) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
 }
 
@@ -46,7 +46,7 @@ func (siteApi *SiteApi) BaseUrl() string {
 /*
 returns one site provided the id
  */
-func (siteApi *SiteApi) GetOne(id int) (domain.Site, error) {
+func (siteApi *SiteApi) GetOne(id uint32) (domain.Site, error) {
 	var site domain.Site
 
 	resp, err := siteApi.client.get(siteUrl(siteApi.client.host, id))
@@ -101,7 +101,7 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 	return site, nil
 }
 
-func (siteApi *SiteApi) UpdateOne(id int, jsonBody []byte)(domain.Point, error) {
+func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte)(domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", siteApi.BaseUrl(), id)
 
 	var point domain.Point

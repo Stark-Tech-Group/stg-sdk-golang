@@ -164,7 +164,7 @@ func TestGetOnePoint(t *testing.T) {
 	api.Login(un, pw)
 
 	pointApi := api.PointApi
-	point, err := pointApi.GetOne(testId)
+	point, err := pointApi.GetOne(uint32(testId))
 
 	if err != nil { t.Error("failed", err) }
 
@@ -186,7 +186,7 @@ func TestCurValPoint(t *testing.T) {
 	pointApi := api.PointApi
 
 	for i := 0; i < 10; i++ {
-		curVal, err := pointApi.CurVal(testId)
+		curVal, err := pointApi.CurVal(uint32(testId))
 		if err != nil { t.Error("failed", err) }
 
 		log.Printf("curVal: %v", curVal.Read.Val)
@@ -207,31 +207,7 @@ func TestHisReadPoint(t *testing.T) {
 	pointApi := api.PointApi
 
 	pointId, limit, start, end := 3857, 1000, 1614024121, 1614110821
-	hisRead, err := pointApi.HisRead(pointId, int16(limit), int64(start), int64(end))
-	if err != nil { t.Error("failed", err) }
-	fmt.Printf("count: %x\n", hisRead.Size)
-
-	for _, his := range hisRead.His {
-		fmt.Printf("val: %v\n", his.Val)
-	}
-
-}
-
-func TestHisReadPoint(t *testing.T) {
-
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
-
-	testId := 3857
-
-	api := starkapi.Client{}
-	api.Init(host)
-	api.Login(un, pw)
-
-	pointApi := api.PointApi
-
-	hisRead, err := pointApi.HisRead(testId, int16(1000), int64(1614024121), int64(1614110821))
+	hisRead, err := pointApi.HisRead(uint32(pointId), uint16(limit), uint64(start), uint64(end))
 	if err != nil { t.Error("failed", err) }
 	fmt.Printf("count: %x\n", hisRead.Size)
 

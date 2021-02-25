@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestHisReadPoint(t *testing.T) {
+func TestGet(t *testing.T) {
 
 	un := 	os.Getenv(env.STG_SDK_API_UN)
 	pw := 	os.Getenv(env.STG_SDK_API_PW)

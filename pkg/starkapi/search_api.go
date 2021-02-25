@@ -11,15 +11,15 @@ type SearchApi struct{
 }
 
 type Query struct {
-	Query       string `json:"query"`
-	CurrentPage int    `json:"currentPage"`
-	PageSize    int    `json:"pageSize"`
+	Query       string	`json:"query"`
+	CurrentPage uint16	`json:"currentPage"`
+	PageSize    uint16  `json:"pageSize"`
 }
 
 /*
 convenience func to Search(Query)
  */
-func(searchApi *SearchApi) SearchText(query string, page int, size int) (*response.SearchResponse, error){
+func(searchApi *SearchApi) SearchText(query string, page uint16, size uint16) (*response.SearchResponse, error){
 	return searchApi.Search(Query{
 		Query: query,
 		 CurrentPage: page,
@@ -44,7 +44,6 @@ func(searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error)
 	}
 
 	search := response.SearchResponse{}
-
 	err = json.Unmarshal(resp, &search)
 
 	if err != nil{

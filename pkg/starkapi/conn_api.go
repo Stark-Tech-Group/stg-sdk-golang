@@ -14,10 +14,11 @@ func (connApi *ConnApi) BaseUrl() string {
 	return fmt.Sprintf("%s/core/conns", connApi.client.host)
 }
 
-func (connApi *ConnApi) GetOne(id int) (domain.Conn, error) {
-	var conn domain.Conn
+func (connApi *ConnApi) GetOne(id uint32) (domain.Conn, error) {
+	url := fmt.Sprintf("%s/%v", connApi.BaseUrl(), id)
 
-	resp, err := connApi.client.get(siteUrl(connApi.client.host, id))
+	var conn domain.Conn
+	resp, err := connApi.client.get(url)
 	if err != nil { return conn, err }
 
 	err = json.Unmarshal(resp, &conn)

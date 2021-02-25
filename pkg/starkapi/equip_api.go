@@ -15,7 +15,7 @@ func (equipApi *EquipApi) host() string {
 	return equipApi.client.host
 }
 
-func (equipApi *EquipApi) delete(id int) (*response.DeleteResponse, error){
+func (equipApi *EquipApi) delete(id uint32) (*response.DeleteResponse, error){
 
 	resp, err := equipApi.client.delete(equipUrl(equipApi.host(), id))
 	if err != nil{
@@ -37,7 +37,7 @@ func equipsUrl(host string) string {
 	return fmt.Sprintf("%s/core/equips",host)
 }
 
-func equipUrl(host string , id int) string {
+func equipUrl(host string , id uint32) string {
 	return fmt.Sprintf("%s/%d", equipsUrl(host), id)
 }
 
@@ -45,7 +45,7 @@ func (equipApi *EquipApi) BaseUrl() string {
 	return fmt.Sprintf("%s/core/equips", equipApi.client.host)
 }
 
-func (equipApi *EquipApi) GetOne(id int) (domain.Equip, error) {
+func (equipApi *EquipApi) GetOne(id uint32) (domain.Equip, error) {
 	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
 
 	var equip domain.Equip
@@ -77,7 +77,7 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 }
 
 
-func (equipApi *EquipApi) UpdateOne(id int, jsonBody []byte) (domain.Equip, error) {
+func (equipApi *EquipApi) UpdateOne(id uint32, jsonBody []byte) (domain.Equip, error) {
 	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
 
 	var equip domain.Equip

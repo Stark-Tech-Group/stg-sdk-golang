@@ -127,3 +127,24 @@ func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value strin
 
 	return  nil
 }
+
+func (equipApi *EquipApi) CurVals(equipId uint32, urids []string) (domain.EquipCurVals, error) {
+	url := fmt.Sprintf("%s/%v/curVals", equipApi.BaseUrl(), equipId)
+
+	var equipCurVals domain.EquipCurVals
+
+	data := struct {
+		Urids []string `json:"urids"`
+	}{urids }
+
+	body, err := json.Marshal(data)
+	if err != nil { return equipCurVals, err }
+
+	resp, err := equipApi.client.post(url, body)
+	if err != nil { return equipCurVals, err }
+
+	err = json.Unmarshal(resp, &equipCurVals)
+	if err != nil { return equipCurVals, err }
+
+	return equipCurVals, nil
+}

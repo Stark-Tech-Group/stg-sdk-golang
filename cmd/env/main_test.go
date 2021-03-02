@@ -217,6 +217,31 @@ func TestHisReadPoint(t *testing.T) {
 
 }
 
+
+func TestEquipCurVals(t *testing.T) {
+
+	un := 	os.Getenv(env.STG_SDK_API_UN)
+	pw := 	os.Getenv(env.STG_SDK_API_PW)
+	host :=	os.Getenv(env.STG_SDK_API_HOST)
+
+	api := starkapi.Client{}
+	api.Init(host)
+	api.Login(un, pw)
+
+	equipApi := api.EquipApi
+
+	urids := []string{"batVtg", "clntLvl", "clntTmp"}
+
+	curVals, err := equipApi.CurVals(uint32(124), urids)
+	if err != nil { t.Error("failed", err) }
+	fmt.Printf("count: %x\n", curVals.Reads)
+
+	for _, curVal := range curVals.Reads {
+		fmt.Printf("val: %v\n", curVal.Val)
+	}
+
+}
+
 /*
 func TestAzure(t *testing.T) {
 

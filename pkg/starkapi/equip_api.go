@@ -7,7 +7,7 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type EquipApi struct{
+type EquipApi struct {
 	client *Client
 }
 
@@ -15,10 +15,10 @@ func (equipApi *EquipApi) host() string {
 	return equipApi.client.host
 }
 
-func (equipApi *EquipApi) delete(id uint32) (*response.DeleteResponse, error){
+func (equipApi *EquipApi) delete(id uint32) (*response.DeleteResponse, error) {
 
 	resp, err := equipApi.client.delete(equipUrl(equipApi.host(), id))
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -26,18 +26,18 @@ func (equipApi *EquipApi) delete(id uint32) (*response.DeleteResponse, error){
 
 	err = json.Unmarshal(resp, &deleteResp)
 
-	if err != nil{
-		panic(err)
+	if err != nil {
+		return nil, err
 	}
 
 	return &deleteResp, nil
 }
 
 func equipsUrl(host string) string {
-	return fmt.Sprintf("%s/core/equips",host)
+	return fmt.Sprintf("%s/core/equips", host)
 }
 
-func equipUrl(host string , id uint32) string {
+func equipUrl(host string, id uint32) string {
 	return fmt.Sprintf("%s/%d", equipsUrl(host), id)
 }
 
@@ -68,24 +68,31 @@ func (equipApi *EquipApi) GetAll() (domain.Equips, error) {
 	var equips domain.Equips
 
 	resp, err := equipApi.client.get(url)
-	if err != nil { return equips, err }
+	if err != nil {
+		return equips, err
+	}
 
 	err = json.Unmarshal(resp, &equips)
-	if err != nil { return equips, err }
+	if err != nil {
+		return equips, err
+	}
 
 	return equips, nil
 }
-
 
 func (equipApi *EquipApi) UpdateOne(id uint32, jsonBody []byte) (domain.Equip, error) {
 	url := fmt.Sprintf("%s/%v", equipApi.BaseUrl(), id)
 
 	var equip domain.Equip
 	resp, err := equipApi.client.put(url, jsonBody)
-	if err != nil { return equip, err }
+	if err != nil {
+		return equip, err
+	}
 
 	err = json.Unmarshal(resp, &equip)
-	if err != nil { return equip, err }
+	if err != nil {
+		return equip, err
+	}
 
 	return equip, nil
 }
@@ -125,7 +132,7 @@ func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value strin
 		return err
 	}
 
-	return  nil
+	return nil
 }
 
 func (equipApi *EquipApi) CurVals(equipId uint32, urids []string) (domain.EquipCurVals, error) {
@@ -135,16 +142,22 @@ func (equipApi *EquipApi) CurVals(equipId uint32, urids []string) (domain.EquipC
 
 	data := struct {
 		Urids []string `json:"urids"`
-	}{urids }
+	}{urids}
 
 	body, err := json.Marshal(data)
-	if err != nil { return equipCurVals, err }
+	if err != nil {
+		return equipCurVals, err
+	}
 
 	resp, err := equipApi.client.post(url, body)
-	if err != nil { return equipCurVals, err }
+	if err != nil {
+		return equipCurVals, err
+	}
 
 	err = json.Unmarshal(resp, &equipCurVals)
-	if err != nil { return equipCurVals, err }
+	if err != nil {
+		return equipCurVals, err
+	}
 
 	return equipCurVals, nil
 }

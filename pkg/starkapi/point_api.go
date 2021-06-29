@@ -7,15 +7,15 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type PointApi struct{
+type PointApi struct {
 	client *Client
 }
 
-func (pointApi *PointApi) delete(id uint32) (*response.DeleteResponse, error){
+func (pointApi *PointApi) delete(id uint32) (*response.DeleteResponse, error) {
 
 	resp, err := pointApi.client.delete(pointUrl(pointApi.client.host, id))
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -23,18 +23,18 @@ func (pointApi *PointApi) delete(id uint32) (*response.DeleteResponse, error){
 
 	err = json.Unmarshal(resp, &deleteResp)
 
-	if err != nil{
-		panic(err)
+	if err != nil {
+		return nil, err
 	}
 
 	return &deleteResp, nil
 }
 
 func pointsUrl(host string) string {
-	return fmt.Sprintf("%s/core/points",host)
+	return fmt.Sprintf("%s/core/points", host)
 }
 
-func pointUrl(host string , id uint32) string {
+func pointUrl(host string, id uint32) string {
 	return fmt.Sprintf("%s/%d", pointsUrl(host), id)
 }
 
@@ -63,15 +63,19 @@ func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
 	return point, nil
 }
 
-func (pointApi *PointApi) UpdateOne(id uint32, jsonBody []byte)(domain.Point, error) {
+func (pointApi *PointApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 
 	var point domain.Point
 	resp, err := pointApi.client.put(url, jsonBody)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	err = json.Unmarshal(resp, &point)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	return point, nil
 }
@@ -90,7 +94,7 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 		return err
 	}
 
-	return  nil
+	return nil
 }
 
 func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
@@ -99,10 +103,14 @@ func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	var point domain.Point
 
 	resp, err := pointApi.client.get(url)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	err = json.Unmarshal(resp, &point)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	return point, nil
 }
@@ -113,10 +121,14 @@ func (pointApi *PointApi) CurVal(id uint32) (domain.CurVal, error) {
 	var curVal domain.CurVal
 
 	resp, err := pointApi.client.get(url)
-	if err != nil { return curVal, err }
+	if err != nil {
+		return curVal, err
+	}
 
 	err = json.Unmarshal(resp, &curVal)
-	if err != nil { return curVal, err }
+	if err != nil {
+		return curVal, err
+	}
 
 	return curVal, nil
 }
@@ -127,10 +139,14 @@ func (pointApi *PointApi) HisRead(id uint32, limit uint16, start uint64, end uin
 	var hisRead domain.HisRead
 
 	resp, err := pointApi.client.get(url)
-	if err != nil { return hisRead, err }
+	if err != nil {
+		return hisRead, err
+	}
 
 	err = json.Unmarshal(resp, &hisRead)
-	if err != nil { return hisRead, err }
+	if err != nil {
+		return hisRead, err
+	}
 
 	return hisRead, nil
 }

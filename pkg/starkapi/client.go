@@ -74,34 +74,34 @@ func (client *Client) Search(body Query) (*response.SearchResponse, error) {
 	return search, nil
 }
 
-func (client *Client) DeletePoint(id uint32) *response.DeleteResponse {
+func (client *Client) DeletePoint(id uint32) (*response.DeleteResponse, error) {
 	deleteResp, err := client.PointApi.delete(id)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return deleteResp
+	return deleteResp, nil
 }
 
-func (client *Client) DeleteEquip(id uint32) *response.DeleteResponse {
+func (client *Client) DeleteEquip(id uint32) (*response.DeleteResponse, error) {
 	deleteResp, err := client.EquipApi.delete(id)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return deleteResp
+	return deleteResp, nil
 }
 
-func (client *Client) DeleteSite(id uint32) *response.DeleteResponse {
+func (client *Client) DeleteSite(id uint32) (*response.DeleteResponse, error) {
 	deleteResp, err := client.SiteApi.delete(id)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return deleteResp
+	return deleteResp, nil
 }
 
 func (client *Client) get(url string) ([]byte, error) {

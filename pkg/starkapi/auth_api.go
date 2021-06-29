@@ -11,17 +11,17 @@ const (
 	password = "password"
 )
 
-type authApi struct{
+type authApi struct {
 	client *Client
 }
 
-func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthResponse, error){
+func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthResponse, error) {
 	requestBody, err := json.Marshal(map[string]string{
 		username: un,
 		password: pw,
 	})
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -30,8 +30,8 @@ func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthRespons
 	login := response.AuthResponse{}
 	err = json.Unmarshal(resp, &login)
 
-	if err != nil{
-		panic(err)
+	if err != nil {
+		return nil, err
 	}
 
 	return &login, nil
@@ -47,13 +47,13 @@ func meUrl(host string) string {
 
 /**
 Refreshes the current user's keychain
- */
-func (authApi *authApi) RefreshKeychain() error{
+*/
+func (authApi *authApi) RefreshKeychain() error {
 	url := meUrl(authApi.client.host) + "/refreshKeychain"
 
 	_, err := authApi.client.post(url, nil)
 
-	if err != nil{
+	if err != nil {
 		return err
 	}
 

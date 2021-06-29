@@ -7,31 +7,31 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type SiteApi struct{
+type SiteApi struct {
 	client *Client
 }
 
-func (siteApi *SiteApi) delete(id uint32) (*response.DeleteResponse, error){
+func (siteApi *SiteApi) delete(id uint32) (*response.DeleteResponse, error) {
 	resp, err := siteApi.client.delete(siteUrl(siteApi.client.host, id))
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
 	deleteResp := response.DeleteResponse{}
 	err = json.Unmarshal(resp, &deleteResp)
 
-	if err != nil{
-		panic(err)
+	if err != nil {
+		return nil, err
 	}
 
 	return &deleteResp, nil
 }
 
 func sitesUrl(host string) string {
-	return fmt.Sprintf("%s/core/sites",host)
+	return fmt.Sprintf("%s/core/sites", host)
 }
 
-func siteUrl(host string , id uint32) string {
+func siteUrl(host string, id uint32) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
 }
 
@@ -45,16 +45,18 @@ func (siteApi *SiteApi) BaseUrl() string {
 
 /*
 returns one site provided the id
- */
+*/
 func (siteApi *SiteApi) GetOne(id uint32) (domain.Site, error) {
 	var site domain.Site
 
 	resp, err := siteApi.client.get(siteUrl(siteApi.client.host, id))
 
-	if err != nil { return site, err }
+	if err != nil {
+		return site, err
+	}
 
 	err = json.Unmarshal(resp, &site)
-	if err != nil{
+	if err != nil {
 		return site, err
 	}
 
@@ -63,17 +65,19 @@ func (siteApi *SiteApi) GetOne(id uint32) (domain.Site, error) {
 
 /*
 returns all the sites the current auth has access to
- */
+*/
 func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
 	var sites domain.Sites
 	url := siteApi.BaseUrl() + "/"
 	resp, err := siteApi.client.get(url)
 
-	if err != nil { return sites, err }
+	if err != nil {
+		return sites, err
+	}
 
 	err = json.Unmarshal(resp, &sites)
 
-	if err != nil{
+	if err != nil {
 		return sites, err
 	}
 
@@ -101,15 +105,19 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 	return site, nil
 }
 
-func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte)(domain.Point, error) {
+func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", siteApi.BaseUrl(), id)
 
 	var point domain.Point
 	resp, err := siteApi.client.put(url, jsonBody)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	err = json.Unmarshal(resp, &point)
-	if err != nil { return point, err }
+	if err != nil {
+		return point, err
+	}
 
 	return point, nil
 }
@@ -128,5 +136,5 @@ func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) e
 		return err
 	}
 
-	return  nil
+	return nil
 }

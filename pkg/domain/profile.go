@@ -16,6 +16,6 @@ type Profile struct {
 		Type string `json:"type"`
 		Self string `json:"self"`
 	} `json:"links"`
-	Conn	*Conn			`json:"conn"`
-	Audit	*Audit			`json:"audit"`
+	Conn	Conn			`json:"conn"`
+	Audit	Audit			`json:"audit"`
 }

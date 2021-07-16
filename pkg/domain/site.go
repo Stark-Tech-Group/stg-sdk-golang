@@ -10,6 +10,7 @@ type Site struct{
 	Ref 			string 		`json:"ref,omitempty"`
 	Id 				int32 		`json:"id,omitempty"`
 	Equips 			[]*Equip 	`json:"equips"`
+	GSF				int32 		`json:"gsf,omitempty"`
 	Profile			*Profile 	`json:"profile"`
 	Latitude  		float64 	`json:"latitude,omitempty"`
 	Longitude 		float64 	`json:"longitude,omitempty"`

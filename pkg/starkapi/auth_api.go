@@ -15,7 +15,7 @@ type authApi struct {
 	client *Client
 }
 
-func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthResponse, error) {
+func (authApi *authApi) login(un string, pw string) (*response.AuthResponse, error) {
 	requestBody, err := json.Marshal(map[string]string{
 		username: un,
 		password: pw,
@@ -25,7 +25,7 @@ func (loginEndpoint *authApi) login(un string, pw string) (*response.AuthRespons
 		return nil, err
 	}
 
-	resp, err := loginEndpoint.client.post(loginUrl(loginEndpoint.client.host), requestBody)
+	resp, err := authApi.client.post(loginUrl(authApi.client.host), requestBody)
 
 	login := response.AuthResponse{}
 	err = json.Unmarshal(resp, &login)

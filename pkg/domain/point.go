@@ -15,7 +15,7 @@ type Point struct {
 	PointType	PointType 	`json:"pointType"`
 	Unit 		string 		`json:"unit"`
 	Enabled		bool 		`json:"enabled"`
-	Equip 		*Equip  	`json:"equip"`
-	Conn		*Conn		`json:"conn"`
-	Audit		*Audit		`json:"audit,omitempty"`
+	Equip 		Equip  		`json:"equip"`
+	Conn		Conn		`json:"conn"`
+	Audit		Audit		`json:"audit,omitempty"`
 }

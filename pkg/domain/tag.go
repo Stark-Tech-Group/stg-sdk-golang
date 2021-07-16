@@ -5,5 +5,5 @@ type Tag struct {
 	Ref 	string 	`json:"ref,omitempty"`
 	Name 	string	`json:"name,omitempty"`
 	Value 	string 	`json:"value,omitempty"`
-	Audit	*Audit	`json:"audit"`
+	Audit	Audit	`json:"audit"`
 }

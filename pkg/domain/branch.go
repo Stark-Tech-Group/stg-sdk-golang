@@ -24,5 +24,5 @@ type Branch struct {
 	TargetRef string `json:"targetRef"`
 	NamedPath string `json:"namedPath"`
 	Hidden    bool   `json:"hidden"`
-	Audit		*Audit		`json:"audit,omitempty"`
+	Audit	Audit		`json:"audit,omitempty"`
 }

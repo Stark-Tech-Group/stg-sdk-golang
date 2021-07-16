@@ -2,7 +2,7 @@ package domain
 
 type Conns struct {
 	Count	int32 	`json:"count"`
-	Conns 	[]*Conn	`json:"conns"`
+	Conns 	[]Conn	`json:"conns"`
 }
 
 type Conn struct {
@@ -11,5 +11,5 @@ type Conn struct {
 	Enabled	bool 	`json:"enabled"`
 	Name 	string	`json:"name,omitempty"`
 	Type 	string 	`json:"type"`
-	Audit	*Audit	`json:"audit"`
+	Audit	Audit	`json:"audit"`
 }

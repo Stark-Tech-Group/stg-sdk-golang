@@ -2,7 +2,7 @@ package domain
 
 type Points struct {
 	Count	int32 		`json:"count"`
-	Points 	[]*Point	`json:"points"`
+	Points 	[]Point	`json:"points"`
 }
 
 type Point struct {

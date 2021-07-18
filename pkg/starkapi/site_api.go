@@ -11,8 +11,8 @@ type SiteApi struct {
 	client *Client
 }
 
-func (siteApi *SiteApi) delete(id uint32) (*response.DeleteResponse, error) {
-	resp, err := siteApi.client.delete(siteUrl(siteApi.client.host, id))
+func (api *SiteApi) delete(id uint32) (*response.DeleteResponse, error) {
+	resp, err := api.client.delete(siteUrl(api.client.host, id))
 	if err != nil {
 		return nil, err
 	}
@@ -35,21 +35,21 @@ func siteUrl(host string, id uint32) string {
 	return fmt.Sprintf("%s/%d", sitesUrl(host), id)
 }
 
-func (siteApi *SiteApi) host() string {
-	return siteApi.client.host
+func (api *SiteApi) host() string {
+	return api.client.host
 }
 
-func (siteApi *SiteApi) BaseUrl() string {
-	return fmt.Sprintf("%s/core/sites", siteApi.client.host)
+func (api *SiteApi) BaseUrl() string {
+	return fmt.Sprintf("%s/core/sites", api.client.host)
 }
 
 /*
 returns one site provided the id
 */
-func (siteApi *SiteApi) GetOne(id uint32) (domain.Site, error) {
+func (api *SiteApi) GetOne(id uint32) (domain.Site, error) {
 	var site domain.Site
 
-	resp, err := siteApi.client.get(siteUrl(siteApi.client.host, id))
+	resp, err := api.client.get(siteUrl(api.client.host, id))
 
 	if err != nil {
 		return site, err
@@ -66,10 +66,10 @@ func (siteApi *SiteApi) GetOne(id uint32) (domain.Site, error) {
 /*
 returns all the sites the current auth has access to
 */
-func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
+func (api *SiteApi) GetAll() (domain.Sites, error) {
 	var sites domain.Sites
-	url := siteApi.BaseUrl() + "/"
-	resp, err := siteApi.client.get(url)
+	url := api.BaseUrl() + "/"
+	resp, err := api.client.get(url)
 
 	if err != nil {
 		return sites, err
@@ -84,8 +84,8 @@ func (siteApi *SiteApi) GetAll() (domain.Sites, error) {
 	return sites, nil
 }
 
-func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
-	url := siteApi.BaseUrl()
+func (api *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
+	url := api.BaseUrl()
 	body, err := json.Marshal(ask)
 
 	var site domain.Site
@@ -93,7 +93,7 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 		return site, err
 	}
 
-	resp, err := siteApi.client.post(url, body)
+	resp, err := api.client.post(url, body)
 	if err != nil {
 		return site, err
 	}
@@ -105,11 +105,11 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 	return site, nil
 }
 
-func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) {
-	url := fmt.Sprintf("%s/%v", siteApi.BaseUrl(), id)
+func (api *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) {
+	url := fmt.Sprintf("%s/%v", api.BaseUrl(), id)
 
 	var point domain.Point
-	resp, err := siteApi.client.put(url, jsonBody)
+	resp, err := api.client.put(url, jsonBody)
 	if err != nil {
 		return point, err
 	}
@@ -122,8 +122,8 @@ func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, err
 	return point, nil
 }
 
-func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) error {
-	url := fmt.Sprintf("%s/%v/tags", siteApi.BaseUrl(), site.Id)
+func (api *SiteApi) AddNewTag(site domain.Site, name string, value string) error {
+	url := fmt.Sprintf("%s/%v/tags", api.BaseUrl(), site.Id)
 	ask := domain.Tag{Name: name, Value: value}
 
 	body, err := json.Marshal(ask)
@@ -131,10 +131,11 @@ func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) e
 		return err
 	}
 
-	_, err = siteApi.client.post(url, body)
+	_, err = api.client.post(url, body)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
+

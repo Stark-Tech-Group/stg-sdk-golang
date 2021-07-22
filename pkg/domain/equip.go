@@ -12,7 +12,7 @@ type Equip struct {
 	Points 		[]Point 	`json:"points,omitempty"`
 	Site 		Site  		`json:"site,omitempty"`
 	RemoteRef	string		`json:"remoteRef,omitempty"`
-	EquipType	EquipType	`json:"description,omitempty"`
+	EquipType	EquipType	`json:"equipType,omitempty"`
 	Latitude	float64 	`json:"latitude,omitempty"`
 	Longitude 	float64 	`json:"longitude,omitempty"`
 	Enabled 	bool 		`json:"enabled,omitempty"`

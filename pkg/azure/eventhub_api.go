@@ -17,7 +17,7 @@ func(eventHubApi *EventHubApi) Init(azConn string) *EventHubApi {
 	return eventHubApi
 }
 
-func(eventHubApi *EventHubApi) SendBatch(data []map[string]interface{}) error {
+func(eventHubApi *EventHubApi) SendBatch(data *[]map[string]interface{}) error {
 
 	hub, err := eventhub.NewHubFromConnectionString(eventHubApi.azConn)
 	if err != nil { return err }
@@ -25,13 +25,13 @@ func(eventHubApi *EventHubApi) SendBatch(data []map[string]interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	events := make([]*eventhub.Event, len(data))
-	for _, item := range data {
+	events := make([]*eventhub.Event, len(*data))
+	for _, item := range *data {
 		json, err := json.Marshal(item)
 		if err != nil { return err }
 		if json != nil {
 			event := eventhub.NewEvent(json)
-			events = append(events,event)
+			events = append(events, event)
 		}
 	}
 

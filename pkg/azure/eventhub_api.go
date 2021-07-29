@@ -30,8 +30,7 @@ func(eventHubApi *EventHubApi) SendBatch(data *[]map[string]interface{}) error {
 		json, err := json.Marshal(item)
 		if err != nil { return err }
 		if json != nil {
-			event := eventhub.NewEvent(json)
-			events = append(events, event)
+			events = append(events, eventhub.NewEvent(json))
 		}
 	}
 

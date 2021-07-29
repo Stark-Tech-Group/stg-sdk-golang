@@ -29,7 +29,10 @@ func(eventHubApi *EventHubApi) SendBatch(data []map[string]interface{}) error {
 	for _, item := range data {
 		json, err := json.Marshal(item)
 		if err != nil { return err }
-		events = append(events, eventhub.NewEvent(json))
+		if json != nil {
+			event := eventhub.NewEvent(json)
+			events = append(events,event)
+		}
 	}
 
 	err = hub.SendBatch(ctx, eventhub.NewEventBatchIterator(events...))

@@ -105,21 +105,21 @@ func (siteApi *SiteApi) CreateOne(ask domain.Site) (domain.Site, error) {
 	return site, nil
 }
 
-func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) {
+func (siteApi *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Site, error) {
 	url := fmt.Sprintf("%s/%v", siteApi.BaseUrl(), id)
 
-	var point domain.Point
+	var site domain.Site
 	resp, err := siteApi.client.put(url, jsonBody)
 	if err != nil {
-		return point, err
+		return site, err
 	}
 
-	err = json.Unmarshal(resp, &point)
+	err = json.Unmarshal(resp, &site)
 	if err != nil {
-		return point, err
+		return site, err
 	}
 
-	return point, nil
+	return site, nil
 }
 
 func (siteApi *SiteApi) AddNewTag(site domain.Site, name string, value string) error {

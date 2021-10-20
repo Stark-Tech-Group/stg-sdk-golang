@@ -18,6 +18,7 @@ func (uridApi *UridApi) BaseUrl() string {
 	return fmt.Sprintf("%s/core/pointUrids", uridApi.client.host)
 }
 
+// AdminUrl returns the admin url for Urid
 func (uridApi *UridApi) AdminUrl() string {
 	return fmt.Sprintf("%s/admin/pointUrids", uridApi.client.host)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"testing"
@@ -11,10 +12,10 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	//err := godotenv.Load("../../.env.test")
-	//if err != nil {
-//		log.Fatal("Error loading .env.test file", err)/
-	//}
+	err := godotenv.Load("../../.env.test")
+	if err != nil {
+		log.Fatal("Error loading .env.test file", err)
+	}
 	code := m.Run()
 
 	os.Exit(code)
@@ -36,9 +37,9 @@ func TestApiStatus(t *testing.T) {
 }
 
 func TestApiSearch(t *testing.T) {
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -58,9 +59,9 @@ func TestApiSearch(t *testing.T) {
 }
 
 func TestGetAllSites(t *testing.T) {
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -84,9 +85,9 @@ func TestGetAllSites(t *testing.T) {
 }
 
 func TestGetAllProfiles(t *testing.T) {
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -111,9 +112,9 @@ func TestGetAllProfiles(t *testing.T) {
 }
 
 func TestGetAllConns(t *testing.T) {
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -122,7 +123,9 @@ func TestGetAllConns(t *testing.T) {
 	connApi := api.ConnApi
 	items, err := connApi.GetAll()
 
-	if err != nil { t.Error("failed", err) }
+	if err != nil {
+		t.Error("failed", err)
+	}
 
 	fmt.Printf("count: %x\n", items.Count)
 
@@ -132,9 +135,9 @@ func TestGetAllConns(t *testing.T) {
 }
 
 func TestGetAllEquips(t *testing.T) {
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -143,7 +146,9 @@ func TestGetAllEquips(t *testing.T) {
 	equipApi := api.EquipApi
 	items, err := equipApi.GetAll()
 
-	if err != nil { t.Error("failed", err) }
+	if err != nil {
+		t.Error("failed", err)
+	}
 
 	fmt.Printf("count: %x\n", items.Count)
 
@@ -153,9 +158,9 @@ func TestGetAllEquips(t *testing.T) {
 }
 func TestGetOnePoint(t *testing.T) {
 
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	testId := 3857
 
@@ -166,16 +171,20 @@ func TestGetOnePoint(t *testing.T) {
 	pointApi := api.PointApi
 	point, err := pointApi.GetOne(uint32(testId))
 
-	if err != nil { t.Error("failed", err) }
+	if err != nil {
+		t.Error("failed", err)
+	}
 
-	if testId != int(point.Id) { t.Fail() }
+	if testId != int(point.Id) {
+		t.Fail()
+	}
 }
 
 func TestCurValPoint(t *testing.T) {
 
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	testId := 3857
 
@@ -187,7 +196,9 @@ func TestCurValPoint(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		curVal, err := pointApi.CurVal(uint32(testId))
-		if err != nil { t.Error("failed", err) }
+		if err != nil {
+			t.Error("failed", err)
+		}
 
 		log.Printf("curVal: %v", curVal.Read.Val)
 		time.Sleep(2 * time.Second)
@@ -196,9 +207,9 @@ func TestCurValPoint(t *testing.T) {
 
 func TestHisReadPoint(t *testing.T) {
 
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -208,7 +219,9 @@ func TestHisReadPoint(t *testing.T) {
 
 	pointId, limit, start, end := 3857, 1000, 1614024121, 1614110821
 	hisRead, err := pointApi.HisRead(uint32(pointId), uint16(limit), uint64(start), uint64(end))
-	if err != nil { t.Error("failed", err) }
+	if err != nil {
+		t.Error("failed", err)
+	}
 	fmt.Printf("count: %x\n", hisRead.Size)
 
 	for _, his := range hisRead.His {
@@ -217,12 +230,11 @@ func TestHisReadPoint(t *testing.T) {
 
 }
 
-
 func TestEquipCurVals(t *testing.T) {
 
-	un := 	os.Getenv(env.STG_SDK_API_UN)
-	pw := 	os.Getenv(env.STG_SDK_API_PW)
-	host :=	os.Getenv(env.STG_SDK_API_HOST)
+	un := os.Getenv(env.STG_SDK_API_UN)
+	pw := os.Getenv(env.STG_SDK_API_PW)
+	host := os.Getenv(env.STG_SDK_API_HOST)
 
 	api := starkapi.Client{}
 	api.Init(host)
@@ -233,7 +245,9 @@ func TestEquipCurVals(t *testing.T) {
 	urids := []string{"batVtg", "clntLvl", "clntTmp"}
 
 	curVals, err := equipApi.CurVals(uint32(124), urids)
-	if err != nil { t.Error("failed", err) }
+	if err != nil {
+		t.Error("failed", err)
+	}
 	fmt.Printf("count: %x\n", curVals.Reads)
 
 	for _, curVal := range curVals.Reads {

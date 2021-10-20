@@ -152,7 +152,7 @@ func (client *Client) delete(url string) ([]byte, error) {
 
 func (client *Client) setHeader(req *http.Request) {
 	if client.auth != nil {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
+		req.Header.Set("X-Auth-Token", fmt.Sprintf("Bearer %s", client.auth.AccessToken))
 		req.Header.Set("Content-Type", "application/json")
 	}
 

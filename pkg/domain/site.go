@@ -2,16 +2,15 @@ package domain
 
 type Sites struct {
 	Count	int32 	`json:"count"`
-	Sites 	[]Site `json:"sites"`
+	Sites 	[]*Site `json:"sites"`
 }
 
 type Site struct{
 	Name 			string 		`json:"name,omitempty"`
 	Ref 			string 		`json:"ref,omitempty"`
 	Id 				int32 		`json:"id,omitempty"`
-	Equips 			[]Equip 	`json:"equips"`
-	GSF				int32 		`json:"gsf,omitempty"`
-	Profile			Profile 	`json:"profile"`
+	Equips 			[]*Equip 	`json:"equips"`
+	Profile			*Profile 	`json:"profile"`
 	Latitude  		float64 	`json:"latitude,omitempty"`
 	Longitude 		float64 	`json:"longitude,omitempty"`
 	Enabled 		bool 		`json:"enabled"`
@@ -21,6 +20,6 @@ type Site struct{
 	GeoAddress1 	string 		`json:"geoAddress1,omitempty"`
 	GeoAddress2 	string 		`json:"geoAddress2,omitempty"`
 	GeoPostalCode 	string 		`json:"geoPostalCode,omitempty"`
-	Audit 			Audit		`json:"audit"`
-	Conn			Conn		`json:"conn"`
+	Audit 			*Audit		`json:"audit"`
+	Conn			*Conn		`json:"conn"`
 }

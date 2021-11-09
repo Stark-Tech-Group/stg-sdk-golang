@@ -2,7 +2,7 @@ package domain
 
 type Points struct {
 	Count	int32 		`json:"count"`
-	Points 	[]Point	`json:"points"`
+	Points 	[]*Point	`json:"points"`
 }
 
 type Point struct {
@@ -11,11 +11,11 @@ type Point struct {
 	Name 		string 		`json:"name"`
 	Description	string 		`json:"description,omitempty"`
 	RemoteRef	string		`json:"remoteRef,omitempty"`
-	Urid		Urid 		`json:"urid"`
-	PointType	PointType 	`json:"pointType"`
+	Urid		*Urid 		`json:"urid"`
+	PointType	*PointType 	`json:"pointType"`
 	Unit 		string 		`json:"unit"`
 	Enabled		bool 		`json:"enabled"`
-	Equip 		Equip  		`json:"equip"`
-	Conn		Conn		`json:"conn"`
-	Audit		Audit		`json:"audit,omitempty"`
+	Equip 		*Equip  	`json:"equip"`
+	Conn		*Conn		`json:"conn"`
+	Audit		*Audit		`json:"audit,omitempty"`
 }

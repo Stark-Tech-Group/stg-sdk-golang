@@ -122,7 +122,7 @@ func (api *SiteApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, error) 
 	return point, nil
 }
 
-func (api *SiteApi) AddNewTag(site domain.Site, name string, value string) error {
+func (api *SiteApi) AddNewTag(site *domain.Site, name string, value string) error {
 	url := fmt.Sprintf("%s/%v/tags", api.BaseUrl(), site.Id)
 	ask := domain.Tag{Name: name, Value: value}
 

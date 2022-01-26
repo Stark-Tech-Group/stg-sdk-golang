@@ -16,7 +16,7 @@ type SearchResponse struct {
 		Ref      string `json:"ref"`
 		Branches []struct {
 			Path string `json:"path"`
-			ID   int    `json:"id"`
+			Id   int    `json:"id"`
 		} `json:"branches"`
 		Asset interface{} `json:"asset"`
 	} `json:"assets"`

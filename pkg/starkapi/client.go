@@ -19,6 +19,7 @@ type Client struct {
 	ConnApi      ConnApi
 	GeoApi       GeoApi
 	UridApi      UridApi
+	TagApi       TagApi
 	/**/
 	loginEndpoint authApi
 	auth          *response.AuthResponse
@@ -41,6 +42,7 @@ func (client *Client) Init(host string) *Client {
 	client.AssetTreeApi = AssetTreeApi{client: client}
 	client.GeoApi = GeoApi{client: client}
 	client.UridApi = UridApi{client: client}
+	client.TagApi = TagApi{client: client}
 
 	return client
 }

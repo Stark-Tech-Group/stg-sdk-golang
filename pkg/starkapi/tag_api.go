@@ -26,15 +26,14 @@ func (tagApi *TagApi) host() string {
 	return tagApi.client.host
 }
 
-func (tagApi *TagApi) Suggest(query string, context string, limit int) ([]domain.Tag, error) {
+func (tagApi *TagApi) Suggest(query string, context string) ([]domain.Tag, error) {
 	tags := make([]domain.Tag, 0)
 	url := fmt.Sprintf(tagApi.BaseUrl(), "/suggest")
 
 	data := struct {
 		Query   string `json:"query"`
 		Context string `json:"context"`
-		Limit   int    `json:"limit"`
-	}{Query: query, Context: context, Limit: limit}
+	}{Query: query, Context: context}
 
 	body, err := json.Marshal(data)
 	if err != nil {

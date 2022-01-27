@@ -28,7 +28,7 @@ func (tagApi *TagApi) host() string {
 
 func (tagApi *TagApi) Suggest(query string, context string) ([]domain.Tag, error) {
 	tags := make([]domain.Tag, 0)
-	url := fmt.Sprintf(tagApi.BaseUrl(), "/suggest")
+	url := fmt.Sprintf("%s/%s", tagApi.BaseUrl(), "suggest")
 
 	data := struct {
 		Query   string `json:"query"`

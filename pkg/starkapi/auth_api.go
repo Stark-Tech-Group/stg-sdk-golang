@@ -45,9 +45,7 @@ func meUrl(host string) string {
 	return fmt.Sprintf("%s/core/persons/me", host)
 }
 
-/**
-Refreshes the current user's keychain
-*/
+//RefreshKeychain refreshes the user's keychain
 func (authApi *authApi) RefreshKeychain() error {
 	url := meUrl(authApi.client.host) + "/refreshKeychain"
 

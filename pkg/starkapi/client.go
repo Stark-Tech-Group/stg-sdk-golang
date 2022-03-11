@@ -47,6 +47,18 @@ func (client *Client) Init(host string) *Client {
 	return client
 }
 
+//Auth
+func (client *Client) Auth(accessToken, username string) (*response.AuthResponse, error) {
+
+	r := response.AuthResponse{
+		AccessToken: accessToken,
+		Username:    username,
+	}
+
+	client.auth = &r
+	return client.auth, nil
+}
+
 func (client *Client) Login(un string, pw string) (*response.AuthResponse, error) {
 	login, err := client.loginEndpoint.login(un, pw)
 

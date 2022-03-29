@@ -115,6 +115,23 @@ func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	return point, nil
 }
 
+func (pointApi *PointApi) GetAllByRef(ref string) (domain.Points, error) {
+
+	url := fmt.Sprintf("%s?parentRef=%v", pointApi.BaseUrl(), ref)
+
+	var points domain.Points
+
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return points, err
+	}
+	err = json.Unmarshal(resp, &points)
+	if err != nil {
+		return points, err
+	}
+	return points, nil
+}
+
 func (pointApi *PointApi) CurVal(id uint32) (domain.CurVal, error) {
 	url := fmt.Sprintf("%s/%v/%s", pointApi.BaseUrl(), id, "curVal")
 

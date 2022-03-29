@@ -4,7 +4,7 @@ type AssetTree struct {
 	AssetTreeMeta struct {
 		Size    int  `json:"size"`
 		Partial bool `json:"partial"`
-			} `json:"assetTreeMeta"`
+	} `json:"assetTreeMeta"`
 	AssetTree []struct {
 		TargetRef     string        `json:"targetRef"`
 		Hidden        bool          `json:"hidden"`
@@ -12,7 +12,7 @@ type AssetTree struct {
 		Icon          string        `json:"icon"`
 		Type          string        `json:"type"`
 		URL           string        `json:"url"`
-		ParentID      string        `json:"parentId"`
+		ParentID      int           `json:"parentId"`
 		Path          string        `json:"path"`
 		Ref           string        `json:"ref"`
 		Depth         int           `json:"depth"`

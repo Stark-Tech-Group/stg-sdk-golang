@@ -5,5 +5,5 @@ go 1.15
 require (
 	github.com/Azure/azure-event-hubs-go/v3 v3.3.17
 	github.com/joho/godotenv v1.3.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.2
 )

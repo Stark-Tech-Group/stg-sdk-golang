@@ -115,6 +115,22 @@ func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	return point, nil
 }
 
+//GetAll returns all points within the given limit and offset
+func (pointApi *PointApi) GetAll(limit, offset int) (domain.Points, error) {
+	url := fmt.Sprintf("%s?limit=%v?offset=%v", pointApi.BaseUrl(), limit, offset)
+	var points domain.Points
+
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return points, err
+	}
+	err = json.Unmarshal(resp, &points)
+	if err != nil {
+		return points, err
+	}
+	return points, nil
+}
+
 func (pointApi *PointApi) GetAllByRef(ref string) (domain.Points, error) {
 
 	url := fmt.Sprintf("%s?parentRef=%v", pointApi.BaseUrl(), ref)

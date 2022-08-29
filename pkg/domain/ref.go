@@ -16,6 +16,11 @@ const (
 	BranchTable   = "asset_tree_branch"
 	TagRefType    = "g"
 	TagRefTable   = "tag_ref"
+	ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
+	DEFAULT_LENGHT = 16
+	DEFAULT_SPACEING = 8
+	DEFAULT_SPACEING_CHAR = '-'
+	DEFAULT_PREFIX_CHAR = '.'
 )
 
 var pattern = regexp.MustCompile(`^([a-z]{1,8}\.[a-z0-9]{8}-[a-z0-9]{8}([:]\d+)?)$`)
@@ -45,5 +50,10 @@ func (r *Ref) GetPrefix() string {
 
 //String returns the value
 func (r Ref) String() string {
+	return r.Value
+}
+
+//CreateRef creates and returns new ref for an asset
+func (r Ref) CreateRef(assetType string) string {
 	return r.Value
 }

@@ -23,6 +23,7 @@ const (
 	DefaultSpacing = 8
 	DefaultSpacingChar = "-"
 	DefaultPrefixChar = "."
+	DefaultPrefixMaxLength = 50
 )
 
 var pattern = regexp.MustCompile(`^([a-z]{1,8}\.[a-z0-9]{8}-[a-z0-9]{8}([:]\d+)?)$`)
@@ -59,30 +60,28 @@ func randomChar() string{
 	return string(Alphabet[rand.Intn(len(Alphabet))])
 }
 
-func randomWithPrefix(prefix string) string{
-	return fmt.Sprintf("%s%s%s", prefix, DefaultPrefixChar, random(DefaultLength, DefaultSpacing, DefaultSpacingChar))
+func RandomWithPrefix(prefix string) (string, error){
+	if len(prefix) < 1 ||  len(prefix) > DefaultPrefixMaxLength {
+		return "", fmt.Errorf("invalid prefix length")
+	}
+	return fmt.Sprintf("%s%s%s", prefix, DefaultPrefixChar, random(DefaultLength, DefaultSpacing, DefaultSpacingChar)), nil
 }
 
-func randomWithoutPrefix() string{
+func RandomWithoutPrefix() string{
 	return random(DefaultLength, DefaultSpacing, DefaultSpacingChar)
 }
 
 func random(length int, spacing int, spacerChar string) string{
-	rndString := ""
+	var sb strings.Builder
 	spacer := 0
 	for length > 0 {
 		if spacer == spacing {
-			rndString += spacerChar
+			sb.WriteString(spacerChar)
 			spacer = 0
 		}
-	length--
-	spacer++
-		rndString += randomChar()
+		length--
+		spacer++
+		sb.WriteString(randomChar())
 	}
-	return rndString
-}
-
-//CreateRef creates and returns new ref for an asset
-func (r Ref) CreateRef(assetType string) string {
-	return r.Value
+	return sb.String()
 }

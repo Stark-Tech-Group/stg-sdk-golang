@@ -15,8 +15,8 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     uses: ./.github/workflows/_release.yml
     with:
-      major: 0
-      minor: 0
+      major: 1
+      minor: 1
       projectName: stg-sdk-golang
       contentType: sh
 

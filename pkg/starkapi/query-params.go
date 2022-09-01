@@ -1,4 +1,4 @@
-package http
+package starkapi
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ type QueryParams struct {
 	RuleId   string `json:"ruleId" schema:"ruleId" sqlColumn:"rule_id" sqlType:"bigint"`
 	Severity string `json:"severity" schema:"severity" sqlColumn:"severity" sqlType:"int"`
 	Duration string `json:"dur" schema:"dur" sqlColumn:"dur" sqlType:"bigint"`
-	PersonId string `json:"personId" schema:"personId" sqlType:"bigint" sqlType:"bigint"`
+	PersonId string `json:"personId" schema:"personId" sqlColumn:"person_id" sqlType:"bigint"`
 	Ts       string `json:"ts" schema:"ts" sqlColumn:"ts" sqlType:"bigint"`
 	EndTs    string `json:"endTs" schema:"endTs" sqlColumn:"end_ts" sqlType:"bigint"`
 	Limit    int    `json:"limit" schema:"limit"`

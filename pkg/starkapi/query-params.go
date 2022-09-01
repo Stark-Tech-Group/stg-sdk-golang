@@ -122,11 +122,10 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		tag := field.Tag.Get(sqlColumn)
-
-		if len(tag) > 0 {
-			val := value.FieldByName(field.Name).String()
-			if len(val) > 4 {
+		val := value.FieldByName(field.Name).String()
+		if len(val) > 4 {
+			tag := field.Tag.Get(sqlColumn)
+			if len(tag) > 0 {
 				operator, value, err := decodeRightSide(&field, val)
 				if err != nil {
 					return nil, err

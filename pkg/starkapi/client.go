@@ -10,6 +10,7 @@ import (
 
 type Client struct {
 	AssetTreeApi AssetTreeApi
+	AssetsApi	 AssetsApi
 	StatusApi    StatusApi
 	SearchApi    SearchApi
 	PointApi     PointApi
@@ -40,6 +41,7 @@ func (client *Client) Init(host string) *Client {
 	client.SiteApi = SiteApi{client: client}
 	client.ConnApi = ConnApi{client: client}
 	client.AssetTreeApi = AssetTreeApi{client: client}
+	client.AssetsApi = AssetsApi{client: client}
 	client.GeoApi = GeoApi{client: client}
 	client.UridApi = UridApi{client: client}
 	client.TagApi = TagApi{client: client}

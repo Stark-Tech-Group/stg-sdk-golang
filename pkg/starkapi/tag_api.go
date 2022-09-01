@@ -61,7 +61,3 @@ func (tagApi *TagApi) Suggest(query string, context string) ([]domain.Tag, error
 	return tags, nil
 
 }
-
-func (tagApi *TagApi) Create() string {
-	return tagApi.client.host
-}

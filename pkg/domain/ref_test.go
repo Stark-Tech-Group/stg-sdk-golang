@@ -25,24 +25,24 @@ func TestRef_String(t *testing.T) {
 }
 
 func TestCreateRefWithZeroPrefix(t *testing.T) {
-	a, error := RandomWithPrefix("")
-	assert.NotEqual(t, error, "invalid prefix length")
-	assert.NotEqual(t, len(EquipRefType) + len(DefaultPrefixChar) + DefaultLength + len(DefaultSpacingChar), len(a))
+	a, err := RandomWithPrefix("")
+	assert.NotEqual(t, err, "invalid prefix length")
+	assert.NotEqual(t, len(EquipRefType) + len(defaultPrefixChar) + defaultLength + len(defaultSpacingChar), len(a))
 }
 
 func TestCreateRefWithLongPrefix(t *testing.T) {
-	a, error := RandomWithPrefix("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz")
-	assert.Equal(t, error, "invalid prefix length")
-	assert.NotEqual(t, len(EquipRefType) + len(DefaultPrefixChar) + DefaultLength + len(DefaultSpacingChar), len(a))
+	a, err := RandomWithPrefix("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz")
+	assert.Equal(t, err, "invalid prefix length")
+	assert.NotEqual(t, len(EquipRefType) + len(defaultPrefixChar) + defaultLength + len(defaultSpacingChar), len(a))
 }
 
 func TestCreateRefWithPrefix(t *testing.T) {
-	a, error := RandomWithPrefix(EquipRefType)
-	assert.Equal(t, error, nil)
-	assert.Equal(t, len(EquipRefType) + len(DefaultPrefixChar) + DefaultLength + len(DefaultSpacingChar), len(a))
+	a, err := RandomWithPrefix(EquipRefType)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, len(EquipRefType) + len(defaultPrefixChar) + defaultLength + len(defaultSpacingChar), len(a))
 }
 
 func TestCreateRefWithoutPrefix(t *testing.T) {
 	a := Ref{Value: RandomWithoutPrefix()}
-	assert.Equal(t, DefaultLength + len(DefaultSpacingChar), len(a.Value))
+	assert.Equal(t, defaultLength + len(defaultSpacingChar), len(a.Value))
 }

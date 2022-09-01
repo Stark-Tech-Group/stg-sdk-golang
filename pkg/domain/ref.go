@@ -18,12 +18,12 @@ const (
 	BranchTable   = "asset_tree_branch"
 	TagRefType    = "g"
 	TagRefTable   = "tag_ref"
-	Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-	DefaultLength = 16
-	DefaultSpacing = 8
-	DefaultSpacingChar = "-"
-	DefaultPrefixChar = "."
-	DefaultPrefixMaxLength = 50
+	alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+	defaultLength = 16
+	defaultSpacing = 8
+	defaultSpacingChar = "-"
+	defaultPrefixChar = "."
+	defaultPrefixMaxLength = 50
 )
 
 var pattern = regexp.MustCompile(`^([a-z]{1,8}\.[a-z0-9]{8}-[a-z0-9]{8}([:]\d+)?)$`)
@@ -57,18 +57,18 @@ func (r Ref) String() string {
 }
 
 func randomChar() string{
-	return string(Alphabet[rand.Intn(len(Alphabet))])
+	return string(alphabet[rand.Intn(len(alphabet))])
 }
 
 func RandomWithPrefix(prefix string) (string, error){
-	if len(prefix) < 1 ||  len(prefix) > DefaultPrefixMaxLength {
+	if len(prefix) < 1 ||  len(prefix) > defaultPrefixMaxLength {
 		return "", fmt.Errorf("invalid prefix length")
 	}
-	return fmt.Sprintf("%s%s%s", prefix, DefaultPrefixChar, random(DefaultLength, DefaultSpacing, DefaultSpacingChar)), nil
+	return fmt.Sprintf("%s%s%s", prefix, defaultPrefixChar, random(defaultLength, defaultSpacing, defaultSpacingChar)), nil
 }
 
 func RandomWithoutPrefix() string{
-	return random(DefaultLength, DefaultSpacing, DefaultSpacingChar)
+	return random(defaultLength, defaultSpacing, defaultSpacingChar)
 }
 
 func random(length int, spacing int, spacerChar string) string{

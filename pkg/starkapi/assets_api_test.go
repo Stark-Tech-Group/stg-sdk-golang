@@ -1,55 +1,55 @@
 package starkapi
 
 import (
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
+	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestAddTagToAsset(t *testing.T) {
-	// call needs to be mocked
-	/*
-		un := os.Getenv(env.STG_SDK_API_UN)
-		pw := os.Getenv(env.STG_SDK_API_PW)
-		host := os.Getenv(env.STG_SDK_API_HOST)
-
-		api := Client{}
-		api.Init(host)
-		_, err := api.Login(un, pw)
-
-		if err != nil {
-			log.Fatalf("auth err: %s", err)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path !=  "/core/assets/e.test/tags" {
+			t.Errorf("Expected to request '%s', got: %s", "/tags" , r.URL.Path)
 		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
 
-		//Test valid asset
-		asset := domain.Asset{
-			Id:   1,
-			Ref:  "e.test",
-			Url:  "test/url",
-			Name: "Test",
-			Type: "Equip",
-		}
+	api := Client{}
+	host := server.URL
 
-		assetsApi := api.AssetsApi
-		assetErr := assetsApi.AddNewTag(asset, "Test", "1")
-		assert.Equal(t, nil, assetErr)
+	api.Init(host)
 
+	//Test valid asset
+	asset := domain.Asset{
+		Id:   1,
+		Ref:  "e.test",
+		Url:  "test/url",
+		Name: "Test",
+		Type: "Equip",
+	}
 
-		//Test invalid tag
-		badTagErr := assetsApi.AddNewTag(asset, "", "1")
-		assert.NotEqual(t, nil, badTagErr)
+	assetsApi := api.AssetsApi
 
-		//Test asset with no Ref
-		badAsset := domain.Asset{
-			Id:   1,
-			Ref:  "",
-			Url:  "test/url",
-			Name: "",
-			Type: "Equip",
-		}
+	assetErr := assetsApi.AddNewTag(asset, "Test", "1")
+	assert.Equal(t, nil, assetErr)
 
 
-		badAssetErr := assetsApi.AddNewTag(badAsset, "Test", "1")
+	//Test invalid tag
+	badTagErr := assetsApi.AddNewTag(asset, "", "1")
+	assert.NotEqual(t, nil, badTagErr)
+	
+	//Test asset with no Ref
+	badAsset := domain.Asset{
+		Id:   1,
+		Ref:  "",
+		Url:  "test/url",
+		Name: "",
+		Type: "Equip",
+	}
 
-		assert.NotEqual(t, nil, badAssetErr)
-
-	*/
+	badAssetErr := assetsApi.AddNewTag(badAsset, "Test", "1")
+	assert.NotEqual(t, nil, badAssetErr)
 }

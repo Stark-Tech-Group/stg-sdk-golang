@@ -2,7 +2,6 @@ package starkapi
 
 import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/starkapi"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
@@ -15,7 +14,7 @@ func TestGeoApi_ClimateZone(t *testing.T) {
 	pw := os.Getenv(env.STG_SDK_API_PW)
 	host := os.Getenv(env.STG_SDK_API_HOST)
 
-	api := starkapi.Client{}
+	api := Client{}
 	api.Init(host)
 	_, err := api.Login(un, pw)
 
@@ -44,7 +43,7 @@ func TestGeoApi_GeoCoding(t *testing.T) {
 	pw := os.Getenv(env.STG_SDK_API_PW)
 	host := os.Getenv(env.STG_SDK_API_HOST)
 
-	api := starkapi.Client{}
+	api := Client{}
 	api.Init(host)
 	_, err := api.Login(un, pw)
 

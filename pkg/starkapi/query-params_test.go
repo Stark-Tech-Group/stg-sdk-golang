@@ -1,4 +1,4 @@
-package http
+package starkapi
 
 import (
 	"github.com/stretchr/testify/assert"

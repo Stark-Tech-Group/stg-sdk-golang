@@ -21,8 +21,8 @@ jobs:
       #      - name: integration test
       #        run: go test -tags=integration ./...
       - name: build
-        run: go build ./...
+        run: go build ./cmd/stg-sdk-golang
       - uses: actions/upload-artifact@v3
         with:
           name: executables
-          path: starktech-sdk
+          path: stg-sdk-golang

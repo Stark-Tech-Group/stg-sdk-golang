@@ -1,0 +1,22 @@
+
+name: dev
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  dev-build:
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/_build.yml
+
+  dev-release:
+    needs: [ "dev-build-image" ]
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/_release.yml
+    with:
+      major: 1
+      minor: 1
+      projectName: stg-sdk-golang
+      contentType: sh
+

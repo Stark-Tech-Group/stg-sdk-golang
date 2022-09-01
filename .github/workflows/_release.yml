@@ -1,0 +1,47 @@
+name: release
+on:
+  workflow_call:
+    inputs:
+      major:
+        required: true
+        type: number
+      minor:
+        required: true
+        type: number
+      projectName:
+        required: true
+        type: string
+      contentType:
+        required: true
+        type: string
+
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: executables
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ inputs.major }}.${{ inputs.minor }}.${{ github.run_id }}
+          release_name: Release ${{ inputs.major }}.${{ inputs.minor }}.${{ github.run_id }}
+          draft: false
+          prerelease: false
+      - name: ls
+        run: ls -al
+      - name: Upload Jar
+        id: upload-jar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ inputs.projectName }}
+          asset_name: ${{ inputs.projectName }}
+          asset_content_type: application/${{ inputs.contentType }}

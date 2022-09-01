@@ -2,8 +2,10 @@ package starkapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
+	logger "github.com/sirupsen/logrus"
 )
 
 type AssetsApi struct {
@@ -27,6 +29,16 @@ func (assetsApi *AssetsApi) BaseUrl() string {
 }
 
 func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value string) error {
+	if len(name) < 1 {
+		logger.Error("invalid tag name in assets/AddNewTag.")
+		return errors.New("invalid tag name")
+	}
+
+	if len(asset.Ref) < 1 {
+		logger.Error("invalid asset in assets/AddNewTag. Asset does not have a ref.")
+		return errors.New("invalid asset")
+	}
+
 	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
 	ask := domain.Tag{Name: name, Value: value}
 

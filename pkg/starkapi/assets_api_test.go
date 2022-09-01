@@ -2,25 +2,25 @@ package starkapi
 
 import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/env"
 	"github.com/stretchr/testify/assert"
-	"log"
-	"os"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestAddTagToAsset(t *testing.T) {
-	un := os.Getenv(env.STG_SDK_API_UN)
-	pw := os.Getenv(env.STG_SDK_API_PW)
-	host := os.Getenv(env.STG_SDK_API_HOST)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path !=  "/core/assets/e.test/tags" {
+			t.Errorf("Expected to request '%s', got: %s", "/tags" , r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
 
 	api := Client{}
-	api.Init(host)
-	_, err := api.Login(un, pw)
+	host := server.URL
 
-	if err != nil {
-		log.Fatalf("auth err: %s", err)
-	}
+	api.Init(host)
 
 	//Test valid asset
 	asset := domain.Asset{
@@ -32,6 +32,7 @@ func TestAddTagToAsset(t *testing.T) {
 	}
 
 	assetsApi := api.AssetsApi
+
 	assetErr := assetsApi.AddNewTag(asset, "Test", "1")
 	assert.Equal(t, nil, assetErr)
 
@@ -49,8 +50,6 @@ func TestAddTagToAsset(t *testing.T) {
 		Type: "Equip",
 	}
 
-
 	badAssetErr := assetsApi.AddNewTag(badAsset, "Test", "1")
-
 	assert.NotEqual(t, nil, badAssetErr)
 }

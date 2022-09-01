@@ -1,0 +1,40 @@
+
+name: deployment
+
+on:
+  workflow_call:
+    inputs:
+      deploymentName:
+        required: true
+        type: string
+      imageTag:
+        required: true
+        type: string
+    secrets:
+      azureCred:
+        required: true
+        description: "azure credentials"
+      clusterName:
+        required: true
+        description: "k8s cluster name"
+      resourceGroup:
+        required: true
+        description: "azure resource group"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Set the target Azure Kubernetes Service (AKS) cluster.
+      - name: Set Container Context
+        uses: azure/aks-set-context@v1
+        with:
+          creds: ${{ secrets.azureCred }}
+          cluster-name: ${{ secrets.clusterName }}
+          resource-group: ${{ secrets.resourceGroup }}
+
+      - name: 'Update Container'
+        run: kubectl set image deployment/${{ inputs.deploymentName }} ${{ inputs.deploymentName }}=${{ inputs.imageTag }}
+
+

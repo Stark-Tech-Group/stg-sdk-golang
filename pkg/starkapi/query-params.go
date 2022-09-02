@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	maxLimit  = 5000
-	sqlColumn = "sqlColumn"
-	sqlType   = "sqlType"
-	where     = " where "
-	and       = " and "
+	maxLimit        = 5000
+	sqlColumn       = "sqlColumn"
+	sqlType         = "sqlType"
+	where           = " where "
+	and             = " and "
+	defaultOperator = "="
 )
 
 var operatorMap = map[string]string{
@@ -74,8 +75,14 @@ func (q *QueryParams) Validate() bool {
 }
 
 func decodeRightSide(field *reflect.StructField, val string) (string, interface{}, error) {
-	queryOp := val[0:4]
-	operator := operatorMap[queryOp]
+
+	var operator string
+	if val[0:1] == "[" && len(val) > 4 {
+		queryOp := val[0:4]
+		operator = operatorMap[queryOp]
+	} else {
+		operator = defaultOperator
+	}
 
 	if len(operator) == 0 {
 		logger.Errorf("no operator found while decoding query to sql")

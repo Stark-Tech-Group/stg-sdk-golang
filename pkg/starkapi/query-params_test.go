@@ -37,6 +37,16 @@ func TestQueryParams_HashKey(t *testing.T) {
 	p.Offset = 14
 	assert.Equal(t, "1-2-3-4-5-6-7-8-9-10-11-12-13-14", p.HashKey())
 }
+func TestQueryParams_DecodeParameters_WithDefaultOperator(t *testing.T) {
+	p := QueryParams{Id: "1"}
+	parameters, err := p.DecodeParameters()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(parameters))
+
+	assert.Equal(t, "id", parameters[0].Column)
+	assert.Equal(t, "=", parameters[0].Operator)
+	assert.Equal(t, int64(1), parameters[0].Value)
+}
 
 func TestQueryParams_DecodeParameters_WithEqual(t *testing.T) {
 	p := QueryParams{Id: "[eq]1"}

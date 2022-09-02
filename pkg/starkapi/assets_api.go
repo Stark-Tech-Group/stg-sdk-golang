@@ -54,3 +54,7 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 
 	return nil
 }
+
+func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string, value string) error {
+	return nil
+}

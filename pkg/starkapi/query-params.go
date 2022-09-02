@@ -76,20 +76,20 @@ func (q *QueryParams) Validate() bool {
 
 func decodeRightSide(field *reflect.StructField, val string) (string, interface{}, error) {
 
-	var operator string
+	var operator, raw string
 	if val[0:1] == "[" && len(val) > 4 {
 		queryOp := val[0:4]
 		operator = operatorMap[queryOp]
+		raw = val[4:]
 	} else {
 		operator = defaultOperator
+		raw = val
 	}
 
 	if len(operator) == 0 {
 		logger.Errorf("no operator found while decoding query to sql")
 		return "", "", errors.New("no operator found")
 	}
-
-	raw := val[4:]
 
 	sqlType := field.Tag.Get(sqlType)
 	switch sqlType {
@@ -130,7 +130,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		val := value.FieldByName(field.Name).String()
-		if len(val) > 4 {
+		if len(val) > 0 {
 			tag := field.Tag.Get(sqlColumn)
 			if len(tag) > 0 {
 				operator, value, err := decodeRightSide(&field, val)

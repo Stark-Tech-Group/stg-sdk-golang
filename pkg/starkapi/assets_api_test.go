@@ -8,10 +8,12 @@ import (
 	"testing"
 )
 
+const testURLWithRef =  "/core/assets/e.test/tags"
+
 func TestAddTagToAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path !=  "/core/assets/e.test/tags" {
-			t.Errorf("Expected to request '%s', got: %s", "/core/assets/e.test/tags" , r.URL.Path)
+		if r.URL.Path !=  testURLWithRef {
+			t.Errorf("Expected to request '%s', got: %s", testURLWithRef , r.URL.Path)
 		}
 		if r.Method !=  http.MethodPost {
 			t.Errorf("Expected a %s request , got: %s",http.MethodPost, r.Method)
@@ -59,8 +61,8 @@ func TestAddTagToAsset(t *testing.T) {
 
 func TestDeleteTagFromAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path !=  "/core/assets/e.test/tags" {
-			t.Errorf("Expected to request '%s', got: %s", "/core/assets/e.test/tags" , r.URL.Path)
+		if r.URL.Path !=  testURLWithRef {
+			t.Errorf("Expected to request '%s', got: %s", testURLWithRef , r.URL.Path)
 		}
 		if r.Method !=  http.MethodDelete {
 			t.Errorf("Expected a %s request , got: %s",http.MethodDelete, r.Method)

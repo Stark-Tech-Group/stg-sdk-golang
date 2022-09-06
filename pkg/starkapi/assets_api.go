@@ -12,20 +12,12 @@ type AssetsApi struct {
 	client *Client
 }
 
-func assetsUrl(host string) string {
-	return fmt.Sprintf("%s/core/assets", host)
-}
-
-func assetUrl(host string, ref uint32) string {
-	return fmt.Sprintf("%s/%d", assetsUrl(host), ref)
-}
-
 func (assetsApi *AssetsApi) host() string {
 	return assetsApi.client.host
 }
 
 func (assetsApi *AssetsApi) BaseUrl() string {
-	return fmt.Sprintf("%s/core/assets", assetsApi.client.host)
+	return fmt.Sprintf("%s/core/assets", assetsApi.host())
 }
 
 func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value string) error {

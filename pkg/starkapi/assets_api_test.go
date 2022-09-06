@@ -8,7 +8,16 @@ import (
 	"testing"
 )
 
+const testHost =  "https://test.com"
 const testURLWithRef =  "/core/assets/e.test/tags"
+
+func TestAssetsApi_HostUrl(t *testing.T) {
+	api := Client{}
+	host := testHost
+	api.Init(host)
+	assetsApi := api.AssetsApi
+	assert.Equal(t, testHost, assetsApi.host())
+}
 
 func TestAddTagToAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -17,6 +17,9 @@ func TestRef_GetPrefix(t *testing.T) {
 
 	abc := Ref{Value: "abc.xxxxxxxx-xxxxxxxx"}
 	assert.Equal(t, "abc", abc.GetPrefix())
+
+	noPrefix := Ref{Value: "xxxxxxxx-xxxxxxxx"}
+	assert.Equal(t, "", noPrefix.GetPrefix())
 }
 
 func TestRef_String(t *testing.T) {

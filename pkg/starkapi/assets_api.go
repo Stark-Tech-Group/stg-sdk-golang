@@ -12,20 +12,12 @@ type AssetsApi struct {
 	client *Client
 }
 
-func assetsUrl(host string) string {
-	return fmt.Sprintf("%s/core/assets", host)
-}
-
-func assetUrl(host string, ref uint32) string {
-	return fmt.Sprintf("%s/%d", assetsUrl(host), ref)
-}
-
 func (assetsApi *AssetsApi) host() string {
 	return assetsApi.client.host
 }
 
 func (assetsApi *AssetsApi) BaseUrl() string {
-	return fmt.Sprintf("%s/core/assets", assetsApi.client.host)
+	return fmt.Sprintf("%s/core/assets", assetsApi.host())
 }
 
 func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value string) error {
@@ -48,6 +40,27 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 	}
 
 	_, err = assetsApi.client.post(url, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
+	if len(name) < 1 {
+		logger.Error("invalid tag name in assets/DeleteTag.")
+		return errors.New("invalid tag name")
+	}
+
+	if len(asset.Ref) < 1 {
+		logger.Error("invalid asset in assets/DeleteTag. Asset does not have a ref.")
+		return errors.New("invalid asset")
+	}
+
+	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+
+	_, err := assetsApi.client.delete(url)
 	if err != nil {
 		return err
 	}

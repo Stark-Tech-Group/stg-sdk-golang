@@ -31,7 +31,6 @@ func TestAddTagToAsset(t *testing.T) {
 	asset := domain.Asset{
 		Id:   1,
 		Ref:  "e.test",
-		Url:  "test/url",
 		Name: "Test",
 		Type: "Equip",
 	}
@@ -50,7 +49,6 @@ func TestAddTagToAsset(t *testing.T) {
 	badAsset := domain.Asset{
 		Id:   1,
 		Ref:  "",
-		Url:  "test/url",
 		Name: "",
 		Type: "Equip",
 	}

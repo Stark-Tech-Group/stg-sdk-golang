@@ -11,7 +11,10 @@ import (
 func TestAddTagToAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path !=  "/core/assets/e.test/tags" {
-			t.Errorf("Expected to request '%s', got: %s", "/tags" , r.URL.Path)
+			t.Errorf("Expected to request '%s', got: %s", "/core/assets/e.test/tags" , r.URL.Path)
+		}
+		if r.Method !=  http.MethodPost {
+			t.Errorf("Expected a %s request , got: %s",http.MethodPost, r.Method)
 		}
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -51,5 +54,54 @@ func TestAddTagToAsset(t *testing.T) {
 	}
 
 	badAssetErr := assetsApi.AddNewTag(badAsset, "Test", "1")
+	assert.NotEqual(t, nil, badAssetErr)
+}
+
+func TestDeleteTagFromAsset(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path !=  "/core/assets/e.test/tags" {
+			t.Errorf("Expected to request '%s', got: %s", "/core/assets/e.test/tags" , r.URL.Path)
+		}
+		if r.Method !=  http.MethodDelete {
+			t.Errorf("Expected a %s request , got: %s",http.MethodDelete, r.Method)
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	//Test valid asset
+	asset := domain.Asset{
+		Id:   1,
+		Ref:  "e.test",
+		Url:  "test/url",
+		Name: "Test",
+		Type: "Equip",
+	}
+
+	assetsApi := api.AssetsApi
+
+	assetErr := assetsApi.DeleteTag(asset, "Test")
+	assert.Equal(t, nil, assetErr)
+
+
+	//Test invalid tag
+	badTagErr := assetsApi.DeleteTag(asset, "")
+	assert.NotEqual(t, nil, badTagErr)
+
+	//Test asset with no Ref
+	badAsset := domain.Asset{
+		Id:   1,
+		Ref:  "",
+		Url:  "test/url",
+		Name: "",
+		Type: "Equip",
+	}
+
+	badAssetErr := assetsApi.DeleteTag(badAsset, "Test")
 	assert.NotEqual(t, nil, badAssetErr)
 }

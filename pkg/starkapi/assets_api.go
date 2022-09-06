@@ -55,6 +55,23 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 	return nil
 }
 
-func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string, value string) error {
+func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
+	if len(name) < 1 {
+		logger.Error("invalid tag name in assets/DeleteTag.")
+		return errors.New("invalid tag name")
+	}
+
+	if len(asset.Ref) < 1 {
+		logger.Error("invalid asset in assets/DeleteTag. Asset does not have a ref.")
+		return errors.New("invalid asset")
+	}
+
+	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+
+	_, err := assetsApi.client.delete(url)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

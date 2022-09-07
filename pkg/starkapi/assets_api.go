@@ -16,7 +16,7 @@ func (assetsApi *AssetsApi) host() string {
 	return assetsApi.client.host
 }
 
-func (assetsApi *AssetsApi) BaseUrl() string {
+func (assetsApi *AssetsApi) baseUrl() string {
 	return fmt.Sprintf("%s/core/assets", assetsApi.host())
 }
 
@@ -31,7 +31,7 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 		return errors.New("invalid asset")
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+	url := fmt.Sprintf("%s/%v/tags", assetsApi.baseUrl(), asset.Ref)
 	ask := domain.Tag{Name: name, Value: value}
 
 	body, err := json.Marshal(ask)
@@ -58,7 +58,7 @@ func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
 		return errors.New("invalid asset")
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+	url := fmt.Sprintf("%s/%v/tags", assetsApi.baseUrl(), asset.Ref)
 
 	_, err := assetsApi.client.delete(url)
 	if err != nil {

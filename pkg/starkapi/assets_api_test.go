@@ -1,6 +1,7 @@
 package starkapi
 
 import (
+	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -9,7 +10,8 @@ import (
 )
 
 const testHost =  "https://test.com"
-const testURLWithRef =  "/core/assets/e.test/tags"
+const testAssetsApiURL =  "/core/assets"
+const testAssetsApiURLWithRef =  "/core/assets/e.test/tags"
 
 func TestAssetsApi_HostUrl(t *testing.T) {
 	api := Client{}
@@ -19,10 +21,18 @@ func TestAssetsApi_HostUrl(t *testing.T) {
 	assert.Equal(t, testHost, assetsApi.host())
 }
 
+func TestAssetsApi_BaseUrl(t *testing.T) {
+	api := Client{}
+	host := testHost
+	api.Init(host)
+	assetsApi := api.AssetsApi
+	assert.Equal(t, fmt.Sprintf("%s%s", testHost, testAssetsApiURL), assetsApi.baseUrl())
+}
+
 func TestAddTagToAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path !=  testURLWithRef {
-			t.Errorf("Expected to request '%s', got: %s", testURLWithRef , r.URL.Path)
+		if r.URL.Path !=  testAssetsApiURLWithRef {
+			t.Errorf("Expected to request '%s', got: %s", testAssetsApiURLWithRef , r.URL.Path)
 		}
 		if r.Method !=  http.MethodPost {
 			t.Errorf("Expected a %s request , got: %s",http.MethodPost, r.Method)
@@ -68,8 +78,8 @@ func TestAddTagToAsset(t *testing.T) {
 
 func TestDeleteTagFromAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path !=  testURLWithRef {
-			t.Errorf("Expected to request '%s', got: %s", testURLWithRef , r.URL.Path)
+		if r.URL.Path !=  testAssetsApiURLWithRef {
+			t.Errorf("Expected to request '%s', got: %s", testAssetsApiURLWithRef , r.URL.Path)
 		}
 		if r.Method !=  http.MethodDelete {
 			t.Errorf("Expected a %s request , got: %s",http.MethodDelete, r.Method)

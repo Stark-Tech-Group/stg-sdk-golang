@@ -47,8 +47,8 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 	return nil
 }
 
-func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
-	if len(name) < 1 {
+func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, tagName string) error {
+	if len(tagName) < 1 {
 		logger.Error("invalid tag name in assets/DeleteTag.")
 		return errors.New("invalid tag name")
 	}
@@ -58,7 +58,7 @@ func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
 		return errors.New("invalid asset")
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.baseUrl(), asset.Ref)
+	url := fmt.Sprintf("%s/%v/tags/%s", assetsApi.baseUrl(), asset.Ref, tagName)
 
 	_, err := assetsApi.client.delete(url)
 	if err != nil {

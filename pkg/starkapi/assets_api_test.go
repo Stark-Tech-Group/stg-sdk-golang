@@ -99,6 +99,10 @@ func TestAddTagsToAsset(t *testing.T) {
 	assetErr := assetsApi.AddNewTags(asset, tags)
 	assert.Equal(t, nil, assetErr)
 
+	//Test Tag with no name
+	tags = append(tags, domain.Tag{Name: "", Value: "1"})
+	noNameTagErr := assetsApi.AddNewTags(asset, tags)
+	assert.NotEqual(t, nil, noNameTagErr)
 
 	//Test empty tag array
 	var emptyTags []domain.Tag

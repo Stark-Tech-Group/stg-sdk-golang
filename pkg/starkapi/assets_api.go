@@ -58,6 +58,13 @@ func (assetsApi *AssetsApi) AddNewTags(asset domain.Asset, tags []domain.Tag) er
 		return errors.New("invalid asset")
 	}
 
+	for _, element := range tags {
+		if len(element.Name) < 1 {
+			logger.Error("invalid tag name in assets/AddNewTags.")
+			return errors.New("invalid tag name")
+		}
+	}
+
 	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
 
 	body, err := json.Marshal(tags)

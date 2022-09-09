@@ -14,16 +14,16 @@ func (formsApi *FormsApi) host() string {
 	return formsApi.client.host
 }
 
-func (formsApi *FormsApi) BaseUrl() string {
+func (formsApi *FormsApi) baseUrl() string {
 	return fmt.Sprintf("%s/core/forms", formsApi.host())
 }
 
-func (formsApi *FormsApi) ControlsPrefix() string {
+func (formsApi *FormsApi) controlsPrefix() string {
 	return fmt.Sprintf("/controls")
 }
 
 func (formsApi *FormsApi) GetAllControls() (domain.FormControlList, error) {
-	url := fmt.Sprintf("%s%s", formsApi.BaseUrl(), formsApi.ControlsPrefix())
+	url := fmt.Sprintf("%s%s", formsApi.baseUrl(), formsApi.controlsPrefix())
 
 	var controls domain.FormControlList
 
@@ -41,7 +41,7 @@ func (formsApi *FormsApi) GetAllControls() (domain.FormControlList, error) {
 }
 
 func (formsApi *FormsApi) GetAllControlsForAsset(ref string) (domain.FormControlRefList, error) {
-	url := fmt.Sprintf("%s/%s%s", formsApi.BaseUrl(), ref, formsApi.ControlsPrefix())
+	url := fmt.Sprintf("%s/%s%s", formsApi.baseUrl(), ref, formsApi.controlsPrefix())
 
 	var assetControls domain.FormControlRefList
 

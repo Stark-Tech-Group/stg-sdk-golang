@@ -47,6 +47,39 @@ func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value str
 	return nil
 }
 
+func (assetsApi *AssetsApi) AddNewTags(asset domain.Asset, tags []domain.Tag) error {
+	if len(tags) < 1 {
+		logger.Error("please provide at least one tag/AddNewTags.")
+		return errors.New("please provide at least one tag")
+	}
+
+	if len(asset.Ref) < 1 {
+		logger.Error("invalid asset in assets/AddNewTag. Asset does not have a ref.")
+		return errors.New("invalid asset")
+	}
+
+	for _, element := range tags {
+		if len(element.Name) < 1 {
+			logger.Error("invalid tag name in assets/AddNewTags.")
+			return errors.New("invalid tag name")
+		}
+	}
+
+	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+
+	body, err := json.Marshal(tags)
+	if err != nil {
+		return err
+	}
+
+	_, err = assetsApi.client.post(url, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
 	if len(name) < 1 {
 		logger.Error("invalid tag name in assets/DeleteTag.")

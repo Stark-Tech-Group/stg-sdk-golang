@@ -12,27 +12,34 @@ type AssetsApi struct {
 	client *Client
 }
 
+const invalidTagNameErrorStr = "invalid tag name"
+const invalidAssetErrorStr = "invalid asset"
+
 func (assetsApi *AssetsApi) host() string {
 	return assetsApi.client.host
 }
 
-func (assetsApi *AssetsApi) BaseUrl() string {
+func (assetsApi *AssetsApi) baseUrl() string {
 	return fmt.Sprintf("%s/core/assets", assetsApi.host())
 }
 
-func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, name string, value string) error {
-	if len(name) < 1 {
+func (assetsApi *AssetsApi) tagUrlWithRef(ref string) string {
+	return fmt.Sprintf("%s/%s/tags", assetsApi.baseUrl(), ref)
+}
+
+func (assetsApi *AssetsApi) AddNewTag(asset domain.Asset, tagName string, tagValue string) error {
+	if len(tagName) < 1 {
 		logger.Error("invalid tag name in assets/AddNewTag.")
-		return errors.New("invalid tag name")
+		return errors.New(invalidTagNameErrorStr)
 	}
 
 	if len(asset.Ref) < 1 {
 		logger.Error("invalid asset in assets/AddNewTag. Asset does not have a ref.")
-		return errors.New("invalid asset")
+		return errors.New(invalidAssetErrorStr)
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
-	ask := domain.Tag{Name: name, Value: value}
+	url := assetsApi.tagUrlWithRef(asset.Ref)
+	ask := domain.Tag{Name: tagName, Value: tagValue}
 
 	body, err := json.Marshal(ask)
 	if err != nil {
@@ -55,17 +62,17 @@ func (assetsApi *AssetsApi) AddNewTags(asset domain.Asset, tags []domain.Tag) er
 
 	if len(asset.Ref) < 1 {
 		logger.Error("invalid asset in assets/AddNewTag. Asset does not have a ref.")
-		return errors.New("invalid asset")
+		return errors.New(invalidAssetErrorStr)
 	}
 
 	for _, element := range tags {
 		if len(element.Name) < 1 {
 			logger.Error("invalid tag name in assets/AddNewTags.")
-			return errors.New("invalid tag name")
+			return errors.New(invalidTagNameErrorStr)
 		}
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+	url := assetsApi.tagUrlWithRef(asset.Ref)
 
 	body, err := json.Marshal(tags)
 	if err != nil {
@@ -80,18 +87,18 @@ func (assetsApi *AssetsApi) AddNewTags(asset domain.Asset, tags []domain.Tag) er
 	return nil
 }
 
-func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, name string) error {
-	if len(name) < 1 {
+func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, tagName string) error {
+	if len(tagName) < 1 {
 		logger.Error("invalid tag name in assets/DeleteTag.")
-		return errors.New("invalid tag name")
+		return errors.New(invalidTagNameErrorStr)
 	}
 
 	if len(asset.Ref) < 1 {
 		logger.Error("invalid asset in assets/DeleteTag. Asset does not have a ref.")
-		return errors.New("invalid asset")
+		return errors.New(invalidAssetErrorStr)
 	}
 
-	url := fmt.Sprintf("%s/%v/tags", assetsApi.BaseUrl(), asset.Ref)
+	url := fmt.Sprintf("%s/%s", assetsApi.tagUrlWithRef(asset.Ref), tagName)
 
 	_, err := assetsApi.client.delete(url)
 	if err != nil {

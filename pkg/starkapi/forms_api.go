@@ -40,20 +40,20 @@ func (formsApi *FormsApi) GetAllControls() (domain.FormControlList, error) {
 	return controls, nil
 }
 
-func (formsApi *FormsApi) GetAllControlsForAsset(ref string) (domain.FormControlList, error) {
+func (formsApi *FormsApi) GetAllControlsForAsset(ref string) (domain.FormControlRefList, error) {
 	url := fmt.Sprintf("%s/%s%s", formsApi.BaseUrl(), ref, formsApi.ControlsPrefix())
 
-	var assetControls domain.FormControlList
+	var assetControls domain.FormControlRefList
 
 	resp, err := formsApi.client.get(url)
 	if err != nil {
-		return controls, err
+		return assetControls, err
 	}
 
-	err = json.Unmarshal(resp, &controls)
+	err = json.Unmarshal(resp, &assetControls)
 	if err != nil {
-		return controls, err
+		return assetControls, err
 	}
 
-	return controls, nil
+	return assetControls, nil
 }

@@ -32,9 +32,11 @@ func (formsApi *FormsApi) GetAllControls() (domain.FormControlList, error) {
 		return controls, err
 	}
 
-	err = json.Unmarshal(resp, &controls)
-	if err != nil {
-		return controls, err
+	if len(resp) > 0 {
+		err = json.Unmarshal(resp, &controls)
+		if err != nil {
+			return controls, err
+		}
 	}
 
 	return controls, nil
@@ -50,9 +52,11 @@ func (formsApi *FormsApi) GetAllControlsForAsset(ref string) (domain.FormControl
 		return assetControls, err
 	}
 
-	err = json.Unmarshal(resp, &assetControls)
-	if err != nil {
-		return assetControls, err
+	if len(resp) > 0 {
+		err = json.Unmarshal(resp, &assetControls)
+		if err != nil {
+			return assetControls, err
+		}
 	}
 
 	return assetControls, nil

@@ -155,7 +155,7 @@ func TestAddTagsToAsset(t *testing.T) {
 		Type: "Equip",
 	}
 
-	badAssetErr := assetsApi.AddNewTag(badAsset, "Test", "1")
+	badAssetErr := assetsApi.AddNewTags(badAsset, tags)
 	assert.NotEqual(t, nil, badAssetErr)
 }
 

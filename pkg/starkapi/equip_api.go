@@ -135,6 +135,36 @@ func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value strin
 	return nil
 }
 
+//GetAllTags returns all tags for the provided domain.Point
+func (equipApi *EquipApi) GetAllTags(equip domain.Equip) ([]domain.TagRef, error) {
+	url := fmt.Sprintf("%s/%v/tags", equipApi.BaseUrl(), equip.Id)
+
+	var tags []domain.TagRef
+	resp, err := equipApi.client.get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(resp, &tags)
+	if err != nil {
+		return tags, err
+	}
+
+	return tags, nil
+}
+
+//DeleteTag deletes a domain.TagRef from the provided domain.Equip
+func (equipApi *EquipApi) DeleteTag(equip domain.Equip, tagRef domain.TagRef) error {
+	url := fmt.Sprintf("%s/%v/tags/%v", equipApi.BaseUrl(), equip.Id, tagRef.Id)
+
+	_, err := equipApi.client.delete(url)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (equipApi *EquipApi) CurVals(equipId uint32, urids []string) (domain.EquipCurVals, error) {
 	url := fmt.Sprintf("%s/%v/curVals", equipApi.BaseUrl(), equipId)
 

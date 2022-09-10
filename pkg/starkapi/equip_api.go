@@ -136,13 +136,13 @@ func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value strin
 }
 
 //GetAllTags returns all tags for the provided domain.Point
-func (equipApi *EquipApi) GetAllTags(equip domain.Equip) ([]domain.TagRef, error) {
+func (equipApi *EquipApi) GetAllTags(equip domain.Equip) (domain.TagRefs, error) {
 	url := fmt.Sprintf("%s/%v/tags", equipApi.BaseUrl(), equip.Id)
 
-	var tags []domain.TagRef
+	var tags domain.TagRefs
 	resp, err := equipApi.client.get(url)
 	if err != nil {
-		return nil, err
+		return tags, err
 	}
 
 	err = json.Unmarshal(resp, &tags)

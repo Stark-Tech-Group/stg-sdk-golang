@@ -98,13 +98,13 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 }
 
 //GetAllTags returns all tags for the provided domain.Point
-func (pointApi *PointApi) GetAllTags(point domain.Point) ([]domain.TagRef, error) {
+func (pointApi *PointApi) GetAllTags(point domain.Point) (domain.TagRefs, error) {
 	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
 
-	var tags []domain.TagRef
+	var tags domain.TagRefs
 	resp, err := pointApi.client.get(url)
 	if err != nil {
-		return nil, err
+		return tags, err
 	}
 
 	err = json.Unmarshal(resp, &tags)

@@ -1,5 +1,10 @@
 package domain
 
+type TagRefs struct {
+	Count   int32     `json:"count"`
+	TagRefs []*TagRef `json:"tagRefList"`
+}
+
 type TagRef struct {
 	Id          int         `json:"id"`
 	Name        string      `json:"name"`

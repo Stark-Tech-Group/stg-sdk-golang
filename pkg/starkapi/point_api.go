@@ -97,6 +97,36 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 	return nil
 }
 
+//GetAllTags returns all tags for the provided domain.Point
+func (pointApi *PointApi) GetAllTags(point domain.Point) (domain.TagRefs, error) {
+	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
+
+	var tags domain.TagRefs
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return tags, err
+	}
+
+	err = json.Unmarshal(resp, &tags)
+	if err != nil {
+		return tags, err
+	}
+
+	return tags, nil
+}
+
+//DeleteTag deletes a domain.TagRef from the provided domain.Point
+func (pointApi *PointApi) DeleteTag(point domain.Point, tagRef domain.TagRef) error {
+	url := fmt.Sprintf("%s/%v/tags/%v", pointApi.BaseUrl(), point.Id, tagRef.Id)
+
+	_, err := pointApi.client.delete(url)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 

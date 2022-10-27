@@ -53,7 +53,7 @@ func TestQueryParams_DecodeParameters_WithDefaultOperator(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithEqual(t *testing.T) {
-	p := QueryParams{Id: "[eq]1"}
+	p := QueryParams{Id: "<eq>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -64,7 +64,7 @@ func TestQueryParams_DecodeParameters_WithEqual(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithNotEqual(t *testing.T) {
-	p := QueryParams{Id: "[nq]1"}
+	p := QueryParams{Id: "<nq>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -75,7 +75,7 @@ func TestQueryParams_DecodeParameters_WithNotEqual(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithGreaterThan(t *testing.T) {
-	p := QueryParams{Id: "[gt]1"}
+	p := QueryParams{Id: "<gt>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -86,7 +86,7 @@ func TestQueryParams_DecodeParameters_WithGreaterThan(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithGreaterThanEqual(t *testing.T) {
-	p := QueryParams{Id: "[ge]1"}
+	p := QueryParams{Id: "<ge>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -97,7 +97,7 @@ func TestQueryParams_DecodeParameters_WithGreaterThanEqual(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithLessThan(t *testing.T) {
-	p := QueryParams{Id: "[lt]1"}
+	p := QueryParams{Id: "<lt>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -108,7 +108,7 @@ func TestQueryParams_DecodeParameters_WithLessThan(t *testing.T) {
 }
 
 func TestQueryParams_DecodeParameters_WithLessThanEqual(t *testing.T) {
-	p := QueryParams{Id: "[le]1"}
+	p := QueryParams{Id: "<le>1"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(parameters))
@@ -119,7 +119,7 @@ func TestQueryParams_DecodeParameters_WithLessThanEqual(t *testing.T) {
 }
 
 func TestQueryParams_DecodeAll_Case1(t *testing.T) {
-	p := QueryParams{SiteRef: "[eq]s.abc", EquipId: "[gt]100"}
+	p := QueryParams{SiteRef: "<eq>s.abc", EquipId: "<gt>100"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(parameters))
@@ -134,7 +134,7 @@ func TestQueryParams_DecodeAll_Case1(t *testing.T) {
 }
 
 func TestQueryParams_DecodeAll_Case2(t *testing.T) {
-	p := QueryParams{SiteRef: "[eq]s.abc", Id: "[nq]100"}
+	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(parameters))

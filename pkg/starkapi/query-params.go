@@ -17,15 +17,16 @@ const (
 	where           = " where "
 	and             = " and "
 	defaultOperator = "="
+	leftOp          = "<"
 )
 
 var operatorMap = map[string]string{
-	"[eq]": "=",
-	"[nq]": "!=",
-	"[gt]": ">",
-	"[ge]": ">=",
-	"[lt]": "<",
-	"[le]": "<=",
+	"<eq>": "=",
+	"<nq>": "!=",
+	"<gt>": ">",
+	"<ge>": ">=",
+	"<lt>": "<",
+	"<le>": "<=",
 }
 var input = regexp.MustCompile("^([a-z]|[A-Z]|[0-9]|[.]|-){1,75}$")
 
@@ -79,7 +80,8 @@ func (q *QueryParams) Validate() bool {
 func decodeRightSide(field *reflect.StructField, val string) (string, interface{}, error) {
 
 	var operator, raw string
-	if val[0:1] == "[" && len(val) > 4 {
+
+	if val[0:1] == leftOp && len(val) > 4 {
 		queryOp := val[0:4]
 		operator = operatorMap[queryOp]
 		raw = val[4:]

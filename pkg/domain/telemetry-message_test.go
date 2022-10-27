@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestSetValue(t *testing.T) {
+func TestTelemetryMessageSetValue(t *testing.T) {
 	m := NewTelemetryMessage("abc")
 	m.SetValue("a-value", 100.0)
 	m.SetValue("b-value", 200.0)

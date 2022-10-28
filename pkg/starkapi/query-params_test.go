@@ -148,3 +148,32 @@ func TestQueryParams_DecodeAll_Case2(t *testing.T) {
 	assert.Equal(t, "s.abc", parameters[1].Value)
 
 }
+
+func TestQueryParams_build_sql(t *testing.T) {
+	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080"}
+	parameters, err := p.DecodeParameters()
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(parameters))
+
+	assert.Equal(t, "id", parameters[0].Column)
+	assert.Equal(t, "!=", parameters[0].Operator)
+	assert.Equal(t, int64(100), parameters[0].Value)
+
+	assert.Equal(t, "site_ref", parameters[1].Column)
+	assert.Equal(t, "=", parameters[1].Operator)
+	assert.Equal(t, "s.abc", parameters[1].Value)
+
+	assert.Equal(t, "ts", parameters[2].Column)
+	assert.Equal(t, "=", parameters[2].Operator)
+	assert.Equal(t, int64(1666797079), parameters[2].Value)
+
+	assert.Equal(t, "end_ts", parameters[3].Column)
+	assert.Equal(t, "=", parameters[3].Operator)
+	assert.Equal(t, int64(1666797080), parameters[3].Value)
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) LIMIT 5000", sql)
+	assert.Equal(t, 4, len(args))
+
+}

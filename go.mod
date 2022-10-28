@@ -23,7 +23,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/devigned/tab v0.1.1 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
-	github.com/jarcoal/httpmock v1.2.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jpillora/backoff v0.0.0-20180909062703-3050d21c67d7 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect

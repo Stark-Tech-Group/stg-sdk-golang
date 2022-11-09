@@ -48,6 +48,7 @@ type QueryParams struct {
 	Limit       int    `json:"limit" schema:"limit"`
 	Offset      int    `json:"offset" schema:"offset"`
 	RequestName string `json:"-" schema:"-"`
+	EventType   string `json:"-" schema:"-"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

@@ -181,9 +181,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 
 	if q.SortA != "" {
 		b.WriteString(fmt.Sprintf(" ORDER BY %s ASC", q.SortA))
-	}
-
-	if q.SortD != "" {
+	} else if q.SortD != "" {
 		b.WriteString(fmt.Sprintf(" ORDER BY %s DESC", q.SortD))
 	}
 

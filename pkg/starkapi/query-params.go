@@ -49,11 +49,13 @@ type QueryParams struct {
 	Offset      int    `json:"offset" schema:"offset"`
 	RequestName string `json:"-" schema:"-"`
 	EventType   string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
+	SortA       string `json:"sortA" schema:"sortA"`
+	SortD       string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams
 func (q *QueryParams) HashKey() string {
-	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v",
+	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s",
 		q.RequestName,
 		q.Id,
 		q.Ref,
@@ -68,7 +70,9 @@ func (q *QueryParams) HashKey() string {
 		q.Ts,
 		q.EndTs,
 		q.Limit,
-		q.Offset)
+		q.Offset,
+		q.SortA,
+		q.SortD)
 }
 
 func (q *QueryParams) Validate() bool {
@@ -173,6 +177,14 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			b.WriteString(and)
 		}
 		args[i] = p.Value
+	}
+
+	if q.SortA != "" {
+		b.WriteString(fmt.Sprintf(" ORDER BY %s ASC", q.SortA))
+	}
+
+	if q.SortD != "" {
+		b.WriteString(fmt.Sprintf(" ORDER BY %s DESC", q.SortD))
 	}
 
 	if q.Limit > 0 {

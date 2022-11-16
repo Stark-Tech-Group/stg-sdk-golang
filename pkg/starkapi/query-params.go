@@ -152,8 +152,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 				}
 				if field.Name == "SortA" {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: true, DescSort: false})
-				}
-				if field.Name == "SortD" {
+				} else if field.Name == "SortD" {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: true})
 				}
 			}

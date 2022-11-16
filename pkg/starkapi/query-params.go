@@ -137,6 +137,8 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 	t := reflect.TypeOf(q).Elem()
 	value := reflect.Indirect(reflect.ValueOf(q))
 
+	sorted := false
+
 	clauses := make([]Parameter, 0)
 
 	for i := 0; i < t.NumField(); i++ {
@@ -150,10 +152,12 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 				if err != nil {
 					return nil, err
 				}
-				if field.Name == "SortA" {
+				if field.Name == "SortA" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: true, DescSort: false})
-				} else if field.Name == "SortD" {
+					sorted = true
+				} else if field.Name == "SortD" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: true})
+					sorted = true
 				}
 			}
 			tag := field.Tag.Get(sqlColumn)
@@ -184,7 +188,6 @@ func (q *QueryParams) findSqlColumn(t reflect.Type, sortVal string) string {
 // BuildParameterizedQuery appends a parametrized query to the provided sql statement and returns the query with arguments
 func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}, error) {
 	parameters, err := q.DecodeParameters()
-	sorted := false
 	if err != nil {
 		return "", nil, errors.New("bad parameters")
 	}
@@ -204,13 +207,10 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
 				b.WriteString(orderBy)
 			}
-
-		} else if p.AscSort && !sorted {
-			b.WriteString(fmt.Sprintf("%s asc", p.Value))
-			sorted = true
-		} else if p.DescSort && !sorted {
-			b.WriteString(fmt.Sprintf("%s desc", p.Value))
-			sorted = true
+		} else if p.AscSort {
+			b.WriteString(p.parameterizedClause(i + 1))
+		} else if p.DescSort {
+			b.WriteString(p.parameterizedClause(i + 1))
 		}
 		args[i] = p.Value
 	}
@@ -238,6 +238,11 @@ func (p *Parameter) parameterizedClause(num int) string {
 	val := fmt.Sprintf("$%d", num)
 	if p.Decorator != "" {
 		val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", num), 1)
+	}
+	if p.AscSort {
+		return fmt.Sprintf("%s asc", val)
+	} else if p.DescSort {
+		return fmt.Sprintf("%s desc", val)
 	}
 	return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val)
 }

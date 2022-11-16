@@ -210,12 +210,10 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			args[i] = p.Value
 		} else if p.AscSort {
 			b.WriteString(p.parameterizedClause(i + 1))
-			args[i] = args[len(args)-1]
-			args = args[:len(args)-1]
+			args = append(args[:i], args[i+1:]...)
 		} else if p.DescSort {
 			b.WriteString(p.parameterizedClause(i + 1))
-			args[i] = args[len(args)-1]
-			args = args[:len(args)-1]
+			args = append(args[:i], args[i+1:]...)
 		}
 	}
 

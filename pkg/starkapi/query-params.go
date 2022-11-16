@@ -207,12 +207,12 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
 				b.WriteString(orderBy)
 			}
+			args[i] = p.Value
 		} else if p.AscSort {
 			b.WriteString(p.parameterizedClause(i + 1))
 		} else if p.DescSort {
 			b.WriteString(p.parameterizedClause(i + 1))
 		}
-		args[i] = p.Value
 	}
 
 	if q.Limit > 0 {
@@ -240,9 +240,9 @@ func (p *Parameter) parameterizedClause(num int) string {
 		val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", num), 1)
 	}
 	if p.AscSort {
-		return fmt.Sprintf("%s asc", val)
+		return fmt.Sprintf("%s asc", p.Value)
 	} else if p.DescSort {
-		return fmt.Sprintf("%s desc", val)
+		return fmt.Sprintf("%s desc", p.Value)
 	}
 	return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val)
 }

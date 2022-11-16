@@ -206,8 +206,9 @@ func TestQueryParams_build_sql_SortA(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by $5 asc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc LIMIT 5000", sql)
 	assert.Equal(t, 5, len(args))
+	assert.Nil(t, args[4])
 }
 
 func TestQueryParams_build_sql_SortD(t *testing.T) {
@@ -234,8 +235,9 @@ func TestQueryParams_build_sql_SortD(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by $5 desc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts desc LIMIT 5000", sql)
 	assert.Equal(t, 5, len(args))
+	assert.Nil(t, args[4])
 }
 
 func TestQueryParams_build_sql_SortAandSortD(t *testing.T) {
@@ -262,6 +264,7 @@ func TestQueryParams_build_sql_SortAandSortD(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by $5 asc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc LIMIT 5000", sql)
 	assert.Equal(t, 5, len(args))
+	assert.Nil(t, args[4])
 }

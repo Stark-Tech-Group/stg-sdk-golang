@@ -145,7 +145,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 		decorator := field.Tag.Get(sqlDecorator)
 		if len(val) > 0 {
 			if field.Name == "SortA" || field.Name == "SortD" {
-				sqlTag := q.FindSqlColumn(t, val)
+				sqlTag := q.findSqlColumn(t, val)
 				operator, sqlValue, err := decodeRightSide(&field, sqlTag)
 				if err != nil {
 					return nil, err
@@ -171,7 +171,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 	return clauses, nil
 }
 
-func (q *QueryParams) FindSqlColumn(t reflect.Type, sortVal string) string {
+func (q *QueryParams) findSqlColumn(t reflect.Type, sortVal string) string {
 	sqlTag := ""
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)

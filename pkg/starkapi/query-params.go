@@ -19,6 +19,8 @@ const (
 	and             = " and "
 	defaultOperator = "="
 	leftOp          = "<"
+	schema          = "schema"
+	orderBy         = " order by "
 )
 
 var operatorMap = map[string]string{
@@ -142,24 +144,48 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 		val := value.FieldByName(field.Name).String()
 		decorator := field.Tag.Get(sqlDecorator)
 		if len(val) > 0 {
+			if field.Name == "SortA" || field.Name == "SortD" {
+				sqlTag := q.FindSqlColumn(t, val)
+				operator, sqlValue, err := decodeRightSide(&field, sqlTag)
+				if err != nil {
+					return nil, err
+				}
+				if field.Name == "SortA" {
+					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: true, DescSort: false})
+				}
+				if field.Name == "SortD" {
+					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: true})
+				}
+			}
 			tag := field.Tag.Get(sqlColumn)
 			if len(tag) > 0 {
 				operator, sqlValue, err := decodeRightSide(&field, val)
 				if err != nil {
 					return nil, err
 				}
-				clauses = append(clauses, Parameter{Column: tag, Operator: operator, Value: sqlValue, Decorator: decorator})
+				clauses = append(clauses, Parameter{Column: tag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: false})
 			}
 		}
 	}
 
 	return clauses, nil
+}
 
+func (q *QueryParams) FindSqlColumn(t reflect.Type, sortVal string) string {
+	sqlTag := ""
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.Tag.Get(schema) == sortVal {
+			sqlTag = field.Tag.Get(sqlColumn)
+		}
+	}
+	return sqlTag
 }
 
 // BuildParameterizedQuery appends a parametrized query to the provided sql statement and returns the query with arguments
 func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}, error) {
 	parameters, err := q.DecodeParameters()
+	sorted := false
 	if err != nil {
 		return "", nil, errors.New("bad parameters")
 	}
@@ -172,17 +198,22 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 		b.WriteString(where)
 	}
 	for i, p := range parameters {
-		b.WriteString(p.parameterizedClause(i + 1))
-		if i < len(parameters)-1 {
-			b.WriteString(and)
+		if p.AscSort == false && p.DescSort == false {
+			b.WriteString(p.parameterizedClause(i + 1))
+			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
+				b.WriteString(and)
+			} else if parameters[i+1].AscSort || parameters[i+1].DescSort {
+				b.WriteString(orderBy)
+			}
+
+		} else if p.AscSort && !sorted {
+			b.WriteString(fmt.Sprintf("%s asc", p.Value))
+			sorted = true
+		} else if p.DescSort && !sorted {
+			b.WriteString(fmt.Sprintf("%s desc", p.Value))
+			sorted = true
 		}
 		args[i] = p.Value
-	}
-
-	if q.SortA != "" {
-		b.WriteString(fmt.Sprintf(" ORDER BY %s ASC", q.SortA))
-	} else if q.SortD != "" {
-		b.WriteString(fmt.Sprintf(" ORDER BY %s DESC", q.SortD))
 	}
 
 	if q.Limit > 0 {
@@ -199,6 +230,8 @@ type Parameter struct {
 	Operator  string
 	Value     interface{}
 	Decorator string
+	AscSort   bool
+	DescSort  bool
 }
 
 func (p *Parameter) parameterizedClause(num int) string {

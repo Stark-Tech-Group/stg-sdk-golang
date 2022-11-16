@@ -202,7 +202,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			b.WriteString(p.parameterizedClause(i + 1))
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
 				b.WriteString(and)
-			} else if parameters[i+1].AscSort || parameters[i+1].DescSort {
+			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
 				b.WriteString(orderBy)
 			}
 

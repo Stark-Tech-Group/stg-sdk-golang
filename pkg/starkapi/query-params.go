@@ -38,6 +38,7 @@ type QueryParams struct {
 	Ref         string `json:"ref" schema:"ref" sqlColumn:"ref" sqlType:"text"`
 	SiteId      string `json:"siteId" schema:"siteId" sqlColumn:"site_id" sqlType:"bigint"`
 	SiteRef     string `json:"siteRef" schema:"siteRef" sqlColumn:"site_ref" sqlType:"text"`
+	ProfilRef   string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
 	EquipId     string `json:"equipId" schema:"equipId" sqlColumn:"equip_id" sqlType:"bigint"`
 	EquipRef    string `json:"equipRef" schema:"equipRef" sqlColumn:"equip_ref" sqlType:"text"`
 	RuleName    string `json:"ruleName" schema:"ruleName" sqlColumn:"rule_name" sqlType:"text"`
@@ -57,7 +58,7 @@ type QueryParams struct {
 
 // HashKey creates a compounded string of the current QueryParams
 func (q *QueryParams) HashKey() string {
-	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s",
+	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s-%s",
 		q.RequestName,
 		q.Id,
 		q.Ref,
@@ -74,7 +75,8 @@ func (q *QueryParams) HashKey() string {
 		q.Limit,
 		q.Offset,
 		q.SortA,
-		q.SortD)
+		q.SortD,
+		q.ProfilRef)
 }
 
 func (q *QueryParams) Validate() bool {

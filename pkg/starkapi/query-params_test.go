@@ -156,10 +156,10 @@ func TestQueryParams_DecodeAll_Case2(t *testing.T) {
 }
 
 func TestQueryParams_build_sql(t *testing.T) {
-	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080"}
+	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080", ProfilRef: "<eq>p.123"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(parameters))
+	assert.Equal(t, 5, len(parameters))
 
 	assert.Equal(t, "id", parameters[0].Column)
 	assert.Equal(t, "!=", parameters[0].Operator)
@@ -169,18 +169,22 @@ func TestQueryParams_build_sql(t *testing.T) {
 	assert.Equal(t, "=", parameters[1].Operator)
 	assert.Equal(t, "s.abc", parameters[1].Value)
 
-	assert.Equal(t, "ts", parameters[2].Column)
+	assert.Equal(t, "profile_ref", parameters[2].Column)
 	assert.Equal(t, "=", parameters[2].Operator)
-	assert.Equal(t, int64(1666797079), parameters[2].Value)
+	assert.Equal(t, "p.123", parameters[2].Value)
 
-	assert.Equal(t, "end_ts", parameters[3].Column)
+	assert.Equal(t, "ts", parameters[3].Column)
 	assert.Equal(t, "=", parameters[3].Operator)
-	assert.Equal(t, int64(1666797080), parameters[3].Value)
+	assert.Equal(t, int64(1666797079), parameters[3].Value)
+
+	assert.Equal(t, "end_ts", parameters[4].Column)
+	assert.Equal(t, "=", parameters[4].Operator)
+	assert.Equal(t, int64(1666797080), parameters[4].Value)
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) LIMIT 5000", sql)
-	assert.Equal(t, 4, len(args))
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and profile_ref = $3 and ts = to_timestamp($4) and end_ts = to_timestamp($5) LIMIT 5000", sql)
+	assert.Equal(t, 5, len(args))
 
 }
 

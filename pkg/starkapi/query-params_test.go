@@ -44,7 +44,7 @@ func TestQueryParams_HashKey(t *testing.T) {
 	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts--", p.HashKey())
 	p.SortD = "id"
 	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts-id-", p.HashKey())
-	p.ProfilRef = "15"
+	p.ProfileRef = "15"
 	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts-id-15", p.HashKey())
 }
 func TestQueryParams_DecodeParameters_WithDefaultOperator(t *testing.T) {
@@ -125,18 +125,22 @@ func TestQueryParams_DecodeParameters_WithLessThanEqual(t *testing.T) {
 }
 
 func TestQueryParams_DecodeAll_Case1(t *testing.T) {
-	p := QueryParams{SiteRef: "<eq>s.abc", EquipId: "<gt>100"}
+	p := QueryParams{SiteRef: "<eq>s.abc", EquipId: "<gt>100", ProfileRef: "<eq>p.123"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(parameters))
+	assert.Equal(t, 3, len(parameters))
 
 	assert.Equal(t, "site_ref", parameters[0].Column)
 	assert.Equal(t, "=", parameters[0].Operator)
 	assert.Equal(t, "s.abc", parameters[0].Value)
 
-	assert.Equal(t, "equip_id", parameters[1].Column)
-	assert.Equal(t, ">", parameters[1].Operator)
-	assert.Equal(t, int64(100), parameters[1].Value)
+	assert.Equal(t, "profile_ref", parameters[1].Column)
+	assert.Equal(t, "=", parameters[1].Operator)
+	assert.Equal(t, "p.123", parameters[1].Value)
+
+	assert.Equal(t, "equip_id", parameters[2].Column)
+	assert.Equal(t, ">", parameters[2].Operator)
+	assert.Equal(t, int64(100), parameters[2].Value)
 }
 
 func TestQueryParams_DecodeAll_Case2(t *testing.T) {
@@ -156,7 +160,7 @@ func TestQueryParams_DecodeAll_Case2(t *testing.T) {
 }
 
 func TestQueryParams_build_sql(t *testing.T) {
-	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080", ProfilRef: "<eq>p.123"}
+	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080", ProfileRef: "<eq>p.123"}
 	parameters, err := p.DecodeParameters()
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(parameters))
@@ -270,4 +274,15 @@ func TestQueryParams_build_sql_SortAandSortD(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc LIMIT 5000", sql)
 	assert.Equal(t, 4, len(args))
+}
+
+func TestQueryParams_DecodeProfileRef(t *testing.T) {
+	p := QueryParams{ProfileRef: "<eq>p.123"}
+	parameters, err := p.DecodeParameters()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(parameters))
+
+	assert.Equal(t, "profile_ref", parameters[0].Column)
+	assert.Equal(t, "=", parameters[0].Operator)
+	assert.Equal(t, "p.123", parameters[0].Value)
 }

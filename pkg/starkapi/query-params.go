@@ -123,8 +123,10 @@ func castWithField(field *reflect.StructField, raw string) (interface{}, error) 
 			return nil, errors.New("not a float64")
 		}
 		return value, nil
-	default:
+	case "text":
 		return raw, nil
+	default:
+		return nil, fmt.Errorf("unknown data type [%s]", sqlValType)
 	}
 }
 

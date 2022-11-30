@@ -125,6 +125,8 @@ func castWithField(field *reflect.StructField, raw string) (interface{}, error) 
 		return value, nil
 	case "text":
 		return raw, nil
+	case "":
+		return raw, nil
 	default:
 		return nil, fmt.Errorf("unknown data type [%s]", sqlValType)
 	}

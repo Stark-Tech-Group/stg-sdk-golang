@@ -21,6 +21,7 @@ const (
 	leftOp          = "<"
 	schema          = "schema"
 	orderBy         = " order by "
+	in              = "IN"
 )
 
 var operatorMap = map[string]string{
@@ -30,8 +31,11 @@ var operatorMap = map[string]string{
 	"<ge>": ">=",
 	"<lt>": "<",
 	"<le>": "<=",
+	"<in>": in,
 }
 var input = regexp.MustCompile("^([a-z]|[A-Z]|[0-9]|[.]|-){1,75}$")
+var colTypeMap map[string]*reflect.StructField
+var fieldToColumnMap map[string]string
 
 type QueryParams struct {
 	Id          string `json:"id" schema:"id" sqlColumn:"id" sqlType:"bigint"`
@@ -87,6 +91,47 @@ func (q *QueryParams) Validate() bool {
 	return true
 }
 
+func castWithColumn(column, raw string) (interface{}, error) {
+	field := getSqlTypeByColumnName(column)
+	if field == nil {
+		return "", fmt.Errorf("field not found with sql column name [%s]", column)
+	}
+	return castWithField(field, raw)
+}
+
+func castWithField(field *reflect.StructField, raw string) (interface{}, error) {
+	sqlValType := field.Tag.Get(sqlType)
+	switch sqlValType {
+	case "bigint":
+		value, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			logger.Errorf("faild to convert strign to int64")
+			return nil, errors.New("not a int64")
+		}
+		return value, nil
+	case "int":
+		value, err := strconv.ParseInt(raw, 10, 32)
+		if err != nil {
+			logger.Errorf("faild to convert string to int32")
+			return nil, errors.New("not a int32")
+		}
+		return value, nil
+	case "float":
+		value, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			logger.Errorf("faild to convert string to float64")
+			return nil, errors.New("not a float64")
+		}
+		return value, nil
+	case "text":
+		return raw, nil
+	case "":
+		return raw, nil
+	default:
+		return nil, fmt.Errorf("unknown data type [%s]", sqlValType)
+	}
+}
+
 func decodeRightSide(field *reflect.StructField, val string) (string, interface{}, error) {
 
 	var operator, raw string
@@ -95,6 +140,11 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		queryOp := val[0:4]
 		operator = operatorMap[queryOp]
 		raw = val[4:]
+
+		if operator == in {
+			return operator, raw, nil
+		}
+
 	} else {
 		operator = defaultOperator
 		raw = val
@@ -105,37 +155,16 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		return "", "", errors.New("no operator found")
 	}
 
-	sqlValType := field.Tag.Get(sqlType)
-	switch sqlValType {
-	case "bigint":
-		value, err := strconv.ParseInt(raw, 10, 64)
-		if err != nil {
-			logger.Errorf("faild to convert strign to int64")
-			return "", nil, errors.New("not a int64")
-		}
-		return operator, value, nil
-	case "int":
-		value, err := strconv.ParseInt(raw, 10, 32)
-		if err != nil {
-			logger.Errorf("faild to convert string to int32")
-			return "", nil, errors.New("not a int32")
-		}
-		return operator, value, nil
-	case "float":
-		value, err := strconv.ParseFloat(raw, 64)
-		if err != nil {
-			logger.Errorf("faild to convert string to float64")
-			return "", nil, errors.New("not a float64")
-		}
-		return operator, value, nil
-	default:
-		return operator, raw, nil
+	value, err := castWithField(field, raw)
+	if err != nil {
+		return "", nil, err
 	}
 
+	return operator, value, nil
 }
 
 func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
-
+	scan()
 	t := reflect.TypeOf(q).Elem()
 	value := reflect.Indirect(reflect.ValueOf(q))
 
@@ -149,7 +178,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 		decorator := field.Tag.Get(sqlDecorator)
 		if len(val) > 0 {
 			if field.Name == "SortA" || field.Name == "SortD" {
-				sqlTag := q.findSqlColumn(t, val)
+				sqlTag := getColumnNameByFieldName(val)
 				operator, sqlValue, err := decodeRightSide(&field, sqlTag)
 				if err != nil {
 					return nil, err
@@ -187,6 +216,39 @@ func (q *QueryParams) findSqlColumn(t reflect.Type, sortVal string) string {
 	return sqlTag
 }
 
+//scan preforms a reflection lookup to populate internal collections for faster lookups
+func scan() {
+	if colTypeMap == nil || fieldToColumnMap == nil {
+
+		t := reflect.ValueOf(&QueryParams{}).Elem()
+
+		colTypeMap = make(map[string]*reflect.StructField, 0)
+		fieldToColumnMap = make(map[string]string, 0)
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Type().Field(i)
+			col := field.Tag.Get(sqlColumn)
+			sch := field.Tag.Get(schema)
+			if len(col) > 0 {
+				colTypeMap[col] = &field
+			}
+			if len(sch) > 0 && len(field.Tag.Get(sqlColumn)) > 0 {
+				fieldToColumnMap[sch] = field.Tag.Get(sqlColumn)
+			}
+		}
+	}
+}
+
+func getSqlTypeByColumnName(column string) *reflect.StructField {
+	scan()
+	return colTypeMap[column]
+}
+
+func getColumnNameByFieldName(field string) string {
+	scan()
+	return fieldToColumnMap[field]
+
+}
+
 // BuildParameterizedQuery appends a parametrized query to the provided sql statement and returns the query with arguments
 func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}, error) {
 	parameters, err := q.DecodeParameters()
@@ -194,28 +256,39 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 		return "", nil, errors.New("bad parameters")
 	}
 
-	args := make([]interface{}, len(parameters))
+	args := make([]interface{}, 0)
 
 	b := strings.Builder{}
 	b.WriteString(sql)
 	if len(parameters) > 0 {
 		b.WriteString(where)
 	}
+
+	explodedIndex := 0
 	for i, p := range parameters {
 		if p.AscSort == false && p.DescSort == false {
-			b.WriteString(p.parameterizedClause(i + 1))
+			chunk, explodedArgs := p.parameterizedClause(i + explodedIndex)
+
+			b.WriteString(chunk)
+			if explodedArgs != nil {
+				for _, v := range explodedArgs {
+					args = append(args, v)
+				}
+				explodedIndex += len(explodedArgs)
+			} else {
+				args = append(args, p.Value)
+			}
+
+			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
 				b.WriteString(and)
 			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
 				b.WriteString(orderBy)
 			}
-			args[i] = p.Value
-		} else if p.AscSort {
-			b.WriteString(p.parameterizedClause(i + 1))
-			args = append(args[:i], args[i+1:]...)
-		} else if p.DescSort {
-			b.WriteString(p.parameterizedClause(i + 1))
-			args = append(args[:i], args[i+1:]...)
+
+		} else if p.AscSort || p.DescSort {
+			chunk, _ := p.parameterizedClause(i + explodedIndex)
+			b.WriteString(chunk)
 		}
 	}
 
@@ -237,16 +310,42 @@ type Parameter struct {
 	DescSort  bool
 }
 
-func (p *Parameter) parameterizedClause(num int) string {
+func (p *Parameter) parameterizedClause(seedIndex int) (string, []interface{}) {
 
-	val := fmt.Sprintf("$%d", num)
-	if p.Decorator != "" {
-		val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", num), 1)
+	if p.Operator == in {
+		return p.parameterizedInClause(seedIndex + 1)
+
+	} else {
+		val := fmt.Sprintf("$%d", seedIndex+1)
+		if p.Decorator != "" {
+			val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)
+		}
+		if p.AscSort {
+			return fmt.Sprintf("%s asc", p.Value), nil
+		} else if p.DescSort {
+			return fmt.Sprintf("%s desc", p.Value), nil
+		}
+		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val), nil
 	}
-	if p.AscSort {
-		return fmt.Sprintf("%s asc", p.Value)
-	} else if p.DescSort {
-		return fmt.Sprintf("%s desc", p.Value)
+}
+
+func (p *Parameter) parameterizedInClause(num int) (string, []interface{}) {
+	values := strings.Split(p.Value.(string), ",")
+	builder := strings.Builder{}
+
+	explodedArgs := make([]interface{}, len(values))
+	builder.WriteString("(")
+	for i, v := range values {
+		builder.WriteString(fmt.Sprintf("$%d", num+i))
+		value, err := castWithColumn(p.Column, v)
+		if err == nil {
+			explodedArgs[i] = value
+		}
+		if i < len(values)-1 {
+			builder.WriteString(",")
+		}
 	}
-	return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val)
+	builder.WriteString(")")
+
+	return fmt.Sprintf("%s %s %s", p.Column, p.Operator, builder.String()), explodedArgs
 }

@@ -286,3 +286,60 @@ func TestQueryParams_DecodeProfileRef(t *testing.T) {
 	assert.Equal(t, "=", parameters[0].Operator)
 	assert.Equal(t, "p.123", parameters[0].Value)
 }
+
+func TestQueryParams_WithIn(t *testing.T) {
+	p := QueryParams{Severity: "<in>1,2,3"}
+	parameters, err := p.DecodeParameters()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(parameters))
+
+	assert.Equal(t, "severity", parameters[0].Column)
+	assert.Equal(t, "IN", parameters[0].Operator)
+	assert.Equal(t, "1,2,3", parameters[0].Value)
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+
+	assert.Equal(t, "Select * from hello where severity IN ($1,$2,$3) LIMIT 5000", sql)
+	assert.Equal(t, 3, len(args))
+}
+
+func TestQueryParams_WithInAndEqual(t *testing.T) {
+	p := QueryParams{Severity: "<in>1,2,3", ProfileRef: "p.123"}
+	parameters, err := p.DecodeParameters()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(parameters))
+
+	assert.Equal(t, "profile_ref", parameters[0].Column)
+	assert.Equal(t, "=", parameters[0].Operator)
+	assert.Equal(t, "p.123", parameters[0].Value)
+
+	assert.Equal(t, "severity", parameters[1].Column)
+	assert.Equal(t, "IN", parameters[1].Operator)
+	assert.Equal(t, "1,2,3", parameters[1].Value)
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+
+	assert.Equal(t, "Select * from hello where profile_ref = $1 and severity IN ($2,$3,$4) LIMIT 5000", sql)
+	assert.Equal(t, 4, len(args))
+	assert.Equal(t, "p.123", args[0])
+	assert.Equal(t, int64(1), args[1])
+	assert.Equal(t, int64(2), args[2])
+	assert.Equal(t, int64(3), args[3])
+}
+
+func TestQueryParams_WithInAndEqualAndSortAndLimitAndOffset(t *testing.T) {
+	p := QueryParams{Severity: "<in>1,2,3", ProfileRef: "p.123", RuleName: "<in>ruleA,ruleB", SortD: "ts", Limit: 100, Offset: 10}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where profile_ref = $1 and rule_name IN ($2,$3) and severity IN ($5,$6,$7) order by ts desc LIMIT 100 OFFSET 10", sql)
+	assert.Equal(t, 6, len(args))
+	assert.Equal(t, "p.123", args[0])
+	assert.Equal(t, "ruleA", args[1])
+	assert.Equal(t, "ruleB", args[2])
+	assert.Equal(t, int64(1), args[3])
+	assert.Equal(t, int64(2), args[4])
+	assert.Equal(t, int64(3), args[5])
+
+}

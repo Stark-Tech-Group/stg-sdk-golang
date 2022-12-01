@@ -116,11 +116,6 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		queryOp := val[0:4]
 		operator = operatorMap[queryOp]
 		raw = val[4:]
-
-		if operator == in {
-			return operator, raw, nil
-		}
-
 	} else {
 		operator = defaultOperator
 		raw = val

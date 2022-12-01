@@ -21,6 +21,7 @@ const (
 	schema          = "schema"
 	orderBy         = " order by "
 	in              = "IN"
+	pqArrayType     = ":pq-array"
 )
 
 var operatorMap = map[string]string{
@@ -94,7 +95,7 @@ func castWithField(field *reflect.StructField, raw string, operator string) (int
 	sqlValType := field.Tag.Get(sqlType)
 
 	if operator == in {
-		sqlValType = sqlValType + ":array"
+		sqlValType = sqlValType + pqArrayType
 	}
 
 	return cast(sqlValType, raw)

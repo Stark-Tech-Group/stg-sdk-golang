@@ -52,6 +52,7 @@ type QueryParams struct {
 	PersonId    string `json:"personId" schema:"personId" sqlColumn:"person_id" sqlType:"bigint"`
 	Ts          string `json:"ts" schema:"ts" sqlColumn:"ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
 	EndTs       string `json:"endTs" schema:"endTs" sqlColumn:"end_ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
+	EventRef    string `json:"eventRef" schema:"eventRef" sqlColumn:"event_ref" sqlType:"text"`
 	Limit       int    `json:"limit" schema:"limit"`
 	Offset      int    `json:"offset" schema:"offset"`
 	RequestName string `json:"-" schema:"-"`
@@ -62,7 +63,7 @@ type QueryParams struct {
 
 // HashKey creates a compounded string of the current QueryParams
 func (q *QueryParams) HashKey() string {
-	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s-%s",
+	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s-%s",
 		q.RequestName,
 		q.Id,
 		q.Ref,
@@ -76,6 +77,7 @@ func (q *QueryParams) HashKey() string {
 		q.PersonId,
 		q.Ts,
 		q.EndTs,
+		q.EventRef,
 		q.Limit,
 		q.Offset,
 		q.SortA,

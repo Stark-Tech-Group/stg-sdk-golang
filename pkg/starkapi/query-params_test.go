@@ -1,6 +1,7 @@
 package starkapi
 
 import (
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -295,7 +296,6 @@ func TestQueryParams_WithIn(t *testing.T) {
 
 	assert.Equal(t, "severity", parameters[0].Column)
 	assert.Equal(t, "IN", parameters[0].Operator)
-	assert.Equal(t, []int32{1, 2, 3}, parameters[0].Value)
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
@@ -316,14 +316,15 @@ func TestQueryParams_WithInAndEqual(t *testing.T) {
 
 	assert.Equal(t, "severity", parameters[1].Column)
 	assert.Equal(t, "IN", parameters[1].Operator)
-	assert.Equal(t, []int32{1, 2, 3}, parameters[1].Value)
+
+	v := parameters[1].Value.(*pq.Int32Array)
+	assert.NotNil(t, v)
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
 	assert.Equal(t, "Select * from hello where profile_ref = $1 and severity = ANY($2) LIMIT 5000", sql)
 	assert.Equal(t, 2, len(args))
 	assert.Equal(t, "p.123", args[0])
-	assert.Equal(t, []int32{1, 2, 3}, args[1])
 
 }
 
@@ -336,7 +337,5 @@ func TestQueryParams_WithInAndEqualAndSortAndLimitAndOffset(t *testing.T) {
 	assert.Equal(t, "Select * from hello where profile_ref = $1 and rule_name = ANY($2) and severity = ANY($3) order by ts desc LIMIT 100 OFFSET 10", sql)
 	assert.Equal(t, 3, len(args))
 	assert.Equal(t, "p.123", args[0])
-	assert.Equal(t, []string{"ruleA", "ruleB"}, args[1])
-	assert.Equal(t, []int32{1, 2, 3}, args[2])
 
 }

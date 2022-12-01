@@ -8,45 +8,47 @@ import (
 
 func TestQueryParams_HashKey(t *testing.T) {
 	p := QueryParams{}
-	assert.Equal(t, "-------------0-0---", p.HashKey())
+	assert.Equal(t, "--------------0-0---", p.HashKey())
 
-	assert.Equal(t, "-------------0-0---", p.HashKey())
+	assert.Equal(t, "--------------0-0---", p.HashKey())
 	p.RequestName = "R"
-	assert.Equal(t, "R-------------0-0---", p.HashKey())
+	assert.Equal(t, "R--------------0-0---", p.HashKey())
 	p.Id = "1"
-	assert.Equal(t, "R-1------------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-------------0-0---", p.HashKey())
 	p.Ref = "2"
-	assert.Equal(t, "R-1-2-----------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2------------0-0---", p.HashKey())
 	p.SiteId = "3"
-	assert.Equal(t, "R-1-2-3----------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-----------0-0---", p.HashKey())
 	p.SiteRef = "4"
-	assert.Equal(t, "R-1-2-3-4---------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4----------0-0---", p.HashKey())
 	p.EquipRef = "5"
-	assert.Equal(t, "R-1-2-3-4-5--------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5---------0-0---", p.HashKey())
 	p.RuleName = "6"
-	assert.Equal(t, "R-1-2-3-4-5-6-------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6--------0-0---", p.HashKey())
 	p.RuleId = "7"
-	assert.Equal(t, "R-1-2-3-4-5-6-7------0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-------0-0---", p.HashKey())
 	p.Severity = "8"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-----0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8------0-0---", p.HashKey())
 	p.Duration = "9"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9----0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-----0-0---", p.HashKey())
 	p.PersonId = "10"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10---0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10----0-0---", p.HashKey())
 	p.Ts = "11"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11--0-0---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11---0-0---", p.HashKey())
 	p.EndTs = "12"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-0-0---", p.HashKey())
-	p.Limit = 13
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-0---", p.HashKey())
-	p.Offset = 14
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14---", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12--0-0---", p.HashKey())
+	p.EventRef = "13"
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-0-0---", p.HashKey())
+	p.Limit = 14
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-0---", p.HashKey())
+	p.Offset = 15
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15---", p.HashKey())
 	p.SortA = "ts"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts--", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-ts--", p.HashKey())
 	p.SortD = "id"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts-id-", p.HashKey())
-	p.ProfileRef = "15"
-	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-ts-id-15", p.HashKey())
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-ts-id-", p.HashKey())
+	p.ProfileRef = "16"
+	assert.Equal(t, "R-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-ts-id-16", p.HashKey())
 }
 func TestQueryParams_DecodeParameters_WithDefaultOperator(t *testing.T) {
 	p := QueryParams{Id: "1"}
@@ -337,5 +339,4 @@ func TestQueryParams_WithInAndEqualAndSortAndLimitAndOffset(t *testing.T) {
 	assert.Equal(t, "Select * from hello where profile_ref = $1 and rule_name = ANY($2) and severity = ANY($3) order by ts desc LIMIT 100 OFFSET 10", sql)
 	assert.Equal(t, 3, len(args))
 	assert.Equal(t, "p.123", args[0])
-
 }

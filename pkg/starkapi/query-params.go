@@ -90,14 +90,6 @@ func (q *QueryParams) Validate() bool {
 	return true
 }
 
-func castWithColumn(column, raw, operator string) (interface{}, error) {
-	field := getSqlTypeByColumnName(column)
-	if field == nil {
-		return "", fmt.Errorf("field not found with sql column name [%s]", column)
-	}
-	return castWithField(field, raw, operator)
-}
-
 func castWithField(field *reflect.StructField, raw string, operator string) (interface{}, error) {
 	sqlValType := field.Tag.Get(sqlType)
 
@@ -214,11 +206,6 @@ func scan() {
 	}
 }
 
-func getSqlTypeByColumnName(column string) *reflect.StructField {
-	scan()
-	return colTypeMap[column]
-}
-
 func getColumnNameByFieldName(field string) string {
 	scan()
 	return fieldToColumnMap[field]
@@ -246,14 +233,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			//if explodedArgs != nil {
-			//	for _, v := range explodedArgs {
-			//		args = append(args, v)
-			//	}
-			//	explodedIndex += len(explodedArgs)
-			//} else {
 			args = append(args, p.Value)
-			//}
 
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {

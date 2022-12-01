@@ -6,7 +6,6 @@ import (
 	logger "github.com/sirupsen/logrus"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -91,45 +90,22 @@ func (q *QueryParams) Validate() bool {
 	return true
 }
 
-func castWithColumn(column, raw string) (interface{}, error) {
+func castWithColumn(column, raw, operator string) (interface{}, error) {
 	field := getSqlTypeByColumnName(column)
 	if field == nil {
 		return "", fmt.Errorf("field not found with sql column name [%s]", column)
 	}
-	return castWithField(field, raw)
+	return castWithField(field, raw, operator)
 }
 
-func castWithField(field *reflect.StructField, raw string) (interface{}, error) {
+func castWithField(field *reflect.StructField, raw string, operator string) (interface{}, error) {
 	sqlValType := field.Tag.Get(sqlType)
-	switch sqlValType {
-	case "bigint":
-		value, err := strconv.ParseInt(raw, 10, 64)
-		if err != nil {
-			logger.Errorf("faild to convert strign to int64")
-			return nil, errors.New("not a int64")
-		}
-		return value, nil
-	case "int":
-		value, err := strconv.ParseInt(raw, 10, 32)
-		if err != nil {
-			logger.Errorf("faild to convert string to int32")
-			return nil, errors.New("not a int32")
-		}
-		return value, nil
-	case "float":
-		value, err := strconv.ParseFloat(raw, 64)
-		if err != nil {
-			logger.Errorf("faild to convert string to float64")
-			return nil, errors.New("not a float64")
-		}
-		return value, nil
-	case "text":
-		return raw, nil
-	case "":
-		return raw, nil
-	default:
-		return nil, fmt.Errorf("unknown data type [%s]", sqlValType)
+
+	if operator == in {
+		sqlValType = sqlValType + ":array"
 	}
+
+	return cast(sqlValType, raw)
 }
 
 func decodeRightSide(field *reflect.StructField, val string) (string, interface{}, error) {
@@ -155,7 +131,7 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		return "", "", errors.New("no operator found")
 	}
 
-	value, err := castWithField(field, raw)
+	value, err := castWithField(field, raw, operator)
 	if err != nil {
 		return "", nil, err
 	}
@@ -177,6 +153,8 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 		val := value.FieldByName(field.Name).String()
 		decorator := field.Tag.Get(sqlDecorator)
 		if len(val) > 0 {
+			typ := field.Tag.Get(sqlType)
+
 			if field.Name == "SortA" || field.Name == "SortD" {
 				sqlTag := getColumnNameByFieldName(val)
 				operator, sqlValue, err := decodeRightSide(&field, sqlTag)
@@ -184,10 +162,12 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 					return nil, err
 				}
 				if field.Name == "SortA" && !sorted {
-					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: true, DescSort: false})
+					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
+						Decorator: decorator, AscSort: true, DescSort: false, Type: typ})
 					sorted = true
 				} else if field.Name == "SortD" && !sorted {
-					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: true})
+					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
+						Decorator: decorator, AscSort: false, DescSort: true, Type: typ})
 					sorted = true
 				}
 			}
@@ -197,7 +177,8 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 				if err != nil {
 					return nil, err
 				}
-				clauses = append(clauses, Parameter{Column: tag, Operator: operator, Value: sqlValue, Decorator: decorator, AscSort: false, DescSort: false})
+				clauses = append(clauses, Parameter{Column: tag, Operator: operator, Value: sqlValue,
+					Decorator: decorator, AscSort: false, DescSort: false, Type: typ})
 			}
 		}
 	}
@@ -267,17 +248,17 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 	explodedIndex := 0
 	for i, p := range parameters {
 		if p.AscSort == false && p.DescSort == false {
-			chunk, explodedArgs := p.parameterizedClause(i + explodedIndex)
+			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			if explodedArgs != nil {
-				for _, v := range explodedArgs {
-					args = append(args, v)
-				}
-				explodedIndex += len(explodedArgs)
-			} else {
-				args = append(args, p.Value)
-			}
+			//if explodedArgs != nil {
+			//	for _, v := range explodedArgs {
+			//		args = append(args, v)
+			//	}
+			//	explodedIndex += len(explodedArgs)
+			//} else {
+			args = append(args, p.Value)
+			//}
 
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
@@ -305,16 +286,18 @@ type Parameter struct {
 	Column    string
 	Operator  string
 	Value     interface{}
+	Type      string
 	Decorator string
 	AscSort   bool
 	DescSort  bool
 }
 
-func (p *Parameter) parameterizedClause(seedIndex int) (string, []interface{}) {
+func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 
 	if p.Operator == in {
-		return p.parameterizedInClause(seedIndex + 1)
-
+		//return p.parameterizedInClause(seedIndex + 1)
+		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
+		return fmt.Sprintf("%s = %s", p.Column, val), nil
 	} else {
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {
@@ -327,25 +310,4 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, []interface{}) {
 		}
 		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val), nil
 	}
-}
-
-func (p *Parameter) parameterizedInClause(num int) (string, []interface{}) {
-	values := strings.Split(p.Value.(string), ",")
-	builder := strings.Builder{}
-
-	explodedArgs := make([]interface{}, len(values))
-	builder.WriteString("(")
-	for i, v := range values {
-		builder.WriteString(fmt.Sprintf("$%d", num+i))
-		value, err := castWithColumn(p.Column, v)
-		if err == nil {
-			explodedArgs[i] = value
-		}
-		if i < len(values)-1 {
-			builder.WriteString(",")
-		}
-	}
-	builder.WriteString(")")
-
-	return fmt.Sprintf("%s %s %s", p.Column, p.Operator, builder.String()), explodedArgs
 }

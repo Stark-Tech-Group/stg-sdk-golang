@@ -299,8 +299,9 @@ func TestQueryParams_WithIn(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where severity IN ($1,$2,$3) LIMIT 5000", sql)
-	assert.Equal(t, 3, len(args))
+	assert.Equal(t, "Select * from hello where severity = ANY($1) LIMIT 5000", sql)
+	assert.Equal(t, 1, len(args))
+
 }
 
 func TestQueryParams_WithInAndEqual(t *testing.T) {

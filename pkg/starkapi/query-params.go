@@ -187,7 +187,7 @@ func (q *QueryParams) findSqlColumn(t reflect.Type, sortVal string) string {
 	return sqlTag
 }
 
-//scan preforms a reflection lookup to populate internal collections for faster lookups
+// scan preforms a reflection lookup to populate internal collections for faster lookups
 func scan() {
 	if colTypeMap == nil || fieldToColumnMap == nil {
 
@@ -253,8 +253,6 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 
 	if q.Limit > 0 {
 		b.WriteString(fmt.Sprintf(" LIMIT %v OFFSET %v", q.Limit, q.Offset))
-	} else {
-		b.WriteString(fmt.Sprintf(" LIMIT %v", maxLimit))
 	}
 
 	return b.String(), args, nil

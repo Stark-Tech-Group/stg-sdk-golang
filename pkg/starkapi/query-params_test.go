@@ -190,7 +190,7 @@ func TestQueryParams_build_sql(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and profile_ref = $3 and ts = to_timestamp($4) and end_ts = to_timestamp($5) LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and profile_ref = $3 and ts = to_timestamp($4) and end_ts = to_timestamp($5)", sql)
 	assert.Equal(t, 5, len(args))
 
 }
@@ -219,7 +219,7 @@ func TestQueryParams_build_sql_SortA(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc", sql)
 	assert.Equal(t, 4, len(args))
 }
 
@@ -247,7 +247,7 @@ func TestQueryParams_build_sql_SortD(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts desc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts desc", sql)
 	assert.Equal(t, 4, len(args))
 }
 
@@ -275,7 +275,7 @@ func TestQueryParams_build_sql_SortAandSortD(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc", sql)
 	assert.Equal(t, 4, len(args))
 }
 
@@ -301,7 +301,7 @@ func TestQueryParams_WithIn(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where severity = ANY($1) LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where severity = ANY($1)", sql)
 	assert.Equal(t, 1, len(args))
 
 }
@@ -324,7 +324,7 @@ func TestQueryParams_WithInAndEqual(t *testing.T) {
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
-	assert.Equal(t, "Select * from hello where profile_ref = $1 and severity = ANY($2) LIMIT 5000", sql)
+	assert.Equal(t, "Select * from hello where profile_ref = $1 and severity = ANY($2)", sql)
 	assert.Equal(t, 2, len(args))
 	assert.Equal(t, "p.123", args[0])
 

@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/Azure/azure-event-hubs-go/v3 v3.3.18
+	github.com/lib/pq v1.10.7
 	github.com/sirupsen/logrus v1.2.0
 	github.com/stretchr/testify v1.7.4
 )
@@ -26,7 +27,6 @@ require (
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jpillora/backoff v0.0.0-20180909062703-3050d21c67d7 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
-	github.com/lib/pq v1.10.7 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect

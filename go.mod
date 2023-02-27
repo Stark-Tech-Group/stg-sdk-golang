@@ -6,7 +6,7 @@ require (
 	github.com/Azure/azure-event-hubs-go/v3 v3.3.18
 	github.com/lib/pq v1.10.7
 	github.com/sirupsen/logrus v1.2.0
-	github.com/stretchr/testify v1.7.4
+	github.com/stretchr/testify v1.8.2
 )
 
 require (

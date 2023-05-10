@@ -361,5 +361,4 @@ func TestQueryParams_OrderByDateCreated(t *testing.T) {
 	assert.Equal(t, "Select * from hello where severity = $1 order by date_created asc", sql)
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, int32(1), args[0])
-	//test
 }

@@ -340,3 +340,25 @@ func TestQueryParams_WithInAndEqualAndSortAndLimitAndOffset(t *testing.T) {
 	assert.Equal(t, 3, len(args))
 	assert.Equal(t, "p.123", args[0])
 }
+
+func TestQueryParams_DateCreated(t *testing.T) {
+	p := QueryParams{DateCreated: "1683731908"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where date_created = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1683731908), args[0])
+}
+
+func TestQueryParams_OrderByDateCreated(t *testing.T) {
+	p := QueryParams{Severity: "1", SortA: "dateCreated"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where severity = $1 order by date_created asc", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int32(1), args[0])
+}

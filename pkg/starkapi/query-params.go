@@ -59,6 +59,7 @@ type QueryParams struct {
 	EventType   string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
 	SortA       string `json:"sortA" schema:"sortA"`
 	SortD       string `json:"sortD" schema:"sortD"`
+	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

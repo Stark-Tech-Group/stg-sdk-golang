@@ -362,3 +362,24 @@ func TestQueryParams_OrderByDateCreated(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, int32(1), args[0])
 }
+
+func TestQueryParams_IssueStatus(t *testing.T) {
+	p := QueryParams{IssueStatus: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1), args[0])
+}
+
+func TestQueryParams_OrderByIssueStatus(t *testing.T) {
+	p := QueryParams{SortA: "issueStatus"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello order by issue_status_id asc", sql)
+	assert.Equal(t, 0, len(args))
+}

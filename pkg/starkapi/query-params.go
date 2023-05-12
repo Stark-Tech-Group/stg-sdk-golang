@@ -60,6 +60,7 @@ type QueryParams struct {
 	SortA       string `json:"sortA" schema:"sortA"`
 	SortD       string `json:"sortD" schema:"sortD"`
 	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
+	IssueStatus string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
 }
 
 // HashKey creates a compounded string of the current QueryParams
@@ -228,7 +229,11 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 	b := strings.Builder{}
 	b.WriteString(sql)
 	if len(parameters) > 0 {
-		b.WriteString(where)
+		if len(parameters) == 1 && (parameters[0].AscSort || parameters[0].DescSort) {
+			b.WriteString(orderBy)
+		} else {
+			b.WriteString(where)
+		}
 	}
 
 	explodedIndex := 0

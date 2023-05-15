@@ -61,6 +61,7 @@ type QueryParams struct {
 	SortD       string `json:"sortD" schema:"sortD"`
 	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
 	IssueStatus string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
+	TargetRef   string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
 }
 
 // HashKey creates a compounded string of the current QueryParams
@@ -228,9 +229,15 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 
 	b := strings.Builder{}
 	b.WriteString(sql)
+
 	if len(parameters) > 0 {
 		if len(parameters) == 1 && (parameters[0].AscSort || parameters[0].DescSort) {
 			b.WriteString(orderBy)
+		} else if parameters[0].AscSort || parameters[0].DescSort {
+			val := parameters[len(parameters)-1]
+			parameters[len(parameters)-1] = parameters[0]
+			parameters[0] = val
+			b.WriteString(where)
 		} else {
 			b.WriteString(where)
 		}
@@ -254,6 +261,12 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 		} else if p.AscSort || p.DescSort {
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 			b.WriteString(chunk)
+
+			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
+				b.WriteString(and)
+			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
+				b.WriteString(orderBy)
+			}
 		}
 	}
 

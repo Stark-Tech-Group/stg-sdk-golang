@@ -383,3 +383,35 @@ func TestQueryParams_OrderByIssueStatus(t *testing.T) {
 	assert.Equal(t, "Select * from hello order by issue_status_id asc", sql)
 	assert.Equal(t, 0, len(args))
 }
+
+func TestQueryParams_TargetRef(t *testing.T) {
+	p := QueryParams{TargetRef: "e.Ref"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where target_ref = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "e.Ref", args[0])
+}
+
+func TestQueryParams_OrderByTargetRef(t *testing.T) {
+	p := QueryParams{SortA: "targetRef"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello order by target_ref asc", sql)
+	assert.Equal(t, 0, len(args))
+}
+
+func TestQueryParams_TargetRefOrderByDate(t *testing.T) {
+	p := QueryParams{TargetRef: "e.Ref", SortA: "dateCreated"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where target_ref = $1 order by date_created asc", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "e.Ref", args[0])
+}

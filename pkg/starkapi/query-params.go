@@ -22,6 +22,8 @@ const (
 	orderBy         = " order by "
 	in              = "IN"
 	pqArrayType     = ":pq-array"
+	startLike       = "like '%s%%'"
+	endLike         = "like '%%%s'"
 )
 
 var operatorMap = map[string]string{
@@ -32,6 +34,8 @@ var operatorMap = map[string]string{
 	"<lt>": "<",
 	"<le>": "<=",
 	"<in>": in,
+	"<sw>": startLike,
+	"<ew>": endLike,
 }
 var input = regexp.MustCompile("^([a-z]|[A-Z]|[0-9]|[.]|-){1,75}$")
 var colTypeMap map[string]*reflect.StructField
@@ -293,6 +297,9 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		//return p.parameterizedInClause(seedIndex + 1)
 		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
 		return fmt.Sprintf("%s = %s", p.Column, val), nil
+	} else if p.Operator == startLike || p.Operator == endLike {
+		val := fmt.Sprintf(p.Operator, p.Value)
+		return fmt.Sprintf("%s %s", p.Column, val), nil
 	} else {
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {

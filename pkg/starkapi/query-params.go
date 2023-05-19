@@ -22,8 +22,8 @@ const (
 	orderBy         = " order by "
 	in              = "IN"
 	pqArrayType     = ":pq-array"
-	startLike       = "like %s%%"
-	endLike         = "like %%%s"
+	startLike       = "like '%s%%'"
+	endLike         = "like '%%%s'"
 )
 
 var operatorMap = map[string]string{

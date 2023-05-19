@@ -422,7 +422,7 @@ func TestQueryParams_StartLike(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where rule_name like F%", sql)
+	assert.Equal(t, "Select * from hello where rule_name like 'F%'", sql)
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "F", args[0])
 }
@@ -433,7 +433,7 @@ func TestQueryParams_EndLike(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where rule_name like %F", sql)
+	assert.Equal(t, "Select * from hello where rule_name like '%F'", sql)
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "F", args[0])
 }

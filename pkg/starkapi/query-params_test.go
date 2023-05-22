@@ -423,8 +423,7 @@ func TestQueryParams_StartLike(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "Select * from hello where rule_name like 'F%'", sql)
-	assert.Equal(t, 1, len(args))
-	assert.Equal(t, "F", args[0])
+	assert.Equal(t, 0, len(args))
 }
 
 func TestQueryParams_EndLike(t *testing.T) {
@@ -434,6 +433,27 @@ func TestQueryParams_EndLike(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "Select * from hello where rule_name like '%F'", sql)
+	assert.Equal(t, 0, len(args))
+}
+
+func TestQueryParams_StartLikeWithEventType(t *testing.T) {
+	p := QueryParams{EventType: "<eq>open", RuleName: "<sw>F"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where rule_name like 'F%' and event_type = $1", sql)
 	assert.Equal(t, 1, len(args))
-	assert.Equal(t, "F", args[0])
+	assert.Equal(t, "open", args[0])
+}
+
+func TestQueryParams_EndLikeWithEventType(t *testing.T) {
+	p := QueryParams{EventType: "<eq>open", RuleName: "<ew>F"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where rule_name like '%F' and event_type = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "open", args[0])
 }

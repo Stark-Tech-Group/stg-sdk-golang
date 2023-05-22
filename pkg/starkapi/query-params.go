@@ -253,7 +253,11 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			args = append(args, p.Value)
+			if p.Operator != startLike && p.Operator != endLike {
+				args = append(args, p.Value)
+			} else {
+				explodedIndex--
+			}
 
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {

@@ -22,8 +22,8 @@ const (
 	orderBy         = " order by "
 	in              = "IN"
 	pqArrayType     = ":pq-array"
-	startLike       = "like '%s%%'"
-	endLike         = "like '%%%s'"
+	startLike       = "like %"
+	endLike         = "% like"
 )
 
 var operatorMap = map[string]string{
@@ -253,11 +253,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			if p.Operator != startLike && p.Operator != endLike {
-				args = append(args, p.Value)
-			} else {
-				explodedIndex--
-			}
+			args = append(args, p.Value)
 
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
@@ -301,9 +297,12 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		//return p.parameterizedInClause(seedIndex + 1)
 		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
 		return fmt.Sprintf("%s = %s", p.Column, val), nil
-	} else if p.Operator == startLike || p.Operator == endLike {
-		val := fmt.Sprintf(p.Operator, p.Value)
-		return fmt.Sprintf("%s %s", p.Column, val), nil
+	} else if p.Operator == startLike {
+		p.Value = "'" + p.Value.(string) + "%'"
+		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
+	} else if p.Operator == endLike {
+		p.Value = "'%" + p.Value.(string) + "'"
+		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {

@@ -46,9 +46,11 @@ type QueryParams struct {
 	Ref         string `json:"ref" schema:"ref" sqlColumn:"ref" sqlType:"text"`
 	SiteId      string `json:"siteId" schema:"siteId" sqlColumn:"site_id" sqlType:"bigint"`
 	SiteRef     string `json:"siteRef" schema:"siteRef" sqlColumn:"site_ref" sqlType:"text"`
+	SiteName    string `json:"siteName" schema:"siteName" sqlColumn:"site_name" sqlType:"text"`
 	ProfileRef  string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
 	EquipId     string `json:"equipId" schema:"equipId" sqlColumn:"equip_id" sqlType:"bigint"`
 	EquipRef    string `json:"equipRef" schema:"equipRef" sqlColumn:"equip_ref" sqlType:"text"`
+	EquipName   string `json:"equipName" schema:"equipName" sqlColumn:"equip_name" sqlType:"text"`
 	RuleName    string `json:"ruleName" schema:"ruleName" sqlColumn:"rule_name" sqlType:"text"`
 	RuleId      string `json:"ruleId" schema:"ruleId" sqlColumn:"rule_id" sqlType:"bigint"`
 	Severity    string `json:"severity" schema:"severity" sqlColumn:"severity" sqlType:"int"`

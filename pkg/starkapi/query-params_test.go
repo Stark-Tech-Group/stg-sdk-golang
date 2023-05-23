@@ -461,3 +461,25 @@ func TestQueryParams_EndLikeWithEventType(t *testing.T) {
 	assert.Equal(t, "'%F'", args[0])
 	assert.Equal(t, "open", args[1])
 }
+
+func TestQueryParams_SiteName(t *testing.T) {
+	p := QueryParams{SiteName: "aSite"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where site_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "aSite", args[0])
+}
+
+func TestQueryParams_EquipName(t *testing.T) {
+	p := QueryParams{EquipName: "anEquip"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where equip_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anEquip", args[0])
+}

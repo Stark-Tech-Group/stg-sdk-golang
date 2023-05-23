@@ -300,10 +300,10 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
 		return fmt.Sprintf("%s = %s", p.Column, val), nil
 	} else if p.Operator == startLike {
-		p.Value = "'" + p.Value.(string) + "%'"
+		p.Value = p.Value.(string) + "%"
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else if p.Operator == endLike {
-		p.Value = "'%" + p.Value.(string) + "'"
+		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
 		val := fmt.Sprintf("$%d", seedIndex+1)

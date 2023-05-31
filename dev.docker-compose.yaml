@@ -1,0 +1,268 @@
+version: "3.4"
+
+x-kafka: &kafka
+  image: confluentinc/cp-kafka:${KAFKA_VERSION}
+  hostname: ${KAFKA_BOOTSTRAP_SERVER}
+  container_name: stg-kafka
+  networks:
+    - kafka
+  ports:
+    - '${KAFKA_PORT}:9092'
+    - '29092:29092'
+  environment:
+    - KAFKA_BROKER_ID=1
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_ADVERTISED_HOST_NAME=${KAFKA_BOOTSTRAP_SERVER}
+    - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT},PLAINTEXT_HOST://localhost:29092
+    - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+    - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+    - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+  depends_on:
+    - zookeeper
+
+
+x-zookeeper: &zookeeper
+  image: confluentinc/cp-zookeeper:${KAFKA_VERSION}
+  container_name: stg-zookeper
+  networks:
+    - kafka
+  ports:
+    - '2181:2181'
+  environment:
+    - ALLOW_ANONYMOUS_LOGIN=yes
+    - ZOOKEEPER_CLIENT_PORT=2181
+    - ZOOKEEPER_TICK_TIME=2000
+
+x-db: &db
+  build:
+    context: .
+    dockerfile: docker/timescaledb.Dockerfile
+  image: ${DEV_DB_IMAGE}
+  container_name: db
+  networks:
+    - backend
+  restart: always
+  ports:
+    - '${DEV_DB_PORT}:5432'
+  environment:
+    - POSTGRES_PASSWORD=${DEV_DB_PASSWORD}
+    - POSTGRES_DB=${DEV_DB_NAME}
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+
+x-stark-search-service: &search-service
+  build:
+    context: .
+    dockerfile: docker/search.Dockerfile
+  image: ${REGISTRY}/${SEARCH_IMAGE}
+  container_name: stark-search
+  depends_on:
+    - kafka
+    - es01
+  networks:
+    - elastic
+    - kafka
+  restart: always
+  environment:
+    - SEARCH_ELASTIC_SSL_MODE=${SEARCH_ELASTIC_SSL_MODE}
+    - SEARCH_ELASTIC_PORT=${ELASTIC_PORT}
+    - SEARCH_ELASTIC_HOST=${ELASTIC_HOST}
+    - SEARCH_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - LOG_LEVEL=trace
+    - SEARCH_PORT=${SEARCH_PORT}
+    - SEARCH_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - SEARCH_KAFKA_PRODUCER_TOPIC=${KAFKA_CDC_INDEXED_TOPIC}
+    - SEARCH_KAFKA_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - SEARCH_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - SEARCH_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+
+  ports:
+    - "${SEARCH_PORT}:${SEARCH_PORT}"
+  command: sh -c "dockerize -wait http://${ELASTIC_HOST}:${ELASTIC_PORT} -timeout 600s -wait-retry-interval 10s stark-search-service"
+
+
+x-stark-index-service: &index-service
+  build:
+    context: .
+    dockerfile: docker/index.Dockerfile
+  image: ${REGISTRY}/${INDEX_IMAGE}
+  container_name: stark-index
+  depends_on:
+    - kafka
+    - db
+    - kafka-connect
+    - search-service
+  networks:
+    - elastic
+    - backend
+    - kafka
+  restart: always
+  environment:
+    - INDEX_KAFKA_CONSUMER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - INDEX_KAFKA_CONSUMER_GROUP_ID=${KAFKA_CDC_GROUP_ID}-ss
+    - INDEX_KAFKA_CONSUMER_TOPIC=${KAFKA_CDC_TOPIC}
+    - INDEX_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - INDEX_DB_USERNAME=${DEV_DB_USERNAME}
+    - INDEX_DB_PORT=${DEV_DB_PORT}
+    - INDEX_DB_DATABASE=${DEV_DB_NAME}
+    - INDEX_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - INDEX_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - INDEX_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - LOG_LEVEL=${INDEX_LOG_LEVEL}
+    - INDEX_KAFKA_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - INDEX_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - INDEX_KAFKA_CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - INDEX_HOST=${INDEX_HOST}
+    - INDEX_PORT=${INDEX_PORT}
+    - INDEX_SEARCH_SERVICE_URL=http://${SEARCH_HOST}:${SEARCH_PORT}
+    - INDEX_CONSUMER_LOG_LEVEL=${KAFKA_LOG_CONSUMER}
+    - INDEX_WATERMARK_LIMIT_SECONDS=${INDEX_WATERMARK_LIMIT_SECONDS}
+  ports:
+    - "${INDEX_PORT}:${INDEX_PORT}"
+  command: sh -c "dockerize -wait tcp://${DEV_DB_PLAIN_HOST}:${DEV_DB_PORT} -wait http://${SEARCH_HOST}:${SEARCH_PORT}/status -timeout 600s -wait-retry-interval 10s stark-index-service"
+
+x-es01: &elasticsearch
+  image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_TAG}
+  container_name: es01
+  environment:
+    - xpack.security.enabled=false
+    - discovery.type=single-node
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 65536
+      hard: 65536
+  cap_add:
+    - IPC_LOCK
+  ports:
+    - "${ELASTIC_PORT}:9200"
+    - 9300:9300
+  networks:
+    - elastic
+
+
+#API
+
+x-api: &api
+  image: dev-api
+  build:
+    context: .
+    dockerfile: docker/api.Dockerfile
+  container_name: dev-api
+  ports:
+    - "${API_PORT}:8080"
+  environment:
+    - "transport.host=localhost"
+    - "bootstrap.system_call_filter=false"
+    - STG_API_FLINK_API_URL=${FLINK_API_URL}:${FLINK_API_PORT}
+    - STG_API_BLOB_STORAGE_ROOT_DIR=${API_BLOB_STORAGE_ROOT_DIR}
+    - STG_API_BLOB_STORAGE_MAX_SIZE=${API_BLOB_STORAGE_MAX_SIZE}
+    - STG_API_BLOB_STORAGE_AZURE_ACCOUNT=${API_BLOB_STORAGE_AZURE_ACCOUNT}
+    - STG_API_BLOB_STORAGE_AZURE_KEY=${API_BLOB_STORAGE_AZURE_KEY}
+    - STG_API_JWT_SECRET=${API_JWT_SECRET}
+    - STG_API_JWT_ISSUER=${API_JWT_ISSUER}
+    - STG_API_PROD_DB_URL=${DEV_DB_URL}
+    - STG_API_PROD_DB_USERNAME=${DEV_DB_USERNAME}
+    - STG_API_PROD_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_API_PROD_DB_DRIVER=${DEV_DB_DRIVER_CLASS}
+    - STG_API_NOTIFICATION_ROUTER_URL=${API_NOTIFICATION_ROUTER_URL}
+    - STG_API_EVENT_ROUTER_USERNAME=${API_EVENT_ROUTER_USERNAME}
+    - STG_API_EVENT_ROUTER_PASSWORD=${API_EVENT_ROUTER_PASSWORD}
+    - STG_API_DIAG_ENGINE_URL=${API_DIAG_ENGINE_URL}
+    - STG_API_EBO_EXPORT_HOST_URL="deprecated"
+    - STG_API_GEO_HOST_URL=${STG_API_GEO_HOST_URL}:${STG_GEO_PORT}/
+    - STG_API_SEARCH_HOST_URL=${SEARCH_HOST_URL}:${SEARCH_PORT}
+    - STG_TAG_API_URL=${TAG_API_HOST}:${TAG_API_PORT}
+    - STG_API_BUILD_VERSION=1
+    - STG_API_DEV_DB_USERNAME=${DEV_DB_USERNAME}
+    - STG_API_DEV_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_API_DEV_DB_URL=${DEV_DB_URL}
+    - STG_API_DEV_DB_DIALECT=${DEV_DB_DIALECT}
+    - STG_API_DEV_DB_DRIVER=${DEV_DB_DRIVER_CLASS}
+    - STG_API_DB_CONTEXTS=${STG_API_DB_CONTEXTS}
+    - STG_API_RUN_BOOTSTRAP_DATA_INIT=${API_RUN_BOOTSTRAP_DATA_INIT}
+    - STG_API_GEN_MON_HOST_URL=${GEN_SERVICE_HOST}:${GEN_SERVICE_PORT}
+    - STG_API_TDS_HOST=${TELEMETRY_DATA_SERVICE_HOST}
+    - STG_API_TDS_PORT=${TELEMETRY_DATA_SERVICE_PORT}
+    - STG_API_INDEX_URL=http://${INDEX_HOST}:${INDEX_PORT}
+  networks:
+    - elastic
+    - backend
+    - kafka
+  depends_on:
+    - db
+    - search-service
+    - index-service
+
+x-kafka-connect: &kafka-connect
+  build:
+    context: .
+    dockerfile: docker/connect.Dockerfile
+  image: starktechgroup/kafka-connect-debezium-postgresql
+  container_name: kafka-connect
+  depends_on:
+    - db
+    - kafka
+  ports:
+    - "${CONNECT_PORT}:${CONNECT_PORT}"
+  environment:
+    - CONNECT_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - CONNECT_REST_ADVERTISED_HOST_NAME=${CONNECT_ADVERTISED_HOST}
+    - CONNECT_GROUP_ID=${KAFKA_CDC_GROUP_ID}
+    - CONNECT_KEY_CONVERTER=${CONNECT_KEY_CONVERTER}
+    - CONNECT_VALUE_CONVERTER=${CONNECT_VALUE_CONVERTER}
+    - CONNECT_CONFIG_STORAGE_TOPIC=${CONNECT_STORAGE_TOPIC}
+    - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_OFFSET_STORAGE_TOPIC=${CONNECT_OFFSET_TOPIC}
+    - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_STATUS_STORAGE_TOPIC=${CONNECT_STATUS_TOPIC}
+    - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_INTERNAL_KEY_CONVERTER=${CONNECT_INTERNAL_KEY_CONVERTER}
+    - CONNECT_INTERNAL_VALUE_CONVERTER=${CONNECT_INTERNAL_VALUE_CONVERTER}
+    - CONNECT_INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE=${CONNECT_INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE}
+    - CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE=${CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE}
+    - CONNECT_PLUGIN_PATH=${CONNECT_PLUGIN_PATH}
+    - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL="http://${KAFKA_SCHEMA_HOST}:${KAFKA_SCHEMA_PORT}"
+    - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL="http://${KAFKA_SCHEMA_HOST}:${KAFKA_SCHEMA_PORT}"
+  networks:
+    - kafka
+    - backend
+
+services:
+  api:
+    <<: *api
+    env_file:
+      - docker/.my.env
+    command: sh -c "dockerize -wait tcp://${DEV_DB_PLAIN_HOST}:${DEV_DB_PORT} -wait http://es01:${ELASTIC_PORT} -timeout 600s -wait-retry-interval 10s catalina.sh run"
+  es01:
+    <<: *elasticsearch
+  db:
+    <<: *db
+  search-service:
+    <<: *search-service
+  zookeeper:
+    <<: *zookeeper
+  kafka:
+    <<: *kafka
+  index-service:
+    <<: *index-service
+  kafka-connect:
+    <<: *kafka-connect
+
+
+networks:
+  backend:
+    driver: bridge
+  elastic:
+    driver: bridge
+  kafka:
+    driver: bridge

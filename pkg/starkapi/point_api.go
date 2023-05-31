@@ -97,6 +97,36 @@ func (pointApi *PointApi) AddNewTag(point *domain.Point, name string, value stri
 	return nil
 }
 
+//GetAllTags returns all tags for the provided domain.Point
+func (pointApi *PointApi) GetAllTags(point domain.Point) (domain.TagRefs, error) {
+	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
+
+	var tags domain.TagRefs
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return tags, err
+	}
+
+	err = json.Unmarshal(resp, &tags)
+	if err != nil {
+		return tags, err
+	}
+
+	return tags, nil
+}
+
+//DeleteTag deletes a domain.TagRef from the provided domain.Point
+func (pointApi *PointApi) DeleteTag(point domain.Point, tagRef domain.TagRef) error {
+	url := fmt.Sprintf("%s/%v/tags/%v", pointApi.BaseUrl(), point.Id, tagRef.Id)
+
+	_, err := pointApi.client.delete(url)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	url := fmt.Sprintf("%s/%v", pointApi.BaseUrl(), id)
 
@@ -113,6 +143,39 @@ func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	}
 
 	return point, nil
+}
+
+//GetAll returns all points within the given limit and offset
+func (pointApi *PointApi) GetAll(limit, offset int) (domain.Points, error) {
+	url := fmt.Sprintf("%s?limit=%v?offset=%v", pointApi.BaseUrl(), limit, offset)
+	var points domain.Points
+
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return points, err
+	}
+	err = json.Unmarshal(resp, &points)
+	if err != nil {
+		return points, err
+	}
+	return points, nil
+}
+
+func (pointApi *PointApi) GetAllByRef(ref string) (domain.Points, error) {
+
+	url := fmt.Sprintf("%s?parentRef=%v", pointApi.BaseUrl(), ref)
+
+	var points domain.Points
+
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return points, err
+	}
+	err = json.Unmarshal(resp, &points)
+	if err != nil {
+		return points, err
+	}
+	return points, nil
 }
 
 func (pointApi *PointApi) CurVal(id uint32) (domain.CurVal, error) {

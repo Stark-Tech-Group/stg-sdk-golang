@@ -1,0 +1,28 @@
+
+name: build
+
+on:
+  workflow_call:
+
+jobs:
+  dev-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.16.7' # The Go version to download (if necessary) and use.
+      - run: go version
+      - name: vet
+        run: go vet -v ./...
+      - name: test
+        run: go test ./...
+      #      - name: integration test
+      #        run: go test -tags=integration ./...
+      - name: build
+        run: go build ./cmd/stg-sdk-golang
+      - uses: actions/upload-artifact@v3
+        with:
+          name: executables
+          path: stg-sdk-golang

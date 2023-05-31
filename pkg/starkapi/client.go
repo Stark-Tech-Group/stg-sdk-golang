@@ -10,6 +10,7 @@ import (
 
 type Client struct {
 	AssetTreeApi AssetTreeApi
+	AssetsApi	 AssetsApi
 	StatusApi    StatusApi
 	SearchApi    SearchApi
 	PointApi     PointApi
@@ -19,6 +20,8 @@ type Client struct {
 	ConnApi      ConnApi
 	GeoApi       GeoApi
 	UridApi      UridApi
+	TagApi       TagApi
+	FormsApi	 FormsApi
 	/**/
 	loginEndpoint authApi
 	auth          *response.AuthResponse
@@ -39,10 +42,25 @@ func (client *Client) Init(host string) *Client {
 	client.SiteApi = SiteApi{client: client}
 	client.ConnApi = ConnApi{client: client}
 	client.AssetTreeApi = AssetTreeApi{client: client}
+	client.AssetsApi = AssetsApi{client: client}
 	client.GeoApi = GeoApi{client: client}
 	client.UridApi = UridApi{client: client}
+	client.TagApi = TagApi{client: client}
+	client.FormsApi = FormsApi{client: client}
 
 	return client
+}
+
+//Auth
+func (client *Client) Auth(accessToken, username string) (*response.AuthResponse, error) {
+
+	r := response.AuthResponse{
+		AccessToken: accessToken,
+		Username:    username,
+	}
+
+	client.auth = &r
+	return client.auth, nil
 }
 
 func (client *Client) Login(un string, pw string) (*response.AuthResponse, error) {

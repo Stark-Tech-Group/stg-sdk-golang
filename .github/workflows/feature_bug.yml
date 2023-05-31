@@ -1,0 +1,14 @@
+name: feature_bug
+on:
+  push:
+    branches:
+      - "feature/**"
+      - "bug/**"
+      - "bugfix/**"
+
+jobs:
+  feature-bug-build:
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/_build.yml
+
+

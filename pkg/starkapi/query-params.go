@@ -63,11 +63,11 @@ type QueryParams struct {
 	Offset      int    `json:"offset" schema:"offset"`
 	RequestName string `json:"-" schema:"-"`
 	EventType   string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
-	SortA       string `json:"sortA" schema:"sortA"`
-	SortD       string `json:"sortD" schema:"sortD"`
 	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
 	IssueStatus string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
 	TargetRef   string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
+	SortA       string `json:"sortA" schema:"sortA"`
+	SortD       string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

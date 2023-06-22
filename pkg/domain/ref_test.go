@@ -3,7 +3,9 @@ package domain
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestRef_BeginsWith(t *testing.T) {
@@ -48,4 +50,23 @@ func TestCreateRefWithPrefix(t *testing.T) {
 func TestCreateRefWithoutPrefix(t *testing.T) {
 	a := Ref{Value: RandomWithoutPrefix()}
 	assert.Equal(t, defaultLength+len(defaultSpacingChar), len(a.Value))
+}
+
+func TestRandomWithoutPrefix_Over1MillionAttempts(t *testing.T) {
+
+	rand.Seed(time.Now().UnixNano())
+
+	generatedStrings := make(map[string]struct{})
+
+	const numAttempts = 1000000
+
+	for i := 0; i < numAttempts; i++ {
+		s := RandomWithoutPrefix()
+
+		if _, exists := generatedStrings[s]; exists {
+			t.Fatalf("expected more random but found duplicate: %s", s)
+		}
+
+		generatedStrings[s] = struct{}{}
+	}
 }

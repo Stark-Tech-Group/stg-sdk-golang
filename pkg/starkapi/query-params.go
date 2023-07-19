@@ -116,6 +116,8 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 
 	var operator, raw string
 
+	var value interface{}
+
 	if val[0:1] == leftOp && len(val) > 4 {
 		queryOp := val[0:4]
 		operator = operatorMap[queryOp]
@@ -128,6 +130,11 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 	if len(operator) == 0 {
 		logger.Errorf("no operator found while decoding query to sql")
 		return "", "", errors.New("no operator found")
+	}
+
+	if strings.Contains(val, "null") {
+		value = "null"
+		return operator, value, nil
 	}
 
 	value, err := castWithField(field, raw, operator)
@@ -306,6 +313,9 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
+		if strings.Contains(p.Value.(string), "null") {
+			return fmt.Sprintf("%s = NULL", p.Column), nil
+		}
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {
 			val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)

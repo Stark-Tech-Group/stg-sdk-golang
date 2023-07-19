@@ -180,6 +180,9 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 			tag := field.Tag.Get(sqlColumn)
 			if len(tag) > 0 {
 				operator, sqlValue, err := decodeRightSide(&field, val)
+				if sqlValue == "null" {
+					typ = "text"
+				}
 				if err != nil {
 					return nil, err
 				}
@@ -313,7 +316,7 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
-		if p.Type == "string" && strings.Contains(p.Value.(string), "null") {
+		if p.Type == "text" && strings.Contains(p.Value.(string), "null") {
 			return fmt.Sprintf("%s IS NULL", p.Column), nil
 		}
 		val := fmt.Sprintf("$%d", seedIndex+1)

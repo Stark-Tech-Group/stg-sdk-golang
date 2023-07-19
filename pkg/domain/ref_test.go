@@ -49,3 +49,19 @@ func TestCreateRefWithoutPrefix(t *testing.T) {
 	a := Ref{Value: RandomWithoutPrefix()}
 	assert.Equal(t, defaultLength+len(defaultSpacingChar), len(a.Value))
 }
+
+func TestRandomWithoutPrefix_Over1MillionAttempts(t *testing.T) {
+	generatedStrings := make(map[string]struct{})
+
+	const numAttempts = 1000000
+
+	for i := 0; i < numAttempts; i++ {
+		s := RandomWithoutPrefix()
+
+		if _, exists := generatedStrings[s]; exists {
+			t.Fatalf("expected more random but found duplicate: %s", s)
+		}
+
+		generatedStrings[s] = struct{}{}
+	}
+}

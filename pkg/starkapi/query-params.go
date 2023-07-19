@@ -313,8 +313,8 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
-		if strings.Contains(p.Value.(string), "null") {
-			return fmt.Sprintf("%s = NULL", p.Column), nil
+		if p.Type == "string" && strings.Contains(p.Value.(string), "null") {
+			return fmt.Sprintf("%s IS NULL", p.Column), nil
 		}
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {

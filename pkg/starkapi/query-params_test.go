@@ -490,5 +490,5 @@ func TestQueryParams_NullValue(t *testing.T) {
 	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where issue_status_id = NULL", sql)
+	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
 }

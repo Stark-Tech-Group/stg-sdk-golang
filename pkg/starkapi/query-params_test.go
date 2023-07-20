@@ -1,7 +1,6 @@
 package starkapi
 
 import (
-	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -319,7 +318,7 @@ func TestQueryParams_WithInAndEqual(t *testing.T) {
 	assert.Equal(t, "severity", parameters[1].Column)
 	assert.Equal(t, "IN", parameters[1].Operator)
 
-	v := parameters[1].Value.(*pq.Int32Array)
+	v := parameters[1].Value.(arrayWithNull)
 	assert.NotNil(t, v)
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
@@ -506,7 +505,7 @@ func TestQueryParams_NullValueAndNonNull(t *testing.T) {
 }
 
 func TestQueryParams_InNullVal(t *testing.T) {
-	p := QueryParams{IssueStatus: "<in>0"}
+	p := QueryParams{IssueStatus: "<in>null"}
 
 	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
@@ -514,8 +513,8 @@ func TestQueryParams_InNullVal(t *testing.T) {
 	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
 }
 
-func TestQueryParmas_InNullValAndNonNull(t *testing.T) {
-	p := QueryParams{IssueStatus: "<in>1,2,3,0"}
+func TestQueryParams_InNullValAndNonNull(t *testing.T) {
+	p := QueryParams{IssueStatus: "<in>1,2,3,null"}
 
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)

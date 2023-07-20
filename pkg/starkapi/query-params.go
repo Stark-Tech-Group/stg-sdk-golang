@@ -110,6 +110,12 @@ func castWithField(field *reflect.StructField, raw string, operator string) (int
 
 	if operator == in {
 		sqlValType = sqlValType + pqArrayType
+		arr, err := newArrayWithNull(raw, sqlValType)
+		if err != nil {
+			logger.Errorf("error converting to array with null: %s", err)
+			return nil, err
+		}
+		return arr, nil
 	}
 
 	return cast(sqlValType, raw)
@@ -265,10 +271,12 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 	explodedIndex := 0
 	for i, p := range parameters {
 		if p.AscSort == false && p.DescSort == false {
-			chunk, _ := p.parameterizedClause(i + explodedIndex)
+			chunk := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			if p.Value != nil && p.Value != nullVal {
+			if p.Operator == in {
+				args = append(args, pq.Array(p.Value.(arrayWithNull).values))
+			} else if p.Value != nil && p.Value != nullVal {
 				args = append(args, p.Value)
 			} else {
 				explodedIndex--
@@ -282,7 +290,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			}
 
 		} else if p.AscSort || p.DescSort {
-			chunk, _ := p.parameterizedClause(i + explodedIndex)
+			chunk := p.parameterizedClause(i + explodedIndex)
 			b.WriteString(chunk)
 
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
@@ -310,71 +318,36 @@ type Parameter struct {
 	DescSort  bool
 }
 
-func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
+func (p *Parameter) parameterizedClause(seedIndex int) string {
 
 	if p.Operator == in {
-		if p.Type == "bigint" {
-			int64Array := *p.Value.(*pq.Int64Array)
-			if len(int64Array) == 1 {
-				if int64Array[0] == 0 {
-					p.Value = nil
-					return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
-				}
-			}
-			for i := 0; i < len(int64Array); i++ {
-				if int64Array[i] == 0 {
-					int64Array[i] = int64Array[len(int64Array)-1]
-					int64Array = int64Array[:len(int64Array)-1]
-					p.Value = int64Array
-					return fmt.Sprintf("%s = ANY($%d) or %s IS "+nullSql, p.Column, seedIndex+1, p.Column), nil
-				}
-			}
-		} else if p.Type == "int" {
-			int32Array := *p.Value.(*pq.Int32Array)
-			if len(int32Array) == 1 {
-				if int32Array[0] == 0 {
-					p.Value = nil
-					return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
-				}
-			}
-			for i := 0; i < len(int32Array); i++ {
-				if int32Array[i] == 0 {
-					int32Array[i] = int32Array[len(int32Array)-1]
-					int32Array = int32Array[:len(int32Array)-1]
-					p.Value = int32Array
-					return fmt.Sprintf("%s = ANY($%d) or %s IS "+nullSql, p.Column, seedIndex+1, p.Column), nil
-				}
-			}
-		}
-		//return p.parameterizedInClause(seedIndex + 1)
-		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
-		return fmt.Sprintf("%s = %s", p.Column, val), nil
+		return (p.Value.(arrayWithNull)).toSql(seedIndex+1, p.Column)
 	} else if p.Operator == startLike {
 		if p.nullValCheck() {
-			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+			return fmt.Sprintf("%s IS "+nullSql, p.Column)
 		}
 		p.Value = p.Value.(string) + "%"
-		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
+		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
 	} else if p.Operator == endLike {
 		if p.nullValCheck() {
-			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+			return fmt.Sprintf("%s IS "+nullSql, p.Column)
 		}
 		p.Value = "%" + p.Value.(string)
-		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
+		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
 	} else {
 		if p.nullValCheck() {
-			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+			return fmt.Sprintf("%s IS "+nullSql, p.Column)
 		}
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {
 			val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)
 		}
 		if p.AscSort {
-			return fmt.Sprintf("%s asc", p.Value), nil
+			return fmt.Sprintf("%s asc", p.Value)
 		} else if p.DescSort {
-			return fmt.Sprintf("%s desc", p.Value), nil
+			return fmt.Sprintf("%s desc", p.Value)
 		}
-		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val), nil
+		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val)
 	}
 }
 

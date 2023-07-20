@@ -312,17 +312,26 @@ type Parameter struct {
 func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 
 	if p.Operator == in {
+		if p.nullValCheck() {
+			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+		}
 		//return p.parameterizedInClause(seedIndex + 1)
 		val := fmt.Sprintf("ANY($%d)", seedIndex+1)
 		return fmt.Sprintf("%s = %s", p.Column, val), nil
 	} else if p.Operator == startLike {
+		if p.nullValCheck() {
+			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+		}
 		p.Value = p.Value.(string) + "%"
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else if p.Operator == endLike {
+		if p.nullValCheck() {
+			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+		}
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
-		if p.Type == "text" && strings.Contains(p.Value.(string), nullVal) {
+		if p.nullValCheck() {
 			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
 		}
 		val := fmt.Sprintf("$%d", seedIndex+1)
@@ -336,4 +345,8 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		}
 		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val), nil
 	}
+}
+
+func (p *Parameter) nullValCheck() bool {
+	return p.Type == "text" && strings.Contains(p.Value.(string), nullVal)
 }

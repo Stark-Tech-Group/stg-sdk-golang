@@ -504,3 +504,21 @@ func TestQueryParams_NullValueAndNonNull(t *testing.T) {
 	assert.Equal(t, "aSite", args[0])
 	assert.Equal(t, "a.Ref", args[1])
 }
+
+func TestQueryParams_InNullVal(t *testing.T) {
+	p := QueryParams{IssueStatus: "<in>" + nullVal}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
+}
+
+func TestQueryParams_EqNullVal(t *testing.T) {
+	p := QueryParams{IssueStatus: "<eq>" + nullVal}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
+}

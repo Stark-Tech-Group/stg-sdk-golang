@@ -3,6 +3,7 @@ package starkapi
 import (
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 	logger "github.com/sirupsen/logrus"
 	"reflect"
 	"regexp"
@@ -134,7 +135,7 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		return "", "", errors.New("no operator found")
 	}
 
-	if strings.Contains(val, nullVal) {
+	if strings.Contains(val, nullVal) && operator != in {
 		value = nullVal
 		return operator, value, nil
 	}
@@ -267,7 +268,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			if p.Value != nullVal {
+			if p.Value != nil && p.Value != nullVal {
 				args = append(args, p.Value)
 			} else {
 				explodedIndex--
@@ -312,8 +313,38 @@ type Parameter struct {
 func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 
 	if p.Operator == in {
-		if p.nullValCheck() {
-			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+		if p.Type == "bigint" {
+			int64Array := *p.Value.(*pq.Int64Array)
+			if len(int64Array) == 1 {
+				if int64Array[0] == 0 {
+					p.Value = nil
+					return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+				}
+			}
+			for i := 0; i < len(int64Array); i++ {
+				if int64Array[i] == 0 {
+					int64Array[i] = int64Array[len(int64Array)-1]
+					int64Array = int64Array[:len(int64Array)-1]
+					p.Value = int64Array
+					return fmt.Sprintf("%s = ANY($%d) or %s IS "+nullSql, p.Column, seedIndex+1, p.Column), nil
+				}
+			}
+		} else if p.Type == "int" {
+			int32Array := *p.Value.(*pq.Int32Array)
+			if len(int32Array) == 1 {
+				if int32Array[0] == 0 {
+					p.Value = nil
+					return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
+				}
+			}
+			for i := 0; i < len(int32Array); i++ {
+				if int32Array[i] == 0 {
+					int32Array[i] = int32Array[len(int32Array)-1]
+					int32Array = int32Array[:len(int32Array)-1]
+					p.Value = int32Array
+					return fmt.Sprintf("%s = ANY($%d) or %s IS "+nullSql, p.Column, seedIndex+1, p.Column), nil
+				}
+			}
 		}
 		//return p.parameterizedInClause(seedIndex + 1)
 		val := fmt.Sprintf("ANY($%d)", seedIndex+1)

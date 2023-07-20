@@ -24,6 +24,8 @@ const (
 	pqArrayType     = ":pq-array"
 	startLike       = "like %"
 	endLike         = "% like"
+	nullSql         = "NULL"
+	nullVal         = "null"
 )
 
 var operatorMap = map[string]string{
@@ -132,8 +134,8 @@ func decodeRightSide(field *reflect.StructField, val string) (string, interface{
 		return "", "", errors.New("no operator found")
 	}
 
-	if strings.Contains(val, "null") {
-		value = "null"
+	if strings.Contains(val, nullVal) {
+		value = nullVal
 		return operator, value, nil
 	}
 
@@ -180,7 +182,7 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 			tag := field.Tag.Get(sqlColumn)
 			if len(tag) > 0 {
 				operator, sqlValue, err := decodeRightSide(&field, val)
-				if sqlValue == "null" {
+				if sqlValue == nullVal {
 					typ = "text"
 				}
 				if err != nil {
@@ -265,7 +267,11 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			chunk, _ := p.parameterizedClause(i + explodedIndex)
 
 			b.WriteString(chunk)
-			args = append(args, p.Value)
+			if p.Value != nullVal {
+				args = append(args, p.Value)
+			} else {
+				explodedIndex--
+			}
 
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
@@ -316,8 +322,8 @@ func (p *Parameter) parameterizedClause(seedIndex int) (string, interface{}) {
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1), nil
 	} else {
-		if p.Type == "text" && strings.Contains(p.Value.(string), "null") {
-			return fmt.Sprintf("%s IS NULL", p.Column), nil
+		if p.Type == "text" && strings.Contains(p.Value.(string), nullVal) {
+			return fmt.Sprintf("%s IS "+nullSql, p.Column), nil
 		}
 		val := fmt.Sprintf("$%d", seedIndex+1)
 		if p.Decorator != "" {

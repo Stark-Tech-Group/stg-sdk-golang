@@ -299,7 +299,7 @@ func TestQueryParams_WithIn(t *testing.T) {
 	assert.Equal(t, "severity", parameters[0].Column)
 	assert.Equal(t, "IN", parameters[0].Operator)
 
-	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	sql, args, _ := p.BuildParameterizedQuery("Select * from hello")
 
 	assert.Equal(t, "Select * from hello where severity = ANY($1)", sql)
 	assert.Equal(t, 1, len(args))
@@ -503,4 +503,32 @@ func TestQueryParams_NullValueAndNonNull(t *testing.T) {
 	assert.Equal(t, 2, len(args))
 	assert.Equal(t, "aSite", args[0])
 	assert.Equal(t, "a.Ref", args[1])
+}
+
+func TestQueryParams_InNullVal(t *testing.T) {
+	p := QueryParams{IssueStatus: "<in>0"}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
+}
+
+func TestQueryParmas_InNullValAndNonNull(t *testing.T) {
+	p := QueryParams{IssueStatus: "<in>1,2,3,0"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id = ANY($1) or issue_status_id IS NULL", sql)
+	assert.Equal(t, 1, len(args))
+}
+
+func TestQueryParams_EqNullVal(t *testing.T) {
+	p := QueryParams{IssueStatus: "<eq>null"}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
 }

@@ -519,7 +519,7 @@ func TestQueryParams_InNullValAndNonNull(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where issue_status_id = ANY($1) or issue_status_id IS NULL", sql)
+	assert.Equal(t, "Select * from hello where (issue_status_id = ANY($1) or issue_status_id IS NULL)", sql)
 	assert.Equal(t, 1, len(args))
 }
 

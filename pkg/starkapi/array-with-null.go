@@ -15,7 +15,7 @@ func (arr arrayWithNull) toSql(seedIndex int, column string) string {
 	if arr.hasNull {
 		if arr.isNull {
 			if len(arr.values) > 0 {
-				return fmt.Sprintf("%s = ANY($%d) or %s IS "+nullSql, column, seedIndex, column)
+				return fmt.Sprintf("(%s = ANY($%d) or %s IS "+nullSql+")", column, seedIndex, column)
 			} else {
 				return fmt.Sprintf("%s IS "+nullSql, column)
 			}

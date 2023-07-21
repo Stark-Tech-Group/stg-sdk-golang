@@ -507,10 +507,11 @@ func TestQueryParams_NullValueAndNonNull(t *testing.T) {
 func TestQueryParams_InNullVal(t *testing.T) {
 	p := QueryParams{IssueStatus: "<in>null"}
 
-	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
+	assert.Equal(t, 0, len(args))
 }
 
 func TestQueryParams_InNullValAndNonNull(t *testing.T) {

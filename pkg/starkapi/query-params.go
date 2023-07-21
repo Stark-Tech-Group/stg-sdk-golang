@@ -275,7 +275,9 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 
 			b.WriteString(chunk)
 			if p.Operator == in {
-				args = append(args, pq.Array(p.Value.(arrayWithNull).values))
+				if len(p.Value.(arrayWithNull).values) > 0 {
+					args = append(args, pq.Array(p.Value.(arrayWithNull).values))
+				}
 			} else if p.Value != nil && p.Value != nullVal {
 				args = append(args, p.Value)
 			} else {

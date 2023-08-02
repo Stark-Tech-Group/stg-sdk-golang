@@ -10,7 +10,7 @@ import (
 
 type Client struct {
 	AssetTreeApi AssetTreeApi
-	AssetsApi	 AssetsApi
+	AssetsApi    AssetsApi
 	StatusApi    StatusApi
 	SearchApi    SearchApi
 	PointApi     PointApi
@@ -21,7 +21,7 @@ type Client struct {
 	GeoApi       GeoApi
 	UridApi      UridApi
 	TagApi       TagApi
-	FormsApi	 FormsApi
+	FormsApi     FormsApi
 	/**/
 	loginEndpoint authApi
 	auth          *response.AuthResponse

@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 const (
@@ -19,6 +20,8 @@ const (
 	BranchTable            = "asset_tree_branch"
 	TagRefType             = "g"
 	TagRefTable            = "tag_ref"
+	FormControlTable       = "j"
+	FormControlRefTable    = "k"
 	alphabet               = "abcdefghijklmnopqrstuvwxyz0123456789"
 	defaultLength          = 16
 	defaultSpacing         = 8
@@ -37,17 +40,17 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-//BeginsWith returns true if the current Ref HasPrefix of the provided value otherwise, false
+// BeginsWith returns true if the current Ref HasPrefix of the provided value otherwise, false
 func (r *Ref) BeginsWith(prefix string) bool {
 	return strings.HasPrefix(r.Value, prefix)
 }
 
-//Valid returns true if the current Ref has a valid pattern
+// Valid returns true if the current Ref has a valid pattern
 func (r *Ref) Valid() bool {
 	return pattern.MatchString(r.Value)
 }
 
-//GetPrefix returns the all
+// GetPrefix returns the all
 func (r *Ref) GetPrefix() string {
 	if r.Valid() == false {
 		return ""
@@ -56,7 +59,7 @@ func (r *Ref) GetPrefix() string {
 	return strings.Split(r.Value, ".")[0]
 }
 
-//String returns the value
+// String returns the value
 func (r Ref) String() string {
 	return r.Value
 }
@@ -70,6 +73,21 @@ func RandomWithPrefix(prefix string) (string, error) {
 		return "", fmt.Errorf("invalid prefix length")
 	}
 	return fmt.Sprintf("%s%s%s", prefix, defaultPrefixChar, random(defaultLength, defaultSpacing, defaultSpacingChar)), nil
+}
+
+// NewRef generates a new reference string with the given prefix. The prefix is truncated
+// to a length of defaultPrefixMaxLength runes if it is longer. The remaining reference
+// string is generated using the RandomWithPrefix function.
+func NewRef(prefix string) string {
+	i := 0
+	n := defaultPrefixMaxLength
+	for i < len(prefix) && n > 0 {
+		_, size := utf8.DecodeRuneInString(prefix[i:])
+		i += size
+		n--
+	}
+	ref, _ := RandomWithPrefix(prefix[:i])
+	return ref
 }
 
 func RandomWithoutPrefix() string {

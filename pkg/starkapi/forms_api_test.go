@@ -1,6 +1,7 @@
 package starkapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 	"github.com/stretchr/testify/assert"
@@ -130,23 +131,34 @@ func TestFormsApi_GetControlByName(t *testing.T) {
 	formsApi := api.FormsApi
 	formsApi.client = &MockClient{
 		getFunc: func(url string) ([]byte, error) {
-			
+			controlList := domain.FormControlList{
+				FormControlList: []*domain.FormControl{
+					{Name: "Name1"},
+					{Name: "SampleName"},
+					{Name: "Name2"},
+				},
+			}
+			data, _ := json.Marshal(controlList)
+			return data, nil
+		},
+		getHostFunc: func() string {
+			return "someHost"
 		},
 	}
-	mockFormsApi := new(MockFormsApi)
+	//mockFormsApi := new(MockFormsApi)
 
 	// Define sample data
 	name := "SampleName"
-	controlList := domain.FormControlList{
-		FormControlList: []*domain.FormControl{
-			{Name: "Name1"},
-			{Name: "SampleName"},
-			{Name: "Name2"},
-		},
-	}
+	//controlList := domain.FormControlList{
+	//	FormControlList: []*domain.FormControl{
+	//		{Name: "Name1"},
+	//		{Name: "SampleName"},
+	//		{Name: "Name2"},
+	//	},
+	//}
 
 	// Set up the expected behavior of the mock
-	mockFormsApi.On("GetControlByName").On("GetAllControls").Return(controlList, nil)
+	//mockFormsApi.On("GetControlByName").On("GetAllControls").Return(controlList, nil)
 
 	// Act
 	result, err := formsApi.GetControlByName(name)

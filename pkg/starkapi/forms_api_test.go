@@ -2,6 +2,7 @@ package starkapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 	"github.com/stretchr/testify/assert"
@@ -10,10 +11,13 @@ import (
 	"testing"
 )
 
-const testFormsApiURL = "/core/forms"
-const testFormsControlPrefix = "/controls"
-const testFormName = "SampleName"
-const testFormNameInvalid = "DoesNotExist"
+const (
+	testFormsApiURL        = "/core/forms"
+	testFormsControlPrefix = "/controls"
+	testFormName           = "SampleName"
+	testFormNameInvalid    = "DoesNotExist"
+	errorGetAllControls    = "bad request"
+)
 
 func TestFormsApi_host(t *testing.T) {
 	api := Client{}
@@ -150,4 +154,36 @@ func TestFormsApi_GetControlByName(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error")
 	assert.NotEqual(t, testFormNameInvalid, result.Name)
 	assert.Equal(t, "", result.Name)
+}
+
+func TestFormsApi_GetControlByNameErrorInGetAllControls(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != fmt.Sprintf("%s%s", testFormsApiURL, testFormsControlPrefix) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	api := Client{}
+	host := server.URL
+	api.Init(host)
+	formsApi := api.FormsApi
+	formsApi.client = &MockClient{
+		getFunc: func(url string) ([]byte, error) {
+			return nil, errors.New(errorGetAllControls)
+		},
+		getHostFunc: func() string {
+			return "someHost"
+		},
+	}
+
+	_, err := formsApi.GetControlByName(testFormName)
+
+	// Assert
+	assert.Error(t, err, errorGetAllControls)
 }

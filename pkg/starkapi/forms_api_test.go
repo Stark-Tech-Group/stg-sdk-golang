@@ -128,6 +128,11 @@ func TestFormsApi_GetControlByName(t *testing.T) {
 	host := server.URL
 	api.Init(host)
 	formsApi := api.FormsApi
+	formsApi.client = &MockClient{
+		getFunc: func(url string) ([]byte, error) {
+			
+		},
+	}
 	mockFormsApi := new(MockFormsApi)
 
 	// Define sample data

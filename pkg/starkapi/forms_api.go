@@ -7,11 +7,11 @@ import (
 )
 
 type FormsApi struct {
-	client *Client
+	client ApiClient
 }
 
 func (formsApi *FormsApi) host() string {
-	return formsApi.client.host
+	return formsApi.client.getHost()
 }
 
 func (formsApi *FormsApi) baseUrl() string {

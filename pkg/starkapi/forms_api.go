@@ -7,11 +7,11 @@ import (
 )
 
 type FormsApi struct {
-	client *Client
+	client ApiClient
 }
 
 func (formsApi *FormsApi) host() string {
-	return formsApi.client.host
+	return formsApi.client.getHost()
 }
 
 func (formsApi *FormsApi) baseUrl() string {
@@ -60,4 +60,22 @@ func (formsApi *FormsApi) GetAllControlsForAsset(ref string) (domain.FormControl
 	}
 
 	return assetControls, nil
+}
+
+func (formsApi *FormsApi) GetControlByName(name string) (domain.FormControl, error) {
+	var control domain.FormControl
+	var controlsList, err = formsApi.GetAllControls()
+
+	if err != nil {
+		return control, err
+	}
+
+	for i := range controlsList.FormControlList {
+		if controlsList.FormControlList[i].Name == name {
+			control = *controlsList.FormControlList[i]
+			break
+		}
+	}
+
+	return control, nil
 }

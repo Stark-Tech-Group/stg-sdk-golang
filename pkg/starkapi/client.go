@@ -10,7 +10,7 @@ import (
 
 type Client struct {
 	AssetTreeApi AssetTreeApi
-	AssetsApi	 AssetsApi
+	AssetsApi    AssetsApi
 	StatusApi    StatusApi
 	SearchApi    SearchApi
 	PointApi     PointApi
@@ -21,7 +21,7 @@ type Client struct {
 	GeoApi       GeoApi
 	UridApi      UridApi
 	TagApi       TagApi
-	FormsApi	 FormsApi
+	FormsApi     FormsApi
 	/**/
 	loginEndpoint authApi
 	auth          *response.AuthResponse
@@ -51,7 +51,7 @@ func (client *Client) Init(host string) *Client {
 	return client
 }
 
-//Auth
+// Auth
 func (client *Client) Auth(accessToken, username string) (*response.AuthResponse, error) {
 
 	r := response.AuthResponse{
@@ -192,5 +192,8 @@ func (client *Client) doRequest(req *http.Request) ([]byte, error) {
 	}
 
 	return nil, fmt.Errorf("unexpected response code [%s]", resp.Status)
+}
 
+func (client *Client) getHost() string {
+	return client.host
 }

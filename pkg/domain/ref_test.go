@@ -3,6 +3,7 @@ package domain
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -63,5 +64,22 @@ func TestRandomWithoutPrefix_Over1MillionAttempts(t *testing.T) {
 		}
 
 		generatedStrings[s] = struct{}{}
+	}
+}
+
+func TestNewRef(t *testing.T) {
+	prefix := "Example"
+	ref := NewRef(prefix)
+
+	if !strings.HasPrefix(ref, prefix) {
+		t.Errorf("Expected reference to have prefix %s, but got %s", prefix, ref)
+	}
+
+	longPrefix := "ThisIsAVeryLongPrefixThatExceedsTheMaxLength"
+	expectedPrefix := longPrefix[:10]
+	refWithLongPrefix := NewRef(longPrefix)
+
+	if !strings.HasPrefix(refWithLongPrefix, expectedPrefix) {
+		t.Errorf("Expected reference to have truncated prefix %s, but got %s", expectedPrefix, refWithLongPrefix)
 	}
 }

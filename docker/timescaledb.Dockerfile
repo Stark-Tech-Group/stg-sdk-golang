@@ -1,5 +1,5 @@
 ARG PG_MAJOR=12
-FROM debezium/postgres:$PG_MAJOR as debezium
+FROM debezium/postgres:$PG_MAJOR AS debezium
 
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 

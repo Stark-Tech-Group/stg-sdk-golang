@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,15 +12,8 @@ import (
 
 const testFormsApiURL = "/core/forms"
 const testFormsControlPrefix = "/controls"
-
-type MockFormsApi struct {
-	mock.Mock
-}
-
-func (m *MockFormsApi) GetAllControls() (domain.FormControlList, error) {
-	args := m.Called()
-	return args.Get(0).(domain.FormControlList), args.Error(1)
-}
+const testFormName = "SampleName"
+const testFormNameInvalid = "DoesNotExist"
 
 func TestFormsApi_host(t *testing.T) {
 	api := Client{}
@@ -145,25 +137,17 @@ func TestFormsApi_GetControlByName(t *testing.T) {
 			return "someHost"
 		},
 	}
-	//mockFormsApi := new(MockFormsApi)
 
-	// Define sample data
-	name := "SampleName"
-	//controlList := domain.FormControlList{
-	//	FormControlList: []*domain.FormControl{
-	//		{Name: "Name1"},
-	//		{Name: "SampleName"},
-	//		{Name: "Name2"},
-	//	},
-	//}
-
-	// Set up the expected behavior of the mock
-	//mockFormsApi.On("GetControlByName").On("GetAllControls").Return(controlList, nil)
-
-	// Act
-	result, err := formsApi.GetControlByName(name)
+	result, err := formsApi.GetControlByName(testFormName)
 
 	// Assert
 	assert.NoError(t, err, "Unexpected error")
-	assert.Equal(t, name, result.Name, "Control name doesn't match")
+	assert.Equal(t, testFormName, result.Name)
+
+	result, err = formsApi.GetControlByName(testFormNameInvalid)
+
+	// Assert
+	assert.NoError(t, err, "Unexpected error")
+	assert.NotEqual(t, testFormNameInvalid, result.Name)
+	assert.Equal(t, "", result.Name)
 }

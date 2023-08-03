@@ -79,3 +79,31 @@ func (formsApi *FormsApi) GetControlByName(name string) (domain.FormControl, err
 
 	return control, nil
 }
+
+func (formsApi *FormsApi) CreateControlOnRef(control domain.FormControl) (domain.FormControl, error) {
+	err := control.Validate()
+	if err != nil {
+		return control, err
+	}
+
+	url := fmt.Sprintf("%s/%s%s", formsApi.baseUrl(), control.Ref, formsApi.controlsPrefix())
+
+	body, err := json.Marshal(control)
+	if err != nil {
+		return control, err
+	}
+
+	resp, err := formsApi.client.post(url, body)
+	if err != nil {
+		return control, err
+	}
+
+	if len(resp) > 0 {
+		err = json.Unmarshal(resp, &control)
+		if err != nil {
+			return control, err
+		}
+	}
+
+	return control, nil
+}

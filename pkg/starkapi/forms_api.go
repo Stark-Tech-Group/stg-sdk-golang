@@ -2,13 +2,8 @@ package starkapi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
-)
-
-const (
-	errNoRefProvided = "a valid ref must be provided for this call"
 )
 
 type FormsApi struct {
@@ -86,9 +81,11 @@ func (formsApi *FormsApi) GetControlByName(name string) (domain.FormControl, err
 }
 
 func (formsApi *FormsApi) CreateControlOnRef(control domain.FormControl) (domain.FormControl, error) {
-	if control.Ref == "" {
-		return control, errors.New(errNoRefProvided)
+	err := control.Validate()
+	if err != nil {
+		return control, err
 	}
+
 	url := fmt.Sprintf("%s/%s%s", formsApi.baseUrl(), control.Ref, formsApi.controlsPrefix())
 
 	body, err := json.Marshal(control)
@@ -100,9 +97,12 @@ func (formsApi *FormsApi) CreateControlOnRef(control domain.FormControl) (domain
 	if err != nil {
 		return control, err
 	}
-	err = json.Unmarshal(resp, &control)
-	if err != nil {
-		return control, err
+
+	if len(resp) > 0 {
+		err = json.Unmarshal(resp, &control)
+		if err != nil {
+			return control, err
+		}
 	}
 
 	return control, nil

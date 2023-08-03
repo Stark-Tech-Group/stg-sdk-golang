@@ -17,6 +17,9 @@ const (
 	testFormName           = "SampleName"
 	testFormNameInvalid    = "DoesNotExist"
 	errorGetAllControls    = "bad request"
+	testFormsControlRef    = "testRef"
+	testFormsControlName   = "Test Name"
+	testFormsControlString = "Test Control"
 )
 
 func TestFormsApi_host(t *testing.T) {
@@ -186,4 +189,75 @@ func TestFormsApi_GetControlByNameErrorInGetAllControls(t *testing.T) {
 
 	// Assert
 	assert.Error(t, err, errorGetAllControls)
+}
+
+func TestFormsApi_CreateControlOnRef(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testFormsControlRef, testFormsControlPrefix) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	formsApi := api.FormsApi
+
+	control := domain.FormControl{Ref: testFormsControlRef, Name: testFormsControlName, Control: testFormsControlString}
+
+	res, formsErr := formsApi.CreateControlOnRef(control)
+	assert.Equal(t, nil, formsErr)
+	assert.Equal(t, control.Ref, res.Ref)
+	assert.Equal(t, control.Name, res.Name)
+	assert.Equal(t, control.Control, res.Control)
+
+	badApi := Client{}
+	badApi.Init("/bad")
+
+	badFormsApi := badApi.FormsApi
+	_, badFormsApiErr := badFormsApi.CreateControlOnRef(control)
+	assert.NotEqual(t, nil, badFormsApiErr)
+}
+
+func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testFormsControlRef, testFormsControlPrefix) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	formsApi := api.FormsApi
+
+	controlMissingRef := domain.FormControl{Name: testFormsControlName, Control: testFormsControlString}
+	controlMissingName := domain.FormControl{Ref: testFormsControlRef, Control: testFormsControlString}
+	controlMissingControl := domain.FormControl{Ref: testFormsControlRef, Name: testFormsControlName}
+
+	_, formsErr := formsApi.CreateControlOnRef(controlMissingRef)
+	assert.NotNil(t, formsErr)
+
+	_, formsErr = formsApi.CreateControlOnRef(controlMissingName)
+	assert.NotNil(t, formsErr)
+
+	_, formsErr = formsApi.CreateControlOnRef(controlMissingControl)
+	assert.NotNil(t, formsErr)
+
 }

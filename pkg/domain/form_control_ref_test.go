@@ -6,13 +6,11 @@ import (
 )
 
 const (
-	testFormControlName  = "test name"
-	testIssueRef         = "i.abcd.1234"
-	testIssueValue       = "test value"
-	testFormControlRef   = "j.1111.2222"
-	testIssueTargetRef   = "testTargetRef"
-	testFormControlValue = "test value"
-	testFormControlDesc  = "test description"
+	testFormControlName = "test name"
+	testIssueRef        = "i.abcd.1234"
+	testIssueValue      = "test value"
+	testFormControlRef  = "j.1111.2222"
+	testFormControlDesc = "test description"
 )
 
 func TestNewFormControlRef(t *testing.T) {

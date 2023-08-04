@@ -10,13 +10,27 @@ type FormControlList struct {
 }
 
 type FormControl struct {
-	Id          int32  `json:"id,omitempty"`
-	Ref         string `json:"ref,omitempty" validate:"required"`
+	Id          string `json:"id,omitempty"`
+	Ref         string `json:"ref" validate:"required"`
 	Name        string `json:"name" validate:"required"`
 	Enabled     bool   `json:"enabled,omitempty"`
-	Description string `json:"description"`
-	Control     string `json:"string" validate:"required"`
-	Audit       *Audit `json:"audit,omitempty"`
+	Description string `json:"description,omitempty"`
+	Control     string `json:"control" validate:"required"`
+	ControlJSON struct {
+		Key             string `json:"key"`
+		Type            string `json:"type"`
+		TemplateOptions struct {
+			Label       string `json:"label"`
+			Placeholder string `json:"placeholder"`
+			Required    string `json:"required"`
+		} `json:"templateOptions,omitempty"`
+	} `json:"-,omitempty"`
+	Version string `json:"version,omitempty"`
+	Audit   *Audit `json:"audit,omitempty"`
+	Links   struct {
+		Type string `json:"type"`
+		Self string `json:"self"`
+	} `json:"links,omitempty"`
 }
 
 var validate *validator.Validate

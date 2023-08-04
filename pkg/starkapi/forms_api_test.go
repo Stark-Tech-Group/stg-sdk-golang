@@ -17,9 +17,11 @@ const (
 	testFormName           = "SampleName"
 	testFormNameInvalid    = "DoesNotExist"
 	errorGetAllControls    = "bad request"
-	testFormsControlRef    = "testRef"
-	testFormsControlName   = "Test Name"
-	testFormsControlString = "Test Control"
+	testFormsControlName   = "Sample Name"
+	testFormControlRef     = "j.1111.2222"
+	testIssueTargetRef     = "testTargetRef"
+	testFormControlValue   = "test value"
+	testFormControlDesc    = "test description"
 )
 
 func TestFormsApi_host(t *testing.T) {
@@ -193,7 +195,7 @@ func TestFormsApi_GetControlByNameErrorInGetAllControls(t *testing.T) {
 
 func TestFormsApi_CreateControlOnRef(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testFormsControlRef, testFormsControlPrefix) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testIssueTargetRef, testFormsControlPrefix) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -210,26 +212,80 @@ func TestFormsApi_CreateControlOnRef(t *testing.T) {
 	api.Init(host)
 
 	formsApi := api.FormsApi
+	formsApi.client = &MockClient{
+		getFunc: func(url string) ([]byte, error) {
+			controlList := domain.FormControlList{
+				FormControlList: []*domain.FormControl{
+					{Name: "Name1"},
+					getValidFormControl(),
+					{Name: "Name2"},
+				},
+			}
+			data, _ := json.Marshal(controlList)
+			return data, nil
+		},
+		getHostFunc: func() string {
+			return "someHost"
+		},
+		postFunc: func(url string, body []byte) ([]byte, error) {
+			return nil, nil
+		},
+	}
 
-	control := domain.FormControl{Ref: testFormsControlRef, Name: testFormsControlName, Control: testFormsControlString}
-
-	res, formsErr := formsApi.CreateControlOnRef(control)
+	res, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, testFormControlValue)
 	assert.Equal(t, nil, formsErr)
-	assert.Equal(t, control.Ref, res.Ref)
-	assert.Equal(t, control.Name, res.Name)
-	assert.Equal(t, control.Control, res.Control)
+	assert.Equal(t, testIssueTargetRef, res.TargetRef)
+	assert.Equal(t, testFormsControlName, res.Name)
+	assert.Equal(t, testFormControlValue, res.Value)
+}
 
-	badApi := Client{}
-	badApi.Init("/bad")
+func TestFormsApi_CreateControlOnRefBadReturn(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testIssueTargetRef, testFormsControlPrefix) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	api := Client{}
+	host := server.URL
 
-	badFormsApi := badApi.FormsApi
-	_, badFormsApiErr := badFormsApi.CreateControlOnRef(control)
-	assert.NotEqual(t, nil, badFormsApiErr)
+	api.Init(host)
+
+	formsApi := api.FormsApi
+	formsApi.client = &MockClient{
+		getFunc: func(url string) ([]byte, error) {
+			controlList := domain.FormControlList{
+				FormControlList: []*domain.FormControl{
+					{Name: "Name1"},
+					getValidFormControl(),
+					{Name: "Name2"},
+				},
+			}
+			data, _ := json.Marshal(controlList)
+			return data, nil
+		},
+		getHostFunc: func() string {
+			return "someHost"
+		},
+		postFunc: func(url string, body []byte) ([]byte, error) {
+			return []byte("1"), nil
+		},
+	}
+
+	_, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, testFormControlValue)
+	var jsonUnmarshalError *json.UnmarshalTypeError
+	assert.True(t, errors.As(formsErr, &jsonUnmarshalError))
 }
 
 func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testFormsControlRef, testFormsControlPrefix) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testIssueTargetRef, testFormsControlPrefix) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -247,17 +303,23 @@ func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {
 
 	formsApi := api.FormsApi
 
-	controlMissingRef := domain.FormControl{Name: testFormsControlName, Control: testFormsControlString}
-	controlMissingName := domain.FormControl{Ref: testFormsControlRef, Control: testFormsControlString}
-	controlMissingControl := domain.FormControl{Ref: testFormsControlRef, Name: testFormsControlName}
-
-	_, formsErr := formsApi.CreateControlOnRef(controlMissingRef)
+	_, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, "")
 	assert.NotNil(t, formsErr)
 
-	_, formsErr = formsApi.CreateControlOnRef(controlMissingName)
+	_, formsErr = formsApi.CreateControlOnRef(testFormsControlName, "", testFormControlValue)
 	assert.NotNil(t, formsErr)
 
-	_, formsErr = formsApi.CreateControlOnRef(controlMissingControl)
+	_, formsErr = formsApi.CreateControlOnRef("", testIssueTargetRef, testFormControlValue)
 	assert.NotNil(t, formsErr)
+}
 
+func getValidFormControl() *domain.FormControl {
+	return &domain.FormControl{
+		Id:          "1",
+		Name:        testFormsControlName,
+		Ref:         testFormControlRef,
+		Enabled:     true,
+		Description: testFormControlDesc,
+		Control:     "{\"key\": \"text\",  \"type\": \"text\",  \"templateOptions\": {    \"label\": \"Text\", \"placeholder\": \"Name, email or phone number of Area Manager\", \"required\": true  }}",
+	}
 }

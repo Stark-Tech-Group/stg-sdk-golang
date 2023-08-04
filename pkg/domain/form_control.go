@@ -22,7 +22,7 @@ type FormControl struct {
 		TemplateOptions struct {
 			Label       string `json:"label"`
 			Placeholder string `json:"placeholder"`
-			Required    string `json:"required"`
+			Required    bool   `json:"required"`
 		} `json:"templateOptions,omitempty"`
 	} `json:"-,omitempty"`
 	Version string `json:"version,omitempty"`

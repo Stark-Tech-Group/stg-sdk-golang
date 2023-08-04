@@ -11,7 +11,7 @@ const (
 	testFormsControlString = "Test Control"
 )
 
-func TestFormsControl_ValdiateSuccess(t *testing.T) {
+func TestFormsControl_ValidateSuccess(t *testing.T) {
 	control := FormControl{Ref: testFormsControlRef, Name: testFormsControlName, Control: testFormsControlString}
 
 	err := control.Validate()
@@ -19,7 +19,7 @@ func TestFormsControl_ValdiateSuccess(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestFormsControl_ValdiateError(t *testing.T) {
+func TestFormsControl_ValidateError(t *testing.T) {
 	controlMissingRef := FormControl{Name: testFormsControlName, Control: testFormsControlString}
 	controlMissingName := FormControl{Ref: testFormsControlRef, Control: testFormsControlString}
 	controlMissingControl := FormControl{Ref: testFormsControlRef, Name: testFormsControlName}

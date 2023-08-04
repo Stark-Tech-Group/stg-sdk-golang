@@ -24,6 +24,7 @@ const (
 	testFormControlDesc       = "test description"
 	testErrorBadPost          = "bad post error"
 	testErrorGetControlByName = "get control by name error"
+	errInvalidFormControl     = "invalid form control provided with name [%s]"
 )
 
 func TestFormsApi_host(t *testing.T) {
@@ -394,13 +395,50 @@ func TestFormsApi_CreateControlOnRefInvalidFormControlRet(t *testing.T) {
 		getHostFunc: func() string {
 			return "someHost"
 		},
-		postFunc: func(url string, body []byte) ([]byte, error) {
-			return []byte("1"), nil
-		},
 	}
 
 	_, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, testFormControlValue)
 	assert.Equal(t, errors.New(fmt.Sprintf(errInvalidControlNameProvided, testFormsControlName)), formsErr)
+}
+
+func TestFormsApi_CreateControlOnRefBadJSONInControl(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != fmt.Sprintf("%s/%s%s", testFormsApiURL, testIssueTargetRef, testFormsControlPrefix) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	formsApi := api.FormsApi
+	formsApi.client = &MockClient{
+		getFunc: func(url string) ([]byte, error) {
+			controlList := domain.FormControlList{
+				FormControlList: []*domain.FormControl{
+					{Name: "Name1"},
+					getInvalidFormControlWithBadJSON(),
+					{Name: "Name2"},
+				},
+			}
+			data, _ := json.Marshal(controlList)
+			return data, nil
+		},
+		getHostFunc: func() string {
+			return "someHost"
+		},
+	}
+
+	_, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, testFormControlValue)
+	assert.Equal(t, errors.New(fmt.Sprintf(errInvalidFormControl, testFormsControlName)), formsErr)
 }
 
 func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {
@@ -451,5 +489,16 @@ func getInvalidFormControl() *domain.FormControl {
 		Enabled:     true,
 		Description: testFormControlDesc,
 		Control:     "{\"key\": \"text\",  \"type\": \"text\",  \"templateOptions\": {    \"label\": \"Text\", \"placeholder\": \"Name, email or phone number of Area Manager\", \"required\": true  }}",
+	}
+}
+
+func getInvalidFormControlWithBadJSON() *domain.FormControl {
+	return &domain.FormControl{
+		Id:          "1",
+		Name:        testFormsControlName,
+		Ref:         testFormControlRef,
+		Enabled:     true,
+		Description: testFormControlDesc,
+		Control:     "invalid json",
 	}
 }

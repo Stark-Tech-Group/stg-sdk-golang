@@ -64,14 +64,14 @@ func TestFormsControlRef_BuildFormControlRefInvalidJSON(t *testing.T) {
 
 func TestFormsControlRef_BuildFormControlRefMissingRef(t *testing.T) {
 	var controlRef FormControlRef
-	err := controlRef.BuildFormControlRefForCreate(getInvalidFormControlWithBadJSON(), "", testIssueValue)
+	err := controlRef.BuildFormControlRefForCreate(getValidFormControl(), "", testIssueValue)
 
 	assert.NotNil(t, err)
 }
 
 func TestFormsControlRef_BuildFormControlRefMissingValue(t *testing.T) {
 	var controlRef FormControlRef
-	err := controlRef.BuildFormControlRefForCreate(getInvalidFormControlWithBadJSON(), testIssueRef, "")
+	err := controlRef.BuildFormControlRefForCreate(getValidFormControl(), testIssueRef, "")
 
 	assert.NotNil(t, err)
 }

@@ -28,7 +28,7 @@ type FormControlRef struct {
 	Key           string      `json:"key" validate:"required"`
 	Value         string      `json:"value" validate:"required"`
 	FormControlId string      `json:"formControlId" validate:"required"`
-	FormControl   FormControl `json:"formControl, omitempty"`
+	FormControl   FormControl `json:"formControl,omitempty"`
 	Audit         *Audit      `json:"audit,omitempty"`
 	Ref           string      `json:"ref,omitempty"`
 	Version       int32       `json:"version,omitempty"`

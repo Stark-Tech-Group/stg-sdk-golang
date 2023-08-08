@@ -473,7 +473,7 @@ func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {
 
 func getValidFormControl() *domain.FormControl {
 	return &domain.FormControl{
-		Id:          "1",
+		Id:          1,
 		Name:        testFormsControlName,
 		Ref:         testFormControlRef,
 		Enabled:     true,
@@ -494,7 +494,7 @@ func getInvalidFormControl() *domain.FormControl {
 
 func getInvalidFormControlWithBadJSON() *domain.FormControl {
 	return &domain.FormControl{
-		Id:          "1",
+		Id:          1,
 		Name:        testFormsControlName,
 		Ref:         testFormControlRef,
 		Enabled:     true,

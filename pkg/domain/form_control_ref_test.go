@@ -21,21 +21,27 @@ func TestNewFormControlRef(t *testing.T) {
 
 func TestFormsControlRef_ValidateSuccess(t *testing.T) {
 	var controlRef FormControlRef
-	err := controlRef.ValidateCreateRequireFields(testFormControlName, testIssueRef, testIssueValue)
 
+	err := controlRef.ValidateStringParams(testFormControlName, "testError")
+	assert.Nil(t, err)
+
+	err = controlRef.ValidateStringParams(testIssueRef, "testError")
+	assert.Nil(t, err)
+
+	err = controlRef.ValidateStringParams(testIssueValue, "testError")
 	assert.Nil(t, err)
 }
 
 func TestFormsControlRef_ValidateError(t *testing.T) {
 	var controlRef FormControlRef
 
-	err := controlRef.ValidateCreateRequireFields(testFormControlName, testIssueRef, "")
+	err := controlRef.ValidateStringParams(testFormControlName, "testError")
 	assert.NotNil(t, err)
 
-	err = controlRef.ValidateCreateRequireFields(testFormControlName, "", testIssueValue)
+	err = controlRef.ValidateStringParams(testIssueRef, "testError")
 	assert.NotNil(t, err)
 
-	err = controlRef.ValidateCreateRequireFields("", testIssueRef, testIssueValue)
+	err = controlRef.ValidateStringParams(testIssueValue, "testError")
 	assert.NotNil(t, err)
 }
 

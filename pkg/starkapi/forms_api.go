@@ -9,6 +9,9 @@ import (
 )
 
 const (
+	errNoControlNameProvided      = "please provide a form control name"
+	errNoRefProvided              = "please provide a ref"
+	errNoValueProvided            = "please provide a value"
 	errInvalidControlNameProvided = "no form control found with name provided : [%s]"
 )
 
@@ -90,7 +93,19 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 	var control domain.FormControl
 	var controlRef domain.FormControlRef
 
-	err := controlRef.ValidateCreateRequireFields(formControlName, ref, value)
+	err := controlRef.ValidateStringParams(formControlName, errNoControlNameProvided)
+	if err != nil {
+		logger.Error(err)
+		return controlRef, err
+	}
+
+	err = controlRef.ValidateStringParams(ref, errNoRefProvided)
+	if err != nil {
+		logger.Error(err)
+		return controlRef, err
+	}
+
+	err = controlRef.ValidateStringParams(value, errNoValueProvided)
 	if err != nil {
 		logger.Error(err)
 		return controlRef, err
@@ -124,12 +139,14 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 
 	resp, err := formsApi.client.post(url, body)
 	if err != nil {
+		logger.Error(err)
 		return controlRef, err
 	}
 
 	if len(resp) > 0 {
 		err = json.Unmarshal(resp, &controlRef)
 		if err != nil {
+			logger.Error(err)
 			return controlRef, err
 		}
 	}

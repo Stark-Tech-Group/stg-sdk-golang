@@ -4,14 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	logger "github.com/sirupsen/logrus"
 )
 
 const (
-	errNoControlNameProvided = "please provide a form control name"
-	errNoRefProvided         = "please provide a ref"
-	errNoValueProvided       = "please provide a value"
-	errInvalidFormControl    = "invalid form control provided with name [%s]"
-	errInvalidFormControlRef = "unable to validate form control ref with information provided"
+	errInvalidFormControl = "invalid form control provided with name [%s]"
 )
 
 type FormControlRefList struct {
@@ -40,15 +37,10 @@ func NewFormControlRef() *FormControlRef {
 	}
 }
 
-func (o *FormControlRef) ValidateCreateRequireFields(formControlName string, ref string, value string) error {
-	if formControlName == "" {
-		return errors.New(errNoControlNameProvided)
-	}
-	if ref == "" {
-		return errors.New(errNoRefProvided)
-	}
-	if value == "" {
-		return errors.New(errNoValueProvided)
+func (o *FormControlRef) ValidateStringParams(paramName string, errString string) error {
+	if paramName == "" {
+		logger.Error(errors.New(errString))
+		return errors.New(errString)
 	}
 
 	return nil
@@ -57,11 +49,13 @@ func (o *FormControlRef) ValidateCreateRequireFields(formControlName string, ref
 func (o *FormControlRef) BuildFormControlRefForCreate(formControl FormControl, ref string, value string) error {
 	err := formControl.Validate()
 	if err != nil {
+		logger.Error(err)
 		return errors.New(fmt.Sprintf(errInvalidFormControl, formControl.Name))
 	}
 	err = json.Unmarshal([]byte(formControl.Control), &formControl.ControlJSON)
 	if err != nil {
-		return errors.New(fmt.Sprintf(errInvalidFormControl, formControl.Name))
+		logger.Error(err)
+		return err
 	}
 	o.TargetRef = ref
 	o.SortOrder = 1
@@ -74,7 +68,8 @@ func (o *FormControlRef) BuildFormControlRefForCreate(formControl FormControl, r
 
 	err = validate.Struct(o)
 	if err != nil {
-		return errors.New(errInvalidFormControlRef)
+		logger.Error(err)
+		return err
 	}
 	return nil
 }

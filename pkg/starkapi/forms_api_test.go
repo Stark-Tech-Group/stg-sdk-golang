@@ -24,7 +24,6 @@ const (
 	testFormControlDesc       = "test description"
 	testErrorBadPost          = "bad post error"
 	testErrorGetControlByName = "get control by name error"
-	errInvalidFormControl     = "invalid form control provided with name [%s]"
 )
 
 func TestFormsApi_host(t *testing.T) {

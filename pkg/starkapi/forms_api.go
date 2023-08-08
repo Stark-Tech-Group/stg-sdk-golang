@@ -13,6 +13,7 @@ const (
 	errNoRefProvided              = "please provide a ref"
 	errNoValueProvided            = "please provide a value"
 	errInvalidControlNameProvided = "no form control found with name provided : [%s]"
+	errValidateStringParams       = "controlRef.ValidateStringParams failed with error : [%s]"
 )
 
 type FormsApi struct {
@@ -95,19 +96,19 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 
 	err := controlRef.ValidateStringParams(formControlName, errNoControlNameProvided)
 	if err != nil {
-		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		logger.Error(fmt.Sprintf(errValidateStringParams, err))
 		return controlRef, err
 	}
 
 	err = controlRef.ValidateStringParams(ref, errNoRefProvided)
 	if err != nil {
-		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		logger.Error(fmt.Sprintf(errValidateStringParams, err))
 		return controlRef, err
 	}
 
 	err = controlRef.ValidateStringParams(value, errNoValueProvided)
 	if err != nil {
-		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		logger.Error(fmt.Sprintf(errValidateStringParams, err))
 		return controlRef, err
 	}
 

@@ -2,8 +2,17 @@ package starkapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
+	logger "github.com/sirupsen/logrus"
+)
+
+const (
+	errNoControlNameProvided      = "please provide a form control name"
+	errNoRefProvided              = "please provide a ref"
+	errNoValueProvided            = "please provide a value"
+	errInvalidControlNameProvided = "no form control found with name provided : [%s]"
 )
 
 type FormsApi struct {
@@ -80,30 +89,67 @@ func (formsApi *FormsApi) GetControlByName(name string) (domain.FormControl, err
 	return control, nil
 }
 
-func (formsApi *FormsApi) CreateControlOnRef(control domain.FormControl) (domain.FormControl, error) {
-	err := control.Validate()
+func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string, value string) (domain.FormControlRef, error) {
+	var control domain.FormControl
+	var controlRef domain.FormControlRef
+
+	err := controlRef.ValidateStringParams(formControlName, errNoControlNameProvided)
 	if err != nil {
-		return control, err
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		return controlRef, err
 	}
 
-	url := fmt.Sprintf("%s/%s%s", formsApi.baseUrl(), control.Ref, formsApi.controlsPrefix())
-
-	body, err := json.Marshal(control)
+	err = controlRef.ValidateStringParams(ref, errNoRefProvided)
 	if err != nil {
-		return control, err
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		return controlRef, err
+	}
+
+	err = controlRef.ValidateStringParams(value, errNoValueProvided)
+	if err != nil {
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
+		return controlRef, err
+	}
+
+	control, err = formsApi.GetControlByName(formControlName)
+	if err != nil {
+		logger.Errorf("formsApi.GetControlByName failed with error : [%s]", err)
+		return controlRef, err
+	}
+
+	if control.Id < 1 || control.Name != formControlName {
+		newError := errors.New(fmt.Sprintf(errInvalidControlNameProvided, formControlName))
+		logger.Error(newError)
+		return controlRef, newError
+	}
+
+	err = controlRef.BuildFormControlRefForCreate(control, ref, value)
+	if err != nil {
+		logger.Errorf("controlRef.BuildFormControlRefForCreate failed with error : [%s]", err)
+		return controlRef, err
+	}
+
+	url := fmt.Sprintf("%s/%s%s", formsApi.baseUrl(), ref, formsApi.controlsPrefix())
+
+	body, err := json.Marshal(controlRef)
+	if err != nil {
+		logger.Errorf("failed to unmarshall controlRef json with error : [%s]", err)
+		return controlRef, err
 	}
 
 	resp, err := formsApi.client.post(url, body)
 	if err != nil {
-		return control, err
+		logger.Errorf("failed to run formsApi.client.post with error : [%s]", err)
+		return controlRef, err
 	}
 
 	if len(resp) > 0 {
-		err = json.Unmarshal(resp, &control)
+		err = json.Unmarshal(resp, &controlRef)
 		if err != nil {
-			return control, err
+			logger.Errorf("failed to unmarshall post response json with error : [%s]", err)
+			return controlRef, err
 		}
 	}
 
-	return control, nil
+	return controlRef, nil
 }

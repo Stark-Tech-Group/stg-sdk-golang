@@ -438,7 +438,8 @@ func TestFormsApi_CreateControlOnRefBadJSONInControl(t *testing.T) {
 	}
 
 	_, formsErr := formsApi.CreateControlOnRef(testFormsControlName, testIssueTargetRef, testFormControlValue)
-	assert.Equal(t, errors.New(fmt.Sprintf(errInvalidFormControl, testFormsControlName)), formsErr)
+	var jsonSyntaxError *json.SyntaxError
+	assert.True(t, errors.As(formsErr, &jsonSyntaxError))
 }
 
 func TestFormsApi_CreateControlOnRefWithMissingFields(t *testing.T) {

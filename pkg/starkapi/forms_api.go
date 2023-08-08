@@ -95,25 +95,25 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 
 	err := controlRef.ValidateStringParams(formControlName, errNoControlNameProvided)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
 		return controlRef, err
 	}
 
 	err = controlRef.ValidateStringParams(ref, errNoRefProvided)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
 		return controlRef, err
 	}
 
 	err = controlRef.ValidateStringParams(value, errNoValueProvided)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("controlRef.ValidateStringParams failed with error : [%s]", err)
 		return controlRef, err
 	}
 
 	control, err = formsApi.GetControlByName(formControlName)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("formsApi.GetControlByName failed with error : [%s]", err)
 		return controlRef, err
 	}
 

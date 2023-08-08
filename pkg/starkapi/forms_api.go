@@ -102,7 +102,7 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 		return controlRef, err
 	}
 
-	if control.Id == "" || control.Name != formControlName {
+	if control.Id < 1 || control.Name != formControlName {
 		newError := errors.New(fmt.Sprintf(errInvalidControlNameProvided, formControlName))
 		logger.Error(newError)
 		return controlRef, newError

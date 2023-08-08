@@ -20,14 +20,14 @@ type FormControlRefList struct {
 }
 
 type FormControlRef struct {
-	Id            int32       `json:"id,omitempty"`
+	Id            int64       `json:"id,omitempty"`
 	TargetRef     string      `json:"targetRef" validate:"required"`
 	SortOrder     int32       `json:"sortOrder" validate:"required"`
 	Description   string      `json:"description" validate:"required"`
 	Name          string      `json:"name" validate:"required"`
 	Key           string      `json:"key" validate:"required"`
 	Value         string      `json:"value" validate:"required"`
-	FormControlId string      `json:"formControlId" validate:"required"`
+	FormControlId int64       `json:"formControlId" validate:"required"`
 	FormControl   FormControl `json:"formControl,omitempty"`
 	Audit         *Audit      `json:"audit,omitempty"`
 	Ref           string      `json:"ref,omitempty"`

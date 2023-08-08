@@ -76,7 +76,7 @@ func TestFormsControlRef_BuildFormControlRefMissingValue(t *testing.T) {
 
 func getValidFormControl() FormControl {
 	return FormControl{
-		Id:          "1",
+		Id:          1,
 		Name:        testFormsControlName,
 		Ref:         testFormControlRef,
 		Enabled:     true,
@@ -96,7 +96,7 @@ func getInvalidFormControl() FormControl {
 
 func getInvalidFormControlWithBadJSON() FormControl {
 	return FormControl{
-		Id:          "1",
+		Id:          1,
 		Name:        testFormsControlName,
 		Ref:         testFormControlRef,
 		Enabled:     true,

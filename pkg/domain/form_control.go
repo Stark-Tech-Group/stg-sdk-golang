@@ -10,7 +10,7 @@ type FormControlList struct {
 }
 
 type FormControl struct {
-	Id          string `json:"id,omitempty"`
+	Id          int64  `json:"id,omitempty"`
 	Ref         string `json:"ref" validate:"required"`
 	Name        string `json:"name" validate:"required"`
 	Enabled     bool   `json:"enabled,omitempty"`

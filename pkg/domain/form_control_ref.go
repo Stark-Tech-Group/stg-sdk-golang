@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	errInvalidFormControl = "invalid form control provided with name [%s]"
+	errInvalidFormControl = "form control struct validate failed for form control name [%s], with error : [%s]"
 )
 
 type FormControlRefList struct {
@@ -49,8 +49,9 @@ func (o *FormControlRef) ValidateStringParams(paramName string, errString string
 func (o *FormControlRef) BuildFormControlRefForCreate(formControl FormControl, ref string, value string) error {
 	err := formControl.Validate()
 	if err != nil {
-		logger.Errorf("form control struct validate failed with error : [%s]", err)
-		return errors.New(fmt.Sprintf(errInvalidFormControl, formControl.Name))
+		validateErr := errors.New(fmt.Sprintf(errInvalidFormControl, formControl.Name, err))
+		logger.Error(validateErr)
+		return validateErr
 	}
 	err = json.Unmarshal([]byte(formControl.Control), &formControl.ControlJSON)
 	if err != nil {

@@ -35,13 +35,13 @@ func TestFormsControlRef_ValidateSuccess(t *testing.T) {
 func TestFormsControlRef_ValidateError(t *testing.T) {
 	var controlRef FormControlRef
 
-	err := controlRef.ValidateStringParams(testFormControlName, "testError")
+	err := controlRef.ValidateStringParams("", "testError")
 	assert.NotNil(t, err)
 
-	err = controlRef.ValidateStringParams(testIssueRef, "testError")
+	err = controlRef.ValidateStringParams("", "testError")
 	assert.NotNil(t, err)
 
-	err = controlRef.ValidateStringParams(testIssueValue, "testError")
+	err = controlRef.ValidateStringParams("", "testError")
 	assert.NotNil(t, err)
 }
 

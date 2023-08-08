@@ -49,12 +49,12 @@ func (o *FormControlRef) ValidateStringParams(paramName string, errString string
 func (o *FormControlRef) BuildFormControlRefForCreate(formControl FormControl, ref string, value string) error {
 	err := formControl.Validate()
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("form control struct validate failed with error : [%s]", err)
 		return errors.New(fmt.Sprintf(errInvalidFormControl, formControl.Name))
 	}
 	err = json.Unmarshal([]byte(formControl.Control), &formControl.ControlJSON)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("failed to unmarshall formControl.Control json with error : [%s]", err)
 		return err
 	}
 	o.TargetRef = ref
@@ -68,7 +68,7 @@ func (o *FormControlRef) BuildFormControlRefForCreate(formControl FormControl, r
 
 	err = validate.Struct(o)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("form control ref struct validate failed with error : [%s]", err)
 		return err
 	}
 	return nil

@@ -125,7 +125,7 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 
 	err = controlRef.BuildFormControlRefForCreate(control, ref, value)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("controlRef.BuildFormControlRefForCreate failed with error : [%s]", err)
 		return controlRef, err
 	}
 
@@ -133,20 +133,20 @@ func (formsApi *FormsApi) CreateControlOnRef(formControlName string, ref string,
 
 	body, err := json.Marshal(controlRef)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("failed to unmarshall controlRef json with error : [%s]", err)
 		return controlRef, err
 	}
 
 	resp, err := formsApi.client.post(url, body)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("failed to run formsApi.client.post with error : [%s]", err)
 		return controlRef, err
 	}
 
 	if len(resp) > 0 {
 		err = json.Unmarshal(resp, &controlRef)
 		if err != nil {
-			logger.Error(err)
+			logger.Errorf("failed to unmarshall post response json with error : [%s]", err)
 			return controlRef, err
 		}
 	}

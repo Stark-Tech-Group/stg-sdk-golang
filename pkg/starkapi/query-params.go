@@ -69,6 +69,8 @@ type QueryParams struct {
 	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
 	IssueStatus string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
 	TargetRef   string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
+	EquipType   string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
+	EquipTypeId string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
 	SortA       string `json:"sortA" schema:"sortA"`
 	SortD       string `json:"sortD" schema:"sortD"`
 }

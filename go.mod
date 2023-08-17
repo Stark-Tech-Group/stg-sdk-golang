@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Azure/azure-event-hubs-go/v3 v3.6.1
-	github.com/go-playground/validator/v10 v10.15.0
+	github.com/go-playground/validator/v10 v10.15.1
 	github.com/lib/pq v1.10.9
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4

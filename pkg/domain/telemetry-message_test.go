@@ -18,15 +18,51 @@ func TestTelemetryMessageSetValue(t *testing.T) {
 	assert.Equal(t, 101.0, m.GetValue("a-value"))
 }
 
+func TestNewTelemetryMessage(t *testing.T) {
+	deviceID := "testDevice"
+	message := NewTelemetryMessage(deviceID)
+
+	assert.NotNil(t, message)
+	assert.Equal(t, deviceID, message.DeviceId)
+	assert.NotEmpty(t, message.Ts)
+	assert.NotNil(t, message.values)
+}
+
+func TestTelemetryMessage_SetValue(t *testing.T) {
+	message := &TelemetryMessage{}
+	key := "temperature"
+	value := 25.5
+
+	message.SetValue(key, value)
+
+	assert.Equal(t, value, message.values[key])
+}
+
+func TestTelemetryMessage_GetValue(t *testing.T) {
+	message := &TelemetryMessage{}
+	key := "humidity"
+	value := 60.0
+
+	message.SetValue(key, value)
+	result := message.GetValue(key)
+
+	assert.Equal(t, value, result)
+}
+
 func TestTelemetryMessage_MarshalJSON(t *testing.T) {
-	m := NewTelemetryMessage("abc")
-	m.Ts = 10000
-	m.SetValue("a-value", 1.0)
-	m.SetValue("b-value", 1.0)
+	deviceID := "testDevice"
+	ts := int64(1629216000) // Use a specific timestamp here
+	message := &TelemetryMessage{
+		DeviceId: deviceID,
+		Ts:       ts,
+	}
+	message.SetValue("temperature", 25.5)
+	message.SetValue("humidity", 60.0)
 
-	b, err := json.Marshal(m)
-	assert.Nil(t, err)
-	s := string(b)
+	expectedJSON := `{"deviceId":"testDevice","ts":1629216000,"humidity":60,"temperature":25.5}`
 
-	assert.Equal(t, "{\"a-value\":1,\"b-value\":1,\"deviceId\":\"abc\",\"ts\":10000}", s)
+	resultJSON, err := json.Marshal(message)
+
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJSON, string(resultJSON))
 }

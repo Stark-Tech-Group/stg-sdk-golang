@@ -351,6 +351,39 @@ func TestQueryParams_DateCreated(t *testing.T) {
 	assert.Equal(t, int64(1683731908), args[0])
 }
 
+func TestQueryParams_EquipTypeId(t *testing.T) {
+	p := QueryParams{EquipTypeId: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where equip_type_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1), args[0])
+}
+
+func TestQueryParams_Batch(t *testing.T) {
+	p := QueryParams{Batch: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where batch = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "1", args[0])
+}
+
+func TestQueryParams_EquipType(t *testing.T) {
+	p := QueryParams{EquipType: "anEquipType"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where equip_type_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anEquipType", args[0])
+}
+
 func TestQueryParams_OrderByDateCreated(t *testing.T) {
 	p := QueryParams{Severity: "1", SortA: "dateCreated"}
 

@@ -28,7 +28,7 @@ type FormControlRef struct {
 	FormControl   FormControl `json:"formControl,omitempty"`
 	Audit         *Audit      `json:"audit,omitempty"`
 	Ref           string      `json:"ref,omitempty"`
-	Version       int32       `json:"version,omitempty"`
+	Version       int64       `json:"version,omitempty"`
 }
 
 func NewFormControlRef() *FormControlRef {

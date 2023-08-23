@@ -25,7 +25,7 @@ type FormControl struct {
 			Required    bool   `json:"required"`
 		} `json:"templateOptions,omitempty"`
 	} `json:"-,omitempty"`
-	Version string `json:"version,omitempty"`
+	Version int64  `json:"version,omitempty"`
 	Audit   *Audit `json:"audit,omitempty"`
 	Links   struct {
 		Type string `json:"type"`

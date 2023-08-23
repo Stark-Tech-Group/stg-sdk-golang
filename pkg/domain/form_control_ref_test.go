@@ -88,6 +88,7 @@ func getValidFormControl() FormControl {
 		Enabled:     true,
 		Description: testFormControlDesc,
 		Control:     "{\"key\": \"text\",  \"type\": \"text\",  \"templateOptions\": {    \"label\": \"Text\", \"placeholder\": \"Name, email or phone number of Area Manager\", \"required\": true  }}",
+		Version:     1,
 	}
 }
 
@@ -108,5 +109,6 @@ func getInvalidFormControlWithBadJSON() FormControl {
 		Enabled:     true,
 		Description: testFormControlDesc,
 		Control:     "invalid json",
+		Version:     1,
 	}
 }

@@ -120,7 +120,7 @@ func (assetsApi *AssetsApi) CreateAuditLog(asset domain.Asset, log domain.AuditL
 		return err
 	}
 
-	url := fmt.Sprintf("%s/%s", assetsApi.baseUrl(), asset.Ref)
+	url := fmt.Sprintf("%s/%s/history", assetsApi.baseUrl(), asset.Ref)
 	_, err = assetsApi.client.post(url, data)
 	if err != nil {
 		return err

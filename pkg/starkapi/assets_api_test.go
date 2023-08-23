@@ -14,7 +14,7 @@ import (
 const testHost = "https://test.com"
 const testAssetsApiURL = "/core/assets"
 const testAssetsApiURLWithRef = "/core/assets/e.test/tags"
-const testAssetsAPIURLAuditLog = "/core/assets/e.test"
+const testAssetsAPIURLAuditLog = "/core/assets/e.test/history"
 const testAssetRef = "e.test"
 
 func TestAssetsApi_hostUrl(t *testing.T) {

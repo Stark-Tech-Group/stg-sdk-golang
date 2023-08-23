@@ -107,3 +107,24 @@ func (assetsApi *AssetsApi) DeleteTag(asset domain.Asset, tagName string) error 
 
 	return nil
 }
+
+func (assetsApi *AssetsApi) CreateAuditLog(asset domain.Asset, log domain.AuditLog) error {
+	if len(asset.Ref) < 1 {
+		logger.Error("invalid asset in assets/CreateAuditLog. Asset does not have a ref.")
+		return errors.New(invalidAssetErrorStr)
+	}
+
+	data, err := json.Marshal(log)
+	if err != nil {
+		logger.Errorf("failed to marshal log with error : [%s]", err)
+		return err
+	}
+
+	url := fmt.Sprintf("%s/%s", assetsApi.baseUrl(), asset.Ref)
+	_, err = assetsApi.client.post(url, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

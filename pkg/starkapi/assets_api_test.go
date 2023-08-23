@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
-const testHost =  "https://test.com"
-const testAssetsApiURL =  "/core/assets"
-const testAssetsApiURLWithRef =  "/core/assets/e.test/tags"
+const testHost = "https://test.com"
+const testAssetsApiURL = "/core/assets"
+const testAssetsApiURLWithRef = "/core/assets/e.test/tags"
+const testAssetsAPIURLAuditLog = "/core/assets/e.test"
 const testAssetRef = "e.test"
 
 func TestAssetsApi_hostUrl(t *testing.T) {
@@ -81,7 +83,6 @@ func TestAddTagToAsset(t *testing.T) {
 	assetErr := assetsApi.AddNewTag(asset, "Test", "1")
 	assert.Equal(t, nil, assetErr)
 
-
 	//Test invalid tag
 	badTagErr := assetsApi.AddNewTag(asset, "", "1")
 	assert.NotEqual(t, nil, badTagErr)
@@ -104,11 +105,11 @@ func TestAddTagToAsset(t *testing.T) {
 
 func TestAddTagsToAsset(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path !=  testAssetsApiURLWithRef {
+		if r.URL.Path != testAssetsApiURLWithRef {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		if r.Method !=  http.MethodPost {
+		if r.Method != http.MethodPost {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -210,4 +211,141 @@ func TestDeleteTagFromAsset(t *testing.T) {
 
 	badAssetErr := assetsApi.DeleteTag(badAsset, "Test")
 	assert.NotEqual(t, nil, badAssetErr)
+}
+
+func TestCreateNewAuditLog(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != testAssetsAPIURLAuditLog {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	//Test valid asset and tag array
+	asset := domain.Asset{
+		Id:   1,
+		Ref:  "e.test",
+		Name: "Test",
+		Type: "Equip",
+	}
+
+	log := domain.AuditLog{
+		PersistedObjectId:      "1",
+		PersistedObjectVersion: 0,
+		DateCreated:            time.Now().UTC(),
+		LastUpdated:            time.Now().UTC(),
+		NewValue:               asset.Ref,
+		OldValue:               "",
+		ClassName:              "Test",
+		Actor:                  "Test",
+		URI:                    host,
+		TargetRef:              asset.Ref,
+	}
+
+	assetsApi := api.AssetsApi
+
+	err := assetsApi.CreateAuditLog(asset, log)
+	assert.Nil(t, err)
+}
+
+func TestCreateNewAuditLog_BadAsset(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != testAssetsAPIURLAuditLog {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	api := Client{}
+	host := server.URL
+
+	api.Init(host)
+
+	//Test valid asset and tag array
+	asset := domain.Asset{
+		Id:   1,
+		Name: "Test",
+		Type: "Equip",
+	}
+
+	log := domain.AuditLog{
+		PersistedObjectId:      "1",
+		PersistedObjectVersion: 0,
+		DateCreated:            time.Now().UTC(),
+		LastUpdated:            time.Now().UTC(),
+		NewValue:               asset.Ref,
+		OldValue:               "",
+		ClassName:              "Test",
+		Actor:                  "Test",
+		URI:                    host,
+		TargetRef:              asset.Ref,
+	}
+
+	assetsApi := api.AssetsApi
+
+	err := assetsApi.CreateAuditLog(asset, log)
+	assert.NotNil(t, err)
+}
+
+func TestCreateAuditLog_BadURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != testAssetsAPIURLAuditLog {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	api := Client{}
+	host := "badHost"
+
+	api.Init(host)
+
+	//Test valid asset and tag array
+	asset := domain.Asset{
+		Id:   1,
+		Ref:  "e.test",
+		Name: "Test",
+		Type: "Equip",
+	}
+
+	log := domain.AuditLog{
+		PersistedObjectId:      "1",
+		PersistedObjectVersion: 0,
+		DateCreated:            time.Now().UTC(),
+		LastUpdated:            time.Now().UTC(),
+		NewValue:               asset.Ref,
+		OldValue:               "",
+		ClassName:              "Test",
+		Actor:                  "Test",
+		URI:                    host,
+		TargetRef:              asset.Ref,
+	}
+
+	assetsApi := api.AssetsApi
+
+	err := assetsApi.CreateAuditLog(asset, log)
+	assert.NotNil(t, err)
 }

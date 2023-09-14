@@ -38,9 +38,9 @@ func Transform(telem *TelemetryMessage, route *Route, resp MsgResp) (*TelemetryM
 
 	if transMap[resp.Value] != nil {
 		val := transMap[resp.Value]
-		telem.values[route.PointRef] = val.(float64)
+		telem.Values[route.PointRef] = val.(float64)
 	} else {
-		telem.values[route.PointRef] = resp.Value
+		telem.Values[route.PointRef] = resp.Value
 	}
 
 	return telem, nil

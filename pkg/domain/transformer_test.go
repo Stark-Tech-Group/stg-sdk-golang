@@ -6,7 +6,7 @@ import (
 )
 
 func mockTelem() *TelemetryMessage {
-	return &TelemetryMessage{values: map[string]float64{
+	return &TelemetryMessage{Values: map[string]float64{
 		"aRef": 1.00,
 	}}
 }
@@ -27,7 +27,7 @@ func TestTransform(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
-	assert.Equal(t, 2.0, telem.values["aRef"])
+	assert.Equal(t, 2.0, telem.Values["aRef"])
 }
 
 func TestTransform_InvalidMapping(t *testing.T) {
@@ -48,5 +48,5 @@ func TestTransform_MisMatchedMapping(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
-	assert.Equal(t, 328.0, telem.values["aRef"])
+	assert.Equal(t, 328.0, telem.Values["aRef"])
 }

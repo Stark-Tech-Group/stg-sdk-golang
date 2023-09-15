@@ -1,11 +1,11 @@
 package domain
 
 type CurVal struct {
-	Point struct {
-		ID         int    `json:"id"`
-		Name       string `json:"name"`
-		Unit       string `json:"unit"`
-		DisplayVal string `json:"displayValue"`
+	DisplayVal string `json:"displayValue"`
+	Point      struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+		Unit string `json:"unit"`
 	} `json:"point"`
 	Read struct {
 		Urid string  `json:"urid"`

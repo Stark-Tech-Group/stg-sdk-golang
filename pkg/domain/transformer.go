@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func getTransMap(s string) (map[interface{}]interface{}, error) {
-	m := make(map[interface{}]interface{})
+func getTransMap(s string) (map[float64]float64, error) {
+	m := make(map[float64]float64)
 	for _, kv := range strings.Split(s, ",") {
 		kvSplit := strings.Split(kv, ":")
 		if len(kvSplit) == 2 {
@@ -29,18 +29,17 @@ func getTransMap(s string) (map[interface{}]interface{}, error) {
 	return m, nil
 }
 
-func Transform(telem *TelemetryMessage, route *Route, resp MsgResp) (*TelemetryMessage, error) {
+func Transform(telem *TelemetryMessage, route *Route, value float64) (*TelemetryMessage, error) {
 	transMap, err := getTransMap(route.ValueType)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if transMap[resp.Value] != nil {
-		val := transMap[resp.Value]
-		telem.Values[route.PointRef] = val.(float64)
+	if val, ok := transMap[value]; ok {
+		telem.SetValue(route.PointRef, val)
 	} else {
-		telem.Values[route.PointRef] = resp.Value
+		telem.SetValue(route.PointRef, value)
 	}
 
 	return telem, nil

@@ -6,7 +6,7 @@ import (
 )
 
 func mockTelem() *TelemetryMessage {
-	return &TelemetryMessage{Values: map[string]float64{
+	return &TelemetryMessage{values: map[string]float64{
 		"aRef": 1.00,
 	}}
 }
@@ -18,35 +18,29 @@ func mockRoute() *Route {
 	}
 }
 
-func mockMsgResp() MsgResp {
-	return MsgResp{Value: 5}
-}
-
 func TestTransform(t *testing.T) {
-	telem, err := Transform(mockTelem(), mockRoute(), mockMsgResp())
+	telem, err := Transform(mockTelem(), mockRoute(), 5.0)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
-	assert.Equal(t, 2.0, telem.Values["aRef"])
+	assert.Equal(t, 2.0, telem.GetValue("aRef"))
 }
 
 func TestTransform_InvalidMapping(t *testing.T) {
 	route := mockRoute()
 	route.ValueType = "a string :o"
 
-	telem, err := Transform(mockTelem(), route, mockMsgResp())
+	telem, err := Transform(mockTelem(), route, 5.0)
 
 	assert.NotNil(t, err)
 	assert.Nil(t, telem)
 }
 
 func TestTransform_MisMatchedMapping(t *testing.T) {
-	resp := mockMsgResp()
-	resp.Value = 328.0
 
-	telem, err := Transform(mockTelem(), mockRoute(), resp)
+	telem, err := Transform(mockTelem(), mockRoute(), 328.0)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
-	assert.Equal(t, 328.0, telem.Values["aRef"])
+	assert.Equal(t, 328.0, telem.GetValue("aRef"))
 }

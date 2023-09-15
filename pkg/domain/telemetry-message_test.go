@@ -25,7 +25,7 @@ func TestNewTelemetryMessage(t *testing.T) {
 	assert.NotNil(t, message)
 	assert.Equal(t, deviceID, message.DeviceId)
 	assert.NotEmpty(t, message.Ts)
-	assert.NotNil(t, message.Values)
+	assert.NotNil(t, message.values)
 }
 
 func TestTelemetryMessage_SetValue(t *testing.T) {
@@ -35,7 +35,7 @@ func TestTelemetryMessage_SetValue(t *testing.T) {
 
 	message.SetValue(key, value)
 
-	assert.Equal(t, value, message.Values[key])
+	assert.Equal(t, value, message.values[key])
 }
 
 func TestTelemetryMessage_GetValue(t *testing.T) {

@@ -2,11 +2,11 @@ package domain
 
 type HisRead struct {
 	Point struct {
-		ID           int    `json:"id"`
-		Name         string `json:"name"`
-		Type         string `json:"type"`
-		Unit         string `json:"unit"`
-		DisplayValue string `json:"displayValue"`
+		ID         int    `json:"id"`
+		Name       string `json:"name"`
+		Type       string `json:"type"`
+		Unit       string `json:"unit"`
+		DisplayVal string `json:"displayValue"`
 	} `json:"member"`
 	Start  int    `json:"start"`
 	End    int    `json:"end"`

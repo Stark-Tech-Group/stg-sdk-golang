@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func getTransMap(s string) (map[float64]float64, error) {
+func parseTransMap(s string) (map[float64]float64, error) {
 	m := make(map[float64]float64)
 	for _, kv := range strings.Split(s, ",") {
 		kvSplit := strings.Split(kv, ":")
@@ -29,17 +29,17 @@ func getTransMap(s string) (map[float64]float64, error) {
 	return m, nil
 }
 
-func Transform(telem *TelemetryMessage, route *Route, value float64) (*TelemetryMessage, error) {
-	transMap, err := getTransMap(route.ValueType)
+func Transform(telem *TelemetryMessage, route *TransformerValue) (*TelemetryMessage, error) {
+	transMap, err := parseTransMap(route.ValueType)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if val, ok := transMap[value]; ok {
+	if val, ok := transMap[route.Value]; ok {
 		telem.SetValue(route.PointRef, val)
 	} else {
-		telem.SetValue(route.PointRef, value)
+		telem.SetValue(route.PointRef, route.Value)
 	}
 
 	return telem, nil

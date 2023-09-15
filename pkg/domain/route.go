@@ -1,6 +1,7 @@
 package domain
 
-type Route struct {
+type TransformerValue struct {
 	ValueType string
 	PointRef  string
+	Value     float64
 }

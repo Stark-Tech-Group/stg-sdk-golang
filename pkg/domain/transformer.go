@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+const (
+	errKeyMsg = "Error converting key to float: %s"
+	errValMsg = "Error converting value to float: %s"
+)
+
 func parseTransMap(s string) (map[float64]float64, error) {
 	m := make(map[float64]float64)
 	for _, kv := range strings.Split(s, ",") {
@@ -15,11 +20,11 @@ func parseTransMap(s string) (map[float64]float64, error) {
 			value, errVal := strconv.ParseFloat(kvSplit[1], 64)
 
 			if errKey != nil {
-				logger.Errorf("Error converting key to float: %s", errKey)
+				logger.Errorf(errKeyMsg, errKey)
 				return nil, errKey
 			}
 			if errVal != nil {
-				logger.Errorf("Error converting value to float: %s", errVal)
+				logger.Errorf(errValMsg, errVal)
 				return nil, errVal
 			}
 
@@ -29,18 +34,18 @@ func parseTransMap(s string) (map[float64]float64, error) {
 	return m, nil
 }
 
-func Transform(telem *TelemetryMessage, route *TransformerValue) (*TelemetryMessage, error) {
-	transMap, err := parseTransMap(route.ValueType)
+func Transform(telem *TelemetryMessage, transVal TransformerValue) error {
+	transMap, err := parseTransMap(transVal.ValueType)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if val, ok := transMap[route.Value]; ok {
-		telem.SetValue(route.PointRef, val)
+	if val, ok := transMap[transVal.Value]; ok {
+		telem.SetValue(transVal.PointRef, val)
 	} else {
-		telem.SetValue(route.PointRef, route.Value)
+		telem.SetValue(transVal.PointRef, transVal.Value)
 	}
 
-	return telem, nil
+	return nil
 }

@@ -11,8 +11,8 @@ func mockTelem() *TelemetryMessage {
 	}}
 }
 
-func mockTransformerValue() *TransformerValue {
-	return &TransformerValue{
+func mockTransformerValue() TransformerValue {
+	return TransformerValue{
 		ValueType: "1:0,2:1,5:2",
 		PointRef:  "aRef",
 		Value:     5.0,
@@ -20,7 +20,8 @@ func mockTransformerValue() *TransformerValue {
 }
 
 func TestTransform(t *testing.T) {
-	telem, err := Transform(mockTelem(), mockTransformerValue())
+	telem := mockTelem()
+	err := Transform(telem, mockTransformerValue())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
@@ -28,19 +29,20 @@ func TestTransform(t *testing.T) {
 }
 
 func TestTransform_InvalidMapping(t *testing.T) {
+	telem := mockTelem()
 	tVal := mockTransformerValue()
 	tVal.ValueType = "a string :o"
 
-	telem, err := Transform(mockTelem(), tVal)
+	err := Transform(telem, tVal)
 
 	assert.NotNil(t, err)
-	assert.Nil(t, telem)
 }
 
 func TestTransform_MisMatchedMapping(t *testing.T) {
+	telem := mockTelem()
 	tVal := mockTransformerValue()
 	tVal.Value = 328.0
-	telem, err := Transform(mockTelem(), tVal)
+	err := Transform(telem, tVal)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)

@@ -1,7 +1,8 @@
 package domain
 
 type CurVal struct {
-	Point struct {
+	DisplayVal string `json:"displayValue"`
+	Point      struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
 		Unit string `json:"unit"`

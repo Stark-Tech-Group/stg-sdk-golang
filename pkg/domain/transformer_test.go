@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+const (
+	mockVal0       = 0.0
+	mockVal1       = 1.0
+	mockDisplayMap = "0:off,1:on"
+)
+
 func mockTelem() *TelemetryMessage {
 	return &TelemetryMessage{values: map[string]float64{
 		"aRef": 1.00,
@@ -47,4 +53,26 @@ func TestTransform_MisMatchedMapping(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, telem)
 	assert.Equal(t, 328.0, telem.GetValue("aRef"))
+}
+
+func TestTransformDisplay(t *testing.T) {
+	displayVal, err := TransformDisplay(mockVal0, mockDisplayMap)
+	assert.Nil(t, err)
+	assert.Equal(t, "off", displayVal)
+
+	displayVal, err = TransformDisplay(mockVal1, mockDisplayMap)
+	assert.Nil(t, err)
+	assert.Equal(t, "on", displayVal)
+}
+
+func TestTransformDisplay_BadMapping(t *testing.T) {
+	displayVal, err := TransformDisplay(mockVal0, "a string :o")
+	assert.NotNil(t, err)
+	assert.Equal(t, "", displayVal)
+}
+
+func TestTransformDisplay_KeyDoesNotExist(t *testing.T) {
+	displayVal, err := TransformDisplay(3.0, mockDisplayMap)
+	assert.Nil(t, err)
+	assert.Equal(t, "", displayVal)
 }

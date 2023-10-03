@@ -11,8 +11,16 @@ const (
 	errValMsg = "Error converting value to float: %s"
 )
 
+func formatMapString(s string) string {
+	s = strings.Replace(s, " ", "", -1)
+	s = strings.TrimPrefix(s, "[")
+	s = strings.TrimSuffix(s, "]")
+	return s
+}
+
 func parseTransMap(s string) (map[float64]float64, error) {
 	m := make(map[float64]float64)
+	s = formatMapString(s)
 	for _, kv := range strings.Split(s, ",") {
 		kvSplit := strings.Split(kv, ":")
 		if len(kvSplit) == 2 {
@@ -36,6 +44,7 @@ func parseTransMap(s string) (map[float64]float64, error) {
 
 func parseDisplayMap(s string) (map[float64]string, error) {
 	m := make(map[float64]string)
+	s = formatMapString(s)
 	for _, kv := range strings.Split(s, ",") {
 		kvSplit := strings.Split(kv, ":")
 		if len(kvSplit) == 2 {

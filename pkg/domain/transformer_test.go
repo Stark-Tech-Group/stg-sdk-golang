@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	mockVal0       = 0.0
-	mockVal1       = 1.0
-	mockDisplayMap = "0:off,1:on"
+	mockVal0               = 0.0
+	mockVal1               = 1.0
+	mockDisplayMap         = "0:off,1:on"
+	mockDisplayMapBrackets = "[0:off,1:on]"
 )
 
 func mockTelem() *TelemetryMessage {
@@ -61,6 +62,16 @@ func TestTransformDisplay(t *testing.T) {
 	assert.Equal(t, "off", displayVal)
 
 	displayVal, err = TransformDisplay(mockVal1, mockDisplayMap)
+	assert.Nil(t, err)
+	assert.Equal(t, "on", displayVal)
+}
+
+func TestTransformDisplay_WithBrackets(t *testing.T) {
+	displayVal, err := TransformDisplay(mockVal0, mockDisplayMapBrackets)
+	assert.Nil(t, err)
+	assert.Equal(t, "off", displayVal)
+
+	displayVal, err = TransformDisplay(mockVal1, mockDisplayMapBrackets)
 	assert.Nil(t, err)
 	assert.Equal(t, "on", displayVal)
 }

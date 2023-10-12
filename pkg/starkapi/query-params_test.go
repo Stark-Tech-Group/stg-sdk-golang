@@ -384,6 +384,31 @@ func TestQueryParams_EquipType(t *testing.T) {
 	assert.Equal(t, "anEquipType", args[0])
 }
 
+func TestQueryParams_SiteFields(t *testing.T) {
+	p := QueryParams{
+		ProfileName:  "aProfileName",
+		Lat:          "1.1",
+		Lon:          "1.2",
+		GeoAddress1:  "anAddress1",
+		GeoAddress2:  "anAddress2",
+		GeoCity:      "aCity",
+		GeoStateCode: "NY",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, `Select * from hello where profile_name = $1 and geo_city = $2 and lat = $3 and lon = $4 and geo_address2 = $5 and geo_address1 = $6 and geo_state_code = $7`, sql)
+	assert.Equal(t, 7, len(args))
+	assert.Equal(t, "aProfileName", args[0])
+	assert.Equal(t, "aCity", args[1])
+	assert.Equal(t, float64(1.1), args[2])
+	assert.Equal(t, float64(1.2), args[3])
+	assert.Equal(t, "anAddress2", args[4])
+	assert.Equal(t, "anAddress1", args[5])
+	assert.Equal(t, "NY", args[6])
+}
+
 func TestQueryParams_OrderByDateCreated(t *testing.T) {
 	p := QueryParams{Severity: "1", SortA: "dateCreated"}
 

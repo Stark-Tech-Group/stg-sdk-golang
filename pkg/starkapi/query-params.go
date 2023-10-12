@@ -47,11 +47,11 @@ var fieldToColumnMap map[string]string
 type QueryParams struct {
 	Id            string `json:"id" schema:"id" sqlColumn:"id" sqlType:"bigint"`
 	Ref           string `json:"ref" schema:"ref" sqlColumn:"ref" sqlType:"text"`
-	ProfileRef    string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
 	ProfileName   string `json:"profileName" schema:"profileName" sqlColumn:"profile_name" sqlType:"text"`
 	SiteId        string `json:"siteId" schema:"siteId" sqlColumn:"site_id" sqlType:"bigint"`
 	SiteRef       string `json:"siteRef" schema:"siteRef" sqlColumn:"site_ref" sqlType:"text"`
 	SiteName      string `json:"siteName" schema:"siteName" sqlColumn:"site_name" sqlType:"text"`
+	ProfileRef    string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
 	EquipId       string `json:"equipId" schema:"equipId" sqlColumn:"equip_id" sqlType:"bigint"`
 	EquipRef      string `json:"equipRef" schema:"equipRef" sqlColumn:"equip_ref" sqlType:"text"`
 	EquipName     string `json:"equipName" schema:"equipName" sqlColumn:"equip_name" sqlType:"text"`

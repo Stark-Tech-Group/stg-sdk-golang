@@ -45,23 +45,34 @@ var colTypeMap map[string]*reflect.StructField
 var fieldToColumnMap map[string]string
 
 type QueryParams struct {
-	Id          string `json:"id" schema:"id" sqlColumn:"id" sqlType:"bigint"`
-	Ref         string `json:"ref" schema:"ref" sqlColumn:"ref" sqlType:"text"`
-	SiteId      string `json:"siteId" schema:"siteId" sqlColumn:"site_id" sqlType:"bigint"`
-	SiteRef     string `json:"siteRef" schema:"siteRef" sqlColumn:"site_ref" sqlType:"text"`
-	SiteName    string `json:"siteName" schema:"siteName" sqlColumn:"site_name" sqlType:"text"`
-	ProfileRef  string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
-	EquipId     string `json:"equipId" schema:"equipId" sqlColumn:"equip_id" sqlType:"bigint"`
-	EquipRef    string `json:"equipRef" schema:"equipRef" sqlColumn:"equip_ref" sqlType:"text"`
-	EquipName   string `json:"equipName" schema:"equipName" sqlColumn:"equip_name" sqlType:"text"`
-	RuleName    string `json:"ruleName" schema:"ruleName" sqlColumn:"rule_name" sqlType:"text"`
-	RuleId      string `json:"ruleId" schema:"ruleId" sqlColumn:"rule_id" sqlType:"bigint"`
-	Severity    string `json:"severity" schema:"severity" sqlColumn:"severity" sqlType:"int"`
-	Duration    string `json:"dur" schema:"dur" sqlColumn:"dur" sqlType:"bigint"`
-	PersonId    string `json:"personId" schema:"personId" sqlColumn:"person_id" sqlType:"bigint"`
-	Ts          string `json:"ts" schema:"ts" sqlColumn:"ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
-	EndTs       string `json:"endTs" schema:"endTs" sqlColumn:"end_ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
-	EventRef    string `json:"eventRef" schema:"eventRef" sqlColumn:"event_ref" sqlType:"text"`
+	Id            string `json:"id" schema:"id" sqlColumn:"id" sqlType:"bigint"`
+	Ref           string `json:"ref" schema:"ref" sqlColumn:"ref" sqlType:"text"`
+	ProfileRef    string `json:"profileRef" schema:"profileRef" sqlColumn:"profile_ref" sqlType:"text"`
+	ProfileName   string `json:"profileName" schema:"profileName" sqlColumn:"profile_name" sqlType:"text"`
+	SiteId        string `json:"siteId" schema:"siteId" sqlColumn:"site_id" sqlType:"bigint"`
+	SiteRef       string `json:"siteRef" schema:"siteRef" sqlColumn:"site_ref" sqlType:"text"`
+	SiteName      string `json:"siteName" schema:"siteName" sqlColumn:"site_name" sqlType:"text"`
+	EquipId       string `json:"equipId" schema:"equipId" sqlColumn:"equip_id" sqlType:"bigint"`
+	EquipRef      string `json:"equipRef" schema:"equipRef" sqlColumn:"equip_ref" sqlType:"text"`
+	EquipName     string `json:"equipName" schema:"equipName" sqlColumn:"equip_name" sqlType:"text"`
+	RuleName      string `json:"ruleName" schema:"ruleName" sqlColumn:"rule_name" sqlType:"text"`
+	RuleId        string `json:"ruleId" schema:"ruleId" sqlColumn:"rule_id" sqlType:"bigint"`
+	Severity      string `json:"severity" schema:"severity" sqlColumn:"severity" sqlType:"int"`
+	Duration      string `json:"dur" schema:"dur" sqlColumn:"dur" sqlType:"bigint"`
+	PersonId      string `json:"personId" schema:"personId" sqlColumn:"person_id" sqlType:"bigint"`
+	Ts            string `json:"ts" schema:"ts" sqlColumn:"ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
+	EndTs         string `json:"endTs" schema:"endTs" sqlColumn:"end_ts" sqlType:"bigint" sqlDecorator:"to_timestamp(%)"`
+	EventRef      string `json:"eventRef" schema:"eventRef" sqlColumn:"event_ref" sqlType:"text"`
+	Name          string `json:"name" schema:"name" sqlColumn:"name" sqlType:"text"`
+	GeoCity       string `json:"geoCity" schema:"geoCity" sqlColumn:"geo_city" sqlType:"text"`
+	GeoPostalCode string `json:"geoPostalCode" schema:"geoPostalCode" sqlColumn:"geo_postal_code" sqlType:"text"`
+	Lat           string `json:"lat" schema:"lat" sqlColumn:"lat" sqlType:"float"`
+	Lon           string `json:"lon" schema:"lon" sqlColumn:"lon" sqlType:"float"`
+	Gsf           string `json:"gsf" schema:"gsf" sqlColumn:"gsf" sqlType:"int"`
+	GeoAddress2   string `json:"geoAddress2" schema:"geoAddress2" sqlColumn:"geo_address2" sqlType:"text"`
+	GeoAddress1   string `json:"geoAddress1" schema:"geoAddress1" sqlColumn:"geo_address1" sqlType:"text"`
+	GeoStateCode  string `json:"geoStateCode" schema:"geoStateCode" sqlColumn:"geo_state_code" sqlType:"text"`
+
 	Limit       int    `json:"limit" schema:"limit"`
 	Offset      int    `json:"offset" schema:"offset"`
 	RequestName string `json:"-" schema:"-"`

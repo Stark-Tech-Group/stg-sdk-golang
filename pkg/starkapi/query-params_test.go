@@ -384,6 +384,17 @@ func TestQueryParams_EquipType(t *testing.T) {
 	assert.Equal(t, "anEquipType", args[0])
 }
 
+func TestQueryParams_ProfileName(t *testing.T) {
+	p := QueryParams{ProfileName: "aProfileName"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where profile_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "aProfileName", args[0])
+}
+
 func TestQueryParams_OrderByDateCreated(t *testing.T) {
 	p := QueryParams{Severity: "1", SortA: "dateCreated"}
 

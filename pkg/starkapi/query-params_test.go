@@ -541,6 +541,17 @@ func TestQueryParams_EquipName(t *testing.T) {
 	assert.Equal(t, "anEquip", args[0])
 }
 
+func TestQueryParams_Description(t *testing.T) {
+	p := QueryParams{Description: "some desc"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where description = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "some desc", args[0])
+}
+
 func TestQueryParams_NullValue(t *testing.T) {
 	p := QueryParams{IssueStatus: nullVal}
 

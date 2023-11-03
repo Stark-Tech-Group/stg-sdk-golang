@@ -74,18 +74,19 @@ type QueryParams struct {
 	GeoStateCode  string `json:"geoStateCode" schema:"geoStateCode" sqlColumn:"geo_state_code" sqlType:"text"`
 	Description   string `json:"description" schema:"description" sqlColumn:"description" sqlType:"text"`
 
-	Limit       int    `json:"limit" schema:"limit"`
-	Offset      int    `json:"offset" schema:"offset"`
-	RequestName string `json:"-" schema:"-"`
-	EventType   string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
-	DateCreated string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
-	IssueStatus string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
-	TargetRef   string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
-	EquipType   string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
-	EquipTypeId string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
-	Batch       string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
-	SortA       string `json:"sortA" schema:"sortA"`
-	SortD       string `json:"sortD" schema:"sortD"`
+	Limit         int    `json:"limit" schema:"limit"`
+	Offset        int    `json:"offset" schema:"offset"`
+	RequestName   string `json:"-" schema:"-"`
+	EventType     string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
+	DateCreated   string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
+	IssueStatus   string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
+	TargetRef     string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
+	EquipType     string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
+	EquipTypeName string `json:"equipTypeName" schema:"equipTypeName" sqlColumn:"equip_type_name" sqlType:"text"`
+	EquipTypeId   string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
+	Batch         string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
+	SortA         string `json:"sortA" schema:"sortA"`
+	SortD         string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

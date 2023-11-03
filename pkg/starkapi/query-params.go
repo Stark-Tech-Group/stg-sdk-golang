@@ -72,6 +72,7 @@ type QueryParams struct {
 	GeoAddress2   string `json:"geoAddress2" schema:"geoAddress2" sqlColumn:"geo_address2" sqlType:"text"`
 	GeoAddress1   string `json:"geoAddress1" schema:"geoAddress1" sqlColumn:"geo_address1" sqlType:"text"`
 	GeoStateCode  string `json:"geoStateCode" schema:"geoStateCode" sqlColumn:"geo_state_code" sqlType:"text"`
+	Description   string `json:"description" schema:"description" sqlColumn:"description" sqlType:"text"`
 
 	Limit       int    `json:"limit" schema:"limit"`
 	Offset      int    `json:"offset" schema:"offset"`

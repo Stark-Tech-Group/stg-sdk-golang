@@ -384,6 +384,17 @@ func TestQueryParams_EquipType(t *testing.T) {
 	assert.Equal(t, "anEquipType", args[0])
 }
 
+func TestQueryParams_EquipTypeName(t *testing.T) {
+	p := QueryParams{EquipTypeName: "anEquipType"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where equip_type_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anEquipType", args[0])
+}
+
 func TestQueryParams_SiteFields(t *testing.T) {
 	p := QueryParams{
 		ProfileName:  "aProfileName",

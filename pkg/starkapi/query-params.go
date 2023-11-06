@@ -89,6 +89,7 @@ type QueryParams struct {
 	PointUridName string `json:"pointUridName" schema:"pointUridName" sqlColumn:"point_urid_name" sqlType:"text"`
 	PointUridId   string `json:"pointUridId" schema:"pointUridId" sqlColumn:"point_urid_id" sqlType:"bigint"`
 	Unit          string `json:"unit" schema:"unit" sqlColumn:"unit" sqlType:"text"`
+	Category      string `json:"category" schema:"category" sqlColumn:"category" sqlType:"text"`
 	Batch         string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
 	SortA         string `json:"sortA" schema:"sortA"`
 	SortD         string `json:"sortD" schema:"sortD"`

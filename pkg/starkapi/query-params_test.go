@@ -1,4 +1,4 @@
-ckout -package starkapi
+package starkapi
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -414,7 +414,7 @@ func TestQueryParams_PointTypeId(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello where point_type_id = $1", sql)
 	assert.Equal(t, 1, len(args))
-	assert.Equal(t, "1", args[0])
+	assert.Equal(t, int64(1), args[0])
 }
 func TestQueryParams_Unit(t *testing.T) {
 	p := QueryParams{Unit: "aUnit"}

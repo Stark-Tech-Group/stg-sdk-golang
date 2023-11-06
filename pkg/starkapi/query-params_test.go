@@ -1,4 +1,4 @@
-package starkapi
+ckout -package starkapi
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -393,6 +393,38 @@ func TestQueryParams_EquipTypeName(t *testing.T) {
 	assert.Equal(t, "Select * from hello where equip_type_name = $1", sql)
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "anEquipType", args[0])
+}
+
+func TestQueryParams_PointTypeName(t *testing.T) {
+	p := QueryParams{PointTypeName: "anPointType"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where point_type_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anPointType", args[0])
+}
+
+func TestQueryParams_PointTypeId(t *testing.T) {
+	p := QueryParams{PointTypeId: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where point_type_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "1", args[0])
+}
+func TestQueryParams_Unit(t *testing.T) {
+	p := QueryParams{Unit: "aUnit"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where unit = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "aUnit", args[0])
 }
 
 func TestQueryParams_SiteFields(t *testing.T) {

@@ -84,6 +84,9 @@ type QueryParams struct {
 	EquipType     string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
 	EquipTypeName string `json:"equipTypeName" schema:"equipTypeName" sqlColumn:"equip_type_name" sqlType:"text"`
 	EquipTypeId   string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
+	PointTypeName string `json:"pointTypeName" schema:"pointTypeName" sqlColumn:"point_type_name" sqlType:"text"`
+	PointTypeId   string `json:"pointTypeId" schema:"pointTypeId" sqlColumn:"point_type_id" sqlType:"bigint"`
+	Unit          string `json:"unit" schema:"unit" sqlColumn:"unit" sqlType:"text"`
 	Batch         string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
 	SortA         string `json:"sortA" schema:"sortA"`
 	SortD         string `json:"sortD" schema:"sortD"`

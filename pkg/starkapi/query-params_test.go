@@ -416,6 +416,27 @@ func TestQueryParams_PointTypeId(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, int64(1), args[0])
 }
+func TestQueryParams_PointUridName(t *testing.T) {
+	p := QueryParams{PointUridName: "anPointUrid"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where point_urid_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anPointUrid", args[0])
+}
+
+func TestQueryParams_PointUridId(t *testing.T) {
+	p := QueryParams{PointUridId: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where point_urid_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1), args[0])
+}
 func TestQueryParams_Unit(t *testing.T) {
 	p := QueryParams{Unit: "aUnit"}
 

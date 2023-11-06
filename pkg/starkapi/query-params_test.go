@@ -447,6 +447,16 @@ func TestQueryParams_Unit(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "aUnit", args[0])
 }
+func TestQueryParams_Category(t *testing.T) {
+	p := QueryParams{Category: "aCate"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where category = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "aCate", args[0])
+}
 
 func TestQueryParams_SiteFields(t *testing.T) {
 	p := QueryParams{

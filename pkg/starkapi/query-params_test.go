@@ -675,3 +675,69 @@ func TestQueryParams_EqNullVal(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello where issue_status_id IS NULL", sql)
 }
+
+func TestQueryParams_WebAppMeta(t *testing.T) {
+	p := QueryParams{WebAppMeta: "some web app meta"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where web_app_meta = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "some web app meta", args[0])
+}
+
+func TestQueryParams_FirstName(t *testing.T) {
+	p := QueryParams{FirstName: "John"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where first_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "John", args[0])
+}
+
+func TestQueryParams_PhoneNumber(t *testing.T) {
+	p := QueryParams{PhoneNumber: "7161234567"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where phone_number = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "7161234567", args[0])
+}
+
+func TestQueryParams_Username(t *testing.T) {
+	p := QueryParams{Username: "DoeJ"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where username = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "DoeJ", args[0])
+}
+
+func TestQueryParams_LastName(t *testing.T) {
+	p := QueryParams{LastName: "Doe"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where last_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "Doe", args[0])
+}
+
+func TestQueryParams_Email(t *testing.T) {
+	p := QueryParams{Email: "test@email.com"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where email = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "test@email.com", args[0])
+}

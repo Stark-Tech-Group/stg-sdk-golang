@@ -93,6 +93,12 @@ type QueryParams struct {
 	Batch         string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
 	SortA         string `json:"sortA" schema:"sortA"`
 	SortD         string `json:"sortD" schema:"sortD"`
+	WebAppMeta    string `json:"webAppMeta" schema:"webAppMeta" sqlColumn:"web_app_meta" sqlType:"text"`
+	FirstName     string `json:"firstName" schema:"firstName" sqlColumn:"first_name" sqlType:"text"`
+	PhoneNumber   string `json:"phoneNumber" schema:"phoneNumber" sqlColumn:"phone_number" sqlType:"text"`
+	Username      string `json:"username" schema:"username" sqlColumn:"username" sqlType:"text"`
+	LastName      string `json:"lastName" schema:"lastName" sqlColumn:"last_name" sqlType:"text"`
+	Email         string `json:"email" schema:"email" sqlColumn:"email" sqlType:"text"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

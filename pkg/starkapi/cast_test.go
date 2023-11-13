@@ -76,6 +76,37 @@ func TestToStringSlice(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
+func TestToBoolean(t *testing.T) {
+	tValue := "true"
+	intTValue := "1"
+	ftValue := "1.0"
+	fValue := "false"
+	intFValue := "0"
+	invalidValue := "invalid"
+
+	result, err := toBoolean(tValue)
+	assert.NoError(t, err)
+	assert.True(t, result)
+
+	result, err = toBoolean(ftValue)
+	assert.Error(t, err)
+
+	result, err = toBoolean(intTValue)
+	assert.NoError(t, err)
+	assert.True(t, result)
+
+	result, err = toBoolean(fValue)
+	assert.NoError(t, err)
+	assert.False(t, result)
+
+	result, err = toBoolean(intFValue)
+	assert.NoError(t, err)
+	assert.False(t, result)
+
+	result, err = toBoolean(invalidValue)
+	assert.Error(t, err)
+}
+
 func TestCast(t *testing.T) {
 	tests := []struct {
 		typ       string

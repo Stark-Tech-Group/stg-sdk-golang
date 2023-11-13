@@ -99,6 +99,7 @@ type QueryParams struct {
 	Username      string `json:"username" schema:"username" sqlColumn:"username" sqlType:"text"`
 	LastName      string `json:"lastName" schema:"lastName" sqlColumn:"last_name" sqlType:"text"`
 	Email         string `json:"email" schema:"email" sqlColumn:"email" sqlType:"text"`
+	Enabled       string `json:"enabled" schema:"enabled" sqlColumn:"enabled" sqlType:"boolean"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

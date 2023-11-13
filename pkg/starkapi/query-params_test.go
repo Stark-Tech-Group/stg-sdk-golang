@@ -741,3 +741,25 @@ func TestQueryParams_Email(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "test@email.com", args[0])
 }
+
+func TestQueryParams_Boolean_true(t *testing.T) {
+	p := QueryParams{Enabled: "true"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where enabled = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Boolean_1(t *testing.T) {
+	p := QueryParams{Enabled: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where enabled = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}

@@ -18,6 +18,14 @@ func toInt64(val string) (int64, error) {
 	return response, err
 }
 
+func toBoolean(val string) (bool, error) {
+	response, err := strconv.ParseBool(val)
+	if err != nil {
+		return false, err
+	}
+	return response, err
+}
+
 func toInt64Slice(val string) ([]int64, error) {
 	split := strings.Split(val, arraySep)
 	typedArray := make([]int64, len(split))
@@ -96,6 +104,8 @@ func cast(typ, raw string) (interface{}, error) {
 			return nil, err
 		}
 		return pq.Array(val), err
+	case "boolean":
+		return toBoolean(raw)
 	case "int":
 		return toInt32(raw)
 	case "int:array":

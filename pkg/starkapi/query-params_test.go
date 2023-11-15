@@ -785,3 +785,113 @@ func TestQueryParams_Code(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, "aCode", args[0])
 }
+
+func TestQueryParams_EulaOk(t *testing.T) {
+	p := QueryParams{EulaOk: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where eula_ok = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_EulaOk_True(t *testing.T) {
+	p := QueryParams{EulaOk: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where eula_ok = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_PasswordExpired(t *testing.T) {
+	p := QueryParams{PasswordExpired: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where password_expired = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_PasswordExpired_True(t *testing.T) {
+	p := QueryParams{PasswordExpired: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where password_expired = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Deleted(t *testing.T) {
+	p := QueryParams{Deleted: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where deleted = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Deleted_True(t *testing.T) {
+	p := QueryParams{Deleted: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where deleted = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_AccountExpired(t *testing.T) {
+	p := QueryParams{AccountExpired: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where account_expired = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_AccountExpired_True(t *testing.T) {
+	p := QueryParams{AccountExpired: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where account_expired = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_AccountLocked(t *testing.T) {
+	p := QueryParams{AccountLocked: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where account_locked = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_AccountLocked_True(t *testing.T) {
+	p := QueryParams{AccountLocked: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where account_locked = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}

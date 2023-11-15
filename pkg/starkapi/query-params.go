@@ -98,10 +98,15 @@ type QueryParams struct {
 	FirstName           string `json:"firstName" schema:"firstName" sqlColumn:"first_name" sqlType:"text"`
 	PhoneNumber         string `json:"phoneNumber" schema:"phoneNumber" sqlColumn:"phone_number" sqlType:"text"`
 	Username            string `json:"username" schema:"username" sqlColumn:"username" sqlType:"text"`
-	LastName            string `json:"lastName" schema:"lastName" csqlColumn:"last_name" sqlType:"text"`
+	LastName            string `json:"lastName" schema:"lastName" sqlColumn:"last_name" sqlType:"text"`
 	Email               string `json:"email" schema:"email" sqlColumn:"email" sqlType:"text"`
 	Enabled             string `json:"enabled" schema:"enabled" sqlColumn:"enabled" sqlType:"boolean"`
 	Code                string `json:"code" schema:"code" sqlColumn:"code" sqlType:"text"`
+	EulaOk              string `json:"eulaOk" schema:"eulaOk" sqlColumn:"eula_ok" sqlType:"boolean"`
+	PasswordExpired     string `json:"passwordExpired" schema:"passwordExpired" sqlColumn:"password_expired" sqlType:"boolean"`
+	Deleted             string `json:"deleted" schema:"deleted" sqlColumn:"deleted" sqlType:"boolean"`
+	AccountExpired      string `json:"accountExpired" schema:"accountExpired" sqlColumn:"account_expired" sqlType:"boolean"`
+	AccountLocked       string `json:"accountLocked" schema:"accountLocked" sqlColumn:"account_locked" sqlType:"boolean"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

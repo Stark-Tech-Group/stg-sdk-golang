@@ -395,6 +395,17 @@ func TestQueryParams_EquipTypeName(t *testing.T) {
 	assert.Equal(t, "anEquipType", args[0])
 }
 
+func TestQueryParams_EquipTypeConfigName(t *testing.T) {
+	p := QueryParams{EquipTypeConfigName: "anEquipTypeConfig"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where equip_type_config_name = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "anEquipTypeConfig", args[0])
+}
+
 func TestQueryParams_PointTypeName(t *testing.T) {
 	p := QueryParams{PointTypeName: "anPointType"}
 
@@ -762,4 +773,15 @@ func TestQueryParams_Boolean_1(t *testing.T) {
 	assert.Equal(t, "Select * from hello where enabled = $1", sql)
 	assert.Equal(t, 1, len(args))
 	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Code(t *testing.T) {
+	p := QueryParams{Code: "aCode"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where code = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "aCode", args[0])
 }

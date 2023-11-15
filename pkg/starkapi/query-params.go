@@ -74,32 +74,39 @@ type QueryParams struct {
 	GeoStateCode  string `json:"geoStateCode" schema:"geoStateCode" sqlColumn:"geo_state_code" sqlType:"text"`
 	Description   string `json:"description" schema:"description" sqlColumn:"description" sqlType:"text"`
 
-	Limit         int    `json:"limit" schema:"limit"`
-	Offset        int    `json:"offset" schema:"offset"`
-	RequestName   string `json:"-" schema:"-"`
-	EventType     string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
-	DateCreated   string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
-	IssueStatus   string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
-	TargetRef     string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
-	EquipType     string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
-	EquipTypeName string `json:"equipTypeName" schema:"equipTypeName" sqlColumn:"equip_type_name" sqlType:"text"`
-	EquipTypeId   string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
-	PointTypeName string `json:"pointTypeName" schema:"pointTypeName" sqlColumn:"point_type_name" sqlType:"text"`
-	PointTypeId   string `json:"pointTypeId" schema:"pointTypeId" sqlColumn:"point_type_id" sqlType:"bigint"`
-	PointUridName string `json:"pointUridName" schema:"pointUridName" sqlColumn:"point_urid_name" sqlType:"text"`
-	PointUridId   string `json:"pointUridId" schema:"pointUridId" sqlColumn:"point_urid_id" sqlType:"bigint"`
-	Unit          string `json:"unit" schema:"unit" sqlColumn:"unit" sqlType:"text"`
-	Category      string `json:"category" schema:"category" sqlColumn:"category" sqlType:"text"`
-	Batch         string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
-	SortA         string `json:"sortA" schema:"sortA"`
-	SortD         string `json:"sortD" schema:"sortD"`
-	WebAppMeta    string `json:"webAppMeta" schema:"webAppMeta" sqlColumn:"web_app_meta" sqlType:"text"`
-	FirstName     string `json:"firstName" schema:"firstName" sqlColumn:"first_name" sqlType:"text"`
-	PhoneNumber   string `json:"phoneNumber" schema:"phoneNumber" sqlColumn:"phone_number" sqlType:"text"`
-	Username      string `json:"username" schema:"username" sqlColumn:"username" sqlType:"text"`
-	LastName      string `json:"lastName" schema:"lastName" sqlColumn:"last_name" sqlType:"text"`
-	Email         string `json:"email" schema:"email" sqlColumn:"email" sqlType:"text"`
-	Enabled       string `json:"enabled" schema:"enabled" sqlColumn:"enabled" sqlType:"boolean"`
+	Limit               int    `json:"limit" schema:"limit"`
+	Offset              int    `json:"offset" schema:"offset"`
+	RequestName         string `json:"-" schema:"-"`
+	EventType           string `json:"eventType" schema:"eventType" sqlColumn:"event_type" sqlType:"text"`
+	DateCreated         string `json:"dateCreated" schema:"dateCreated" sqlColumn:"date_created" sqlType:"bigint"`
+	IssueStatus         string `json:"issueStatus" schema:"issueStatus" sqlColumn:"issue_status_id" sqlType:"bigint"`
+	TargetRef           string `json:"targetRef" schema:"targetRef" sqlColumn:"target_ref" sqlType:"text"`
+	EquipType           string `json:"equipType" schema:"equipType" sqlColumn:"equip_type_name" sqlType:"text"`
+	EquipTypeName       string `json:"equipTypeName" schema:"equipTypeName" sqlColumn:"equip_type_name" sqlType:"text"`
+	EquipTypeId         string `json:"equipTypeId" schema:"equipTypeId" sqlColumn:"equip_type_id" sqlType:"bigint"`
+	EquipTypeConfigName string `json:"equipTypeConfigName" schema:"equipTypeConfigName" sqlColumn:"equip_type_config_name" sqlType:"text"`
+	PointTypeName       string `json:"pointTypeName" schema:"pointTypeName" sqlColumn:"point_type_name" sqlType:"text"`
+	PointTypeId         string `json:"pointTypeId" schema:"pointTypeId" sqlColumn:"point_type_id" sqlType:"bigint"`
+	PointUridName       string `json:"pointUridName" schema:"pointUridName" sqlColumn:"point_urid_name" sqlType:"text"`
+	PointUridId         string `json:"pointUridId" schema:"pointUridId" sqlColumn:"point_urid_id" sqlType:"bigint"`
+	Unit                string `json:"unit" schema:"unit" sqlColumn:"unit" sqlType:"text"`
+	Category            string `json:"category" schema:"category" sqlColumn:"category" sqlType:"text"`
+	Batch               string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
+	SortA               string `json:"sortA" schema:"sortA"`
+	SortD               string `json:"sortD" schema:"sortD"`
+	WebAppMeta          string `json:"webAppMeta" schema:"webAppMeta" sqlColumn:"web_app_meta" sqlType:"text"`
+	FirstName           string `json:"firstName" schema:"firstName" sqlColumn:"first_name" sqlType:"text"`
+	PhoneNumber         string `json:"phoneNumber" schema:"phoneNumber" sqlColumn:"phone_number" sqlType:"text"`
+	Username            string `json:"username" schema:"username" sqlColumn:"username" sqlType:"text"`
+	LastName            string `json:"lastName" schema:"lastName" sqlColumn:"last_name" sqlType:"text"`
+	Email               string `json:"email" schema:"email" sqlColumn:"email" sqlType:"text"`
+	Enabled             string `json:"enabled" schema:"enabled" sqlColumn:"enabled" sqlType:"boolean"`
+	Code                string `json:"code" schema:"code" sqlColumn:"code" sqlType:"text"`
+	EulaOk              string `json:"eulaOk" schema:"eulaOk" sqlColumn:"eula_ok" sqlType:"boolean"`
+	PasswordExpired     string `json:"passwordExpired" schema:"passwordExpired" sqlColumn:"password_expired" sqlType:"boolean"`
+	Deleted             string `json:"deleted" schema:"deleted" sqlColumn:"deleted" sqlType:"boolean"`
+	AccountExpired      string `json:"accountExpired" schema:"accountExpired" sqlColumn:"account_expired" sqlType:"boolean"`
+	AccountLocked       string `json:"accountLocked" schema:"accountLocked" sqlColumn:"account_locked" sqlType:"boolean"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

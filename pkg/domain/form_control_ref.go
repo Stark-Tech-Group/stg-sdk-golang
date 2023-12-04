@@ -33,7 +33,7 @@ type FormControlRef struct {
 
 func NewFormControlRef() *FormControlRef {
 	return &FormControlRef{
-		Ref: NewRef(FormControlRefTable),
+		Ref: NewRef(FormControlRefRefType),
 	}
 }
 

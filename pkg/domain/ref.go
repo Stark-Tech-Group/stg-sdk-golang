@@ -10,24 +10,101 @@ import (
 )
 
 const (
-	SiteRefType            = "s"
-	SiteTable              = "site"
-	EquipRefType           = "e"
-	EquipTable             = "equip"
-	PointRefType           = "p"
-	PointTable             = "point"
-	BranchRefType          = "branch"
-	BranchTable            = "asset_tree_branch"
-	TagRefType             = "g"
-	TagRefTable            = "tag_ref"
-	FormControlTable       = "j"
-	FormControlRefTable    = "k"
-	alphabet               = "abcdefghijklmnopqrstuvwxyz0123456789"
-	defaultLength          = 16
-	defaultSpacing         = 8
-	defaultSpacingChar     = "-"
-	defaultPrefixChar      = "."
-	defaultPrefixMaxLength = 50
+	PersonRefType            = "c"
+	PersonAssetType          = "Person"
+	EquipTypeRefType         = "d"
+	EquipTypeAssetType       = "Equip Type"
+	PersonFavoriteRefType    = "f"
+	PersonFavoriteAssetType  = "Person Favorite"
+	TextRefRefType           = "h"
+	TextRefAssetType         = "Text Ref"
+	IssueRefType             = "ir"
+	IssueAssetType           = "Issue"
+	RuleRefType              = "l"
+	RuleAssetType            = "Rule"
+	NotificationRefType      = "m"
+	NotificationAssetType    = "Notification"
+	PersonAssetTreeRefType   = "n"
+	PersonAssetTreeType      = "Person Asset Tree"
+	ReportRefType            = "q"
+	ReportAssetType          = "Report"
+	ProfileRefType           = "r"
+	ProfileAssetType         = "Profile"
+	EventSubscriptionRefType = "sub"
+	EventSubscriptionType    = "Event Subscription"
+	TagRefType               = "t"
+	TagAssetType             = "Tag"
+	PointUridRefType         = "u"
+	PointUridAssetType       = "Point Urid"
+	BlobRefType              = "v"
+	BlobAssetType            = "Blob"
+	RoleGroupRefType         = "w"
+	RoleGroupAssetType       = "Role Group"
+	RoleGroupRoleRefType     = "x"
+	RoleGroupRoleAssetType   = "Role Group Role"
+	EquipTypeConfigRefType   = "y"
+	EquipTypeConfigAssetType = "Equip Type Config"
+	EventRefType             = "eh"
+	EventAssetType           = "Event"
+	SiteRefType              = "s"
+	SiteAssetType            = "Site"
+	SiteTable                = "site"
+	EquipRefType             = "e"
+	EquipAssetType           = "Equip"
+	EquipTable               = "equip"
+	PointRefType             = "p"
+	PointAssetType           = "Point"
+	PointTable               = "point"
+	BranchRefType            = "branch"
+	BranchAssetType          = "Branch"
+	BranchTable              = "asset_tree_branch"
+	TagRefRefType            = "g"
+	TagRefAssetType          = "Tag Ref"
+	TagRefTable              = "tag_ref"
+	FormControlRefType       = "j"
+	FormControlAssetType     = "Form Control"
+	FormControlTable         = "form_control"
+	DashboardRefType         = "a"
+	DashboardAssetType       = "Dashboard"
+	FormControlRefRefType    = "k"
+	FormControlRefAssetType  = "Form Control Ref"
+	alphabet                 = "abcdefghijklmnopqrstuvwxyz0123456789"
+	defaultLength            = 16
+	defaultSpacing           = 8
+	defaultSpacingChar       = "-"
+	defaultPrefixChar        = "."
+	defaultPrefixMaxLength   = 50
+)
+
+var (
+	assetTypeMap = map[string]string{
+		PersonRefType:            PersonAssetType,
+		EquipTypeRefType:         EquipTypeAssetType,
+		PersonFavoriteRefType:    PersonFavoriteAssetType,
+		TextRefRefType:           TextRefAssetType,
+		IssueRefType:             IssueAssetType,
+		RuleRefType:              RuleAssetType,
+		NotificationRefType:      NotificationAssetType,
+		PersonAssetTreeRefType:   PersonAssetTreeType,
+		ReportRefType:            ReportAssetType,
+		ProfileRefType:           ProfileAssetType,
+		EventSubscriptionRefType: EventSubscriptionType,
+		TagRefType:               TagAssetType,
+		PointUridRefType:         PointUridAssetType,
+		BlobRefType:              BlobAssetType,
+		RoleGroupRefType:         RoleGroupAssetType,
+		RoleGroupRoleRefType:     RoleGroupRoleAssetType,
+		EquipTypeConfigRefType:   EquipTypeConfigAssetType,
+		EventRefType:             EventAssetType,
+		SiteRefType:              SiteAssetType,
+		EquipRefType:             EquipAssetType,
+		PointRefType:             PointAssetType,
+		BranchRefType:            BranchAssetType,
+		TagRefRefType:            TagRefAssetType,
+		FormControlRefType:       FormControlAssetType,
+		FormControlRefRefType:    FormControlRefAssetType,
+		DashboardRefType:         DashboardAssetType,
+	}
 )
 
 var pattern = regexp.MustCompile(`^([a-z]{1,8}\.[a-z0-9]{8}-[a-z0-9]{8}([:]\d+)?)$`)
@@ -107,4 +184,8 @@ func random(length int, spacing int, spacerChar string) string {
 		sb.WriteString(randomChar())
 	}
 	return sb.String()
+}
+
+func GetAssetType(ref string) string {
+	return assetTypeMap[strings.Split(ref, ".")[0]]
 }

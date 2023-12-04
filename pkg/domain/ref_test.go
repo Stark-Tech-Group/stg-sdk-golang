@@ -83,3 +83,12 @@ func TestNewRef(t *testing.T) {
 		t.Errorf("Expected reference to have truncated prefix %s, but got %s", expectedPrefix, refWithLongPrefix)
 	}
 }
+
+func TestGetAssetType(t *testing.T) {
+	assert.Equal(t, "Site", GetAssetType("s.xxxxxxxx-xxxxxxxx"))
+	assert.Equal(t, "Equip", GetAssetType("e.xxxxxxxx-xxxxxxxx"))
+	assert.Equal(t, "Point", GetAssetType("p.xxxxxxxx-xxxxxxxx"))
+	assert.Equal(t, "Profile", GetAssetType("r.xxxxxxxx-xxxxxxxx"))
+	assert.Equal(t, "Form Control Ref", GetAssetType("k.xxxxxxxx-xxxxxxxx"))
+	assert.Equal(t, "", GetAssetType("xxxxxxxx-xxxxxxxx"))
+}

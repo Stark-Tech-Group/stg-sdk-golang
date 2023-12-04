@@ -16,7 +16,7 @@ const (
 func TestNewFormControlRef(t *testing.T) {
 	n := NewFormControlRef()
 	assert.NotNil(t, n)
-	assert.Equal(t, FormControlRefTable, n.Ref[0:1])
+	assert.Equal(t, FormControlRefRefType, n.Ref[0:1])
 }
 
 func TestFormsControlRef_ValidateSuccess(t *testing.T) {

@@ -895,3 +895,14 @@ func TestQueryParams_AccountLocked_True(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.True(t, args[0].(bool))
 }
+
+func TestQueryParams_EventId(t *testing.T) {
+	p := QueryParams{EventId: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where event_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1), args[0])
+}

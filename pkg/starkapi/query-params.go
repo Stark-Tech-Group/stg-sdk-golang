@@ -149,8 +149,7 @@ func castWithField(field *reflect.StructField, raw string, operator string) (int
 
 	if operator == in {
 		sqlValType = sqlValType + pqArrayType
-		arr, err := newArrayW
-		ithNull(raw, sqlValType)
+		arr, err := newArrayWithNull(raw, sqlValType)
 		if err != nil {
 			logger.Errorf("error converting to array with null: %s", err)
 			return nil, err

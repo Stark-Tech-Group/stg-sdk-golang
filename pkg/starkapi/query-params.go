@@ -27,6 +27,7 @@ const (
 	endLike         = "% like"
 	nullSql         = "NULL"
 	nullVal         = "null"
+	between         = "BETWEEN"
 )
 
 var operatorMap = map[string]string{
@@ -39,6 +40,7 @@ var operatorMap = map[string]string{
 	"<in>": in,
 	"<sw>": startLike,
 	"<ew>": endLike,
+	"<bw>": between,
 }
 var input = regexp.MustCompile("^([a-z]|[A-Z]|[0-9]|[.]|-){1,75}$")
 var colTypeMap map[string]*reflect.StructField
@@ -147,7 +149,8 @@ func castWithField(field *reflect.StructField, raw string, operator string) (int
 
 	if operator == in {
 		sqlValType = sqlValType + pqArrayType
-		arr, err := newArrayWithNull(raw, sqlValType)
+		arr, err := newArrayW
+		ithNull(raw, sqlValType)
 		if err != nil {
 			logger.Errorf("error converting to array with null: %s", err)
 			return nil, err

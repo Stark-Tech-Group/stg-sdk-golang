@@ -906,3 +906,28 @@ func TestQueryParams_EventId(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, int64(1), args[0])
 }
+
+func TestQueryParams_Between(t *testing.T) {
+	p := QueryParams{
+		Ts: "<bw>1,10",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2", sql)
+	assert.Equal(t, 1, len(args))
+}
+
+func TestQueryParams_BetweenWithOtherParams(t *testing.T) {
+	p := QueryParams{
+		Ts:   "<bw>1,10",
+		Name: "aName",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2 and name = $3", sql)
+	assert.Equal(t, 2, len(args))
+}

@@ -157,6 +157,10 @@ func castWithField(field *reflect.StructField, raw string, operator string) (int
 		return arr, nil
 	}
 
+	if operator == between {
+		sqlValType = sqlValType + pqArrayType
+	}
+
 	return cast(sqlValType, raw)
 }
 
@@ -323,6 +327,10 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 				explodedIndex--
 			}
 
+			if p.Operator == between {
+				explodedIndex++
+			}
+
 			//evaluates the position current index for 'order by' and 'and'
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
 				b.WriteString(and)
@@ -375,6 +383,8 @@ func (p *Parameter) parameterizedClause(seedIndex int) string {
 		}
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
+	} else if p.Operator == between {
+		return fmt.Sprintf("%s BETWEEN $%d AND $%d", p.Column, seedIndex+1, seedIndex+2)
 	} else {
 		if p.nullValCheck() {
 			return fmt.Sprintf("%s IS "+nullSql, p.Column)

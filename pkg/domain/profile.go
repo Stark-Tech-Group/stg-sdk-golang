@@ -2,7 +2,7 @@ package domain
 
 type Profiles struct {
 	Count		int32 	`json:"count"`
-	Profiles 	[]*Profile `json:"profiles"`
+	Profiles 	[]Profile `json:"profiles"`
 }
 
 type Profile struct {

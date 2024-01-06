@@ -80,7 +80,7 @@ func (pointApi *PointApi) UpdateOne(id uint32, jsonBody []byte) (domain.Point, e
 	return point, nil
 }
 
-func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value string) error {
+func (pointApi *PointApi) AddNewTag(point *domain.Point, name string, value string) error {
 	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
 	ask := domain.Tag{Name: name, Value: value}
 

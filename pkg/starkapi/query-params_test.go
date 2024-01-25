@@ -916,7 +916,7 @@ func TestQueryParams_Between(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2", sql)
-	assert.Equal(t, 1, len(args))
+	assert.Equal(t, 2, len(args))
 }
 
 func TestQueryParams_BetweenWithOtherParams(t *testing.T) {
@@ -929,5 +929,31 @@ func TestQueryParams_BetweenWithOtherParams(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2 and name = $3", sql)
-	assert.Equal(t, 2, len(args))
+	assert.Equal(t, 3, len(args))
+}
+
+func TestQueryParams_BetweenWithFloat(t *testing.T) {
+	p := QueryParams{
+		Lat:  "<bw>1.5,10.5",
+		Name: "aName",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where name = $1 and lat BETWEEN $2 AND $3", sql)
+	assert.Equal(t, 3, len(args))
+}
+
+func TestQueryParams_BetweenWithInt32(t *testing.T) {
+	p := QueryParams{
+		Gsf:  "<bw>1,10",
+		Name: "aName",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where name = $1 and gsf BETWEEN $2 AND $3", sql)
+	assert.Equal(t, 3, len(args))
 }

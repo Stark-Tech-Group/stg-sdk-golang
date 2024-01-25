@@ -322,13 +322,17 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 					args = append(args, pq.Array(p.Value.(arrayWithNull).values))
 				}
 			} else if p.Value != nil && p.Value != nullVal {
-				args = append(args, p.Value)
+				if p.Operator == between {
+					args, err = p.explodeArrayArgs(p.Type, args)
+					if err != nil {
+						return "", nil, err
+					}
+					explodedIndex++
+				} else {
+					args = append(args, p.Value)
+				}
 			} else {
 				explodedIndex--
-			}
-
-			if p.Operator == between {
-				explodedIndex++
 			}
 
 			//evaluates the position current index for 'order by' and 'and'
@@ -404,4 +408,27 @@ func (p *Parameter) parameterizedClause(seedIndex int) string {
 
 func (p *Parameter) nullValCheck() bool {
 	return p.Type == "text" && strings.Contains(p.Value.(string), nullVal)
+}
+
+func (p *Parameter) explodeArrayArgs(typ string, args []interface{}) ([]interface{}, error) {
+	if typ == "bigint" {
+		p.Value = *p.Value.(*pq.Int64Array)
+		args = append(args, p.Value.(pq.Int64Array)[0])
+		args = append(args, p.Value.(pq.Int64Array)[1])
+		return args, nil
+	}
+	if typ == "int" {
+		p.Value = *p.Value.(*pq.Int32Array)
+		args = append(args, p.Value.(pq.Int32Array)[0])
+		args = append(args, p.Value.(pq.Int32Array)[1])
+		return args, nil
+	}
+	if typ == "float" {
+		p.Value = *p.Value.(*pq.Float64Array)
+		args = append(args, p.Value.(pq.Float64Array)[0])
+		args = append(args, p.Value.(pq.Float64Array)[1])
+		return args, nil
+	}
+
+	return nil, errors.New("unsupported type")
 }

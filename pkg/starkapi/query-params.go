@@ -388,6 +388,11 @@ func (p *Parameter) parameterizedClause(seedIndex int) string {
 		p.Value = "%" + p.Value.(string)
 		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
 	} else if p.Operator == between {
+		if p.Decorator != "" {
+			val1 := strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)
+			val2 := strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+2), 1)
+			return fmt.Sprintf("%s BETWEEN %s AND %s", p.Column, val1, val2)
+		}
 		return fmt.Sprintf("%s BETWEEN $%d AND $%d", p.Column, seedIndex+1, seedIndex+2)
 	} else {
 		if p.nullValCheck() {

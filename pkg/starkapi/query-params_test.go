@@ -915,7 +915,7 @@ func TestQueryParams_Between(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2", sql)
+	assert.Equal(t, "Select * from hello where ts BETWEEN to_timestamp($1) AND to_timestamp($2)", sql)
 	assert.Equal(t, 2, len(args))
 }
 
@@ -928,7 +928,7 @@ func TestQueryParams_BetweenWithOtherParams(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "Select * from hello where ts BETWEEN $1 AND $2 and name = $3", sql)
+	assert.Equal(t, "Select * from hello where ts BETWEEN to_timestamp($1) AND to_timestamp($2) and name = $3", sql)
 	assert.Equal(t, 3, len(args))
 }
 

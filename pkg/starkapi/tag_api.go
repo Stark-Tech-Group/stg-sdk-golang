@@ -11,11 +11,11 @@ type TagApi struct {
 }
 
 type tagSuggestion struct {
-	Context     string `json:"context"`
-	Kind        string `json:"type"`
-	Key         string `json:"key"`
-	Value       string `json:"value"`
-	Description string `json:"desc"`
+	Suggestion struct {
+		Value string `json:"value"`
+		Key   string `json:"key"`
+	} `json:"suggestion"`
+	Confidence int `json:"confidence"`
 }
 
 func (tagApi *TagApi) BaseUrl() string {
@@ -53,8 +53,8 @@ func (tagApi *TagApi) Suggest(query string, context string) ([]domain.Tag, error
 
 	for _, suggestion := range suggestions {
 		tags = append(tags, domain.Tag{
-			Name:  suggestion.Key,
-			Value: suggestion.Value,
+			Name:  suggestion.Suggestion.Key,
+			Value: suggestion.Suggestion.Value,
 		})
 	}
 

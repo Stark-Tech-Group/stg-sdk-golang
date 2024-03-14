@@ -8,12 +8,16 @@ import (
 )
 
 type PointApi struct {
-	client *Client
+	client ApiClient
+}
+
+func (pointApi *PointApi) host() string {
+	return pointApi.client.getHost()
 }
 
 func (pointApi *PointApi) delete(id uint32) (*response.DeleteResponse, error) {
 
-	resp, err := pointApi.client.delete(pointUrl(pointApi.client.host, id))
+	resp, err := pointApi.client.delete(pointUrl(pointApi.host(), id))
 
 	if err != nil {
 		return nil, err
@@ -39,11 +43,11 @@ func pointUrl(host string, id uint32) string {
 }
 
 func (pointApi *PointApi) ListPointTypeUrl() string {
-	return fmt.Sprintf("%s/core/lists/pointType", pointApi.client.host)
+	return fmt.Sprintf("%s/core/lists/pointType", pointApi.host())
 }
 
 func (pointApi *PointApi) BaseUrl() string {
-	return fmt.Sprintf("%s/core/points", pointApi.client.host)
+	return fmt.Sprintf("%s/core/points", pointApi.host())
 }
 
 func (pointApi *PointApi) CreateOne(ask domain.Point) (domain.Point, error) {
@@ -218,10 +222,10 @@ func (pointApi *PointApi) HisRead(id uint32, limit uint16, start uint64, end uin
 	return hisRead, nil
 }
 
-func (pointApi *PointApi) GetAllPointTypes() ([]domain.PointTypes, error) {
+func (pointApi *PointApi) GetAllPointTypes() (domain.PointTypes, error) {
 	url := fmt.Sprintf("%s", pointApi.ListPointTypeUrl())
 
-	var pointTypes []domain.PointTypes
+	var pointTypes domain.PointTypes
 
 	resp, err := pointApi.client.get(url)
 	if err != nil {

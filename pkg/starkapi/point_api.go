@@ -38,6 +38,10 @@ func pointUrl(host string, id uint32) string {
 	return fmt.Sprintf("%s/%d", pointsUrl(host), id)
 }
 
+func (pointApi *PointApi) ListPointTypeUrl() string {
+	return fmt.Sprintf("%s/core/lists/pointType", pointApi.client.host)
+}
+
 func (pointApi *PointApi) BaseUrl() string {
 	return fmt.Sprintf("%s/core/points", pointApi.client.host)
 }
@@ -97,7 +101,7 @@ func (pointApi *PointApi) AddNewTag(point domain.Point, name string, value strin
 	return nil
 }
 
-//GetAllTags returns all tags for the provided domain.Point
+// GetAllTags returns all tags for the provided domain.Point
 func (pointApi *PointApi) GetAllTags(point domain.Point) (domain.TagRefs, error) {
 	url := fmt.Sprintf("%s/%v/tags", pointApi.BaseUrl(), point.Id)
 
@@ -115,7 +119,7 @@ func (pointApi *PointApi) GetAllTags(point domain.Point) (domain.TagRefs, error)
 	return tags, nil
 }
 
-//DeleteTag deletes a domain.TagRef from the provided domain.Point
+// DeleteTag deletes a domain.TagRef from the provided domain.Point
 func (pointApi *PointApi) DeleteTag(point domain.Point, tagRef domain.TagRef) error {
 	url := fmt.Sprintf("%s/%v/tags/%v", pointApi.BaseUrl(), point.Id, tagRef.Id)
 
@@ -145,7 +149,7 @@ func (pointApi *PointApi) GetOne(id uint32) (domain.Point, error) {
 	return point, nil
 }
 
-//GetAll returns all points within the given limit and offset
+// GetAll returns all points within the given limit and offset
 func (pointApi *PointApi) GetAll(limit, offset int) (domain.Points, error) {
 	url := fmt.Sprintf("%s?limit=%v?offset=%v", pointApi.BaseUrl(), limit, offset)
 	var points domain.Points
@@ -212,4 +216,24 @@ func (pointApi *PointApi) HisRead(id uint32, limit uint16, start uint64, end uin
 	}
 
 	return hisRead, nil
+}
+
+func (pointApi *PointApi) GetAllPointTypes() ([]domain.PointTypes, error) {
+	url := fmt.Sprintf("%s", pointApi.ListPointTypeUrl())
+
+	var pointTypes []domain.PointTypes
+
+	resp, err := pointApi.client.get(url)
+	if err != nil {
+		return pointTypes, err
+	}
+
+	if len(resp) > 0 {
+		err = json.Unmarshal(resp, &pointTypes)
+		if err != nil {
+			return pointTypes, err
+		}
+	}
+
+	return pointTypes, nil
 }

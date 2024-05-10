@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
-	"github.com/sirupsen/logrus"
 )
 
 type Client struct {

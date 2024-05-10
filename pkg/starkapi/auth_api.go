@@ -3,6 +3,7 @@ package starkapi
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
@@ -21,11 +22,19 @@ func (authApi *authApi) login(un string, pw string) (*response.AuthResponse, err
 		password: pw,
 	})
 
+  
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := authApi.client.post(loginUrl(authApi.client.host), requestBody)
+
+  host := loginUrl(authApi.client.host)
+
+	resp, err := authApi.client.post(host, requestBody)
+
+  if err != nil {
+    return nil, err
+  }
 
 	login := response.AuthResponse{}
 	err = json.Unmarshal(resp, &login)

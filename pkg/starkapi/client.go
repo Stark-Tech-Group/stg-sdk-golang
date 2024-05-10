@@ -3,9 +3,10 @@ package starkapi
 import (
 	"bytes"
 	"fmt"
-	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/api/response"
 )
 
 type Client struct {
@@ -142,7 +143,9 @@ func (client *Client) get(url string) ([]byte, error) {
 }
 
 func (client *Client) post(url string, requestBody []byte) ([]byte, error) {
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+  req.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
 		return nil, err
@@ -154,6 +157,7 @@ func (client *Client) post(url string, requestBody []byte) ([]byte, error) {
 func (client *Client) put(url string, requestBody []byte) ([]byte, error) {
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
 
+  req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}

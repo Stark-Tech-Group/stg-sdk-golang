@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: '^1.21' # The Go version to download (if necessary) and use.
@@ -22,7 +22,8 @@ jobs:
       #        run: go test -tags=integration ./...
       - name: build
         run: go build ./cmd/stg-sdk-golang
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: executables
           path: stg-sdk-golang
+          overwrite: true

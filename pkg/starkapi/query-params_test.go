@@ -957,3 +957,14 @@ func TestQueryParams_BetweenWithInt32(t *testing.T) {
 	assert.Equal(t, "Select * from hello where name = $1 and gsf BETWEEN $2 AND $3", sql)
 	assert.Equal(t, 3, len(args))
 }
+
+func TestQueryParams_LastAuth(t *testing.T) {
+	p := QueryParams{LastAuth: "1234567890"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where last_auth = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1234567890), args[0])
+}

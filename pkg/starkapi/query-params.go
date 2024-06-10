@@ -110,6 +110,7 @@ type QueryParams struct {
 	Deleted             string `json:"deleted" schema:"deleted" sqlColumn:"deleted" sqlType:"boolean"`
 	AccountExpired      string `json:"accountExpired" schema:"accountExpired" sqlColumn:"account_expired" sqlType:"boolean"`
 	AccountLocked       string `json:"accountLocked" schema:"accountLocked" sqlColumn:"account_locked" sqlType:"boolean"`
+	LastAuth            string `json:"lastAuth" scheme:"lastAuth" sqlColumn:"last_auth" sqlType:"bigint"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

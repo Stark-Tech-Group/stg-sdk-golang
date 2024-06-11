@@ -968,3 +968,12 @@ func TestQueryParams_LastAuth(t *testing.T) {
 	assert.Equal(t, 1, len(args))
 	assert.Equal(t, int64(1234567890), args[0])
 }
+
+func TestQueryParmas_SortByLastAuth(t *testing.T) {
+	p := QueryParams{SortA: "lastAuth"}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello order by last_auth asc", sql)
+}

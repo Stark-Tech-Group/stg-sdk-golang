@@ -28,6 +28,7 @@ const (
 	nullSql         = "NULL"
 	nullVal         = "null"
 	between         = "BETWEEN"
+	multiSortErr    = "cannot sort in multiple directions"
 )
 
 var operatorMap = map[string]string{
@@ -205,6 +206,8 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 
 	clauses := make([]Parameter, 0)
 
+	sorted := false
+
 	sorts := make([]string, 0)
 	var operator string
 	var sqlValue interface{}
@@ -219,6 +222,9 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 			typ := field.Tag.Get(sqlType)
 
 			if field.Name == "SortA" || field.Name == "SortD" {
+				if sorted {
+					return nil, errors.New(multiSortErr)
+				}
 				vals := strings.Split(val, ",")
 				for _, tempVal := range vals {
 					sqlTag = getColumnNameByFieldName(tempVal)
@@ -228,14 +234,16 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 					}
 					sorts = append(sorts, sqlTag)
 				}
-				if field.Name == "SortA" {
+				if field.Name == "SortA" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
 						Decorator: decorator, AscSort: true, DescSort: false, Type: typ, Sorts: sorts})
 					sorts = make([]string, 0)
-				} else if field.Name == "SortD" {
+					sorted = true
+				} else if field.Name == "SortD" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
 						Decorator: decorator, AscSort: false, DescSort: true, Type: typ, Sorts: sorts})
 					sorts = make([]string, 0)
+					sorted = true
 				}
 			}
 			tag := field.Tag.Get(sqlColumn)
@@ -304,8 +312,6 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 
 	args := make([]interface{}, 0)
 
-	sorted := false
-
 	b := strings.Builder{}
 	b.WriteString(sql)
 
@@ -350,10 +356,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
 				b.WriteString(and)
 			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
-				if !sorted {
-					sorted = true
-					b.WriteString(orderBy)
-				}
+				b.WriteString(orderBy)
 			}
 
 		} else if p.AscSort || p.DescSort {
@@ -363,12 +366,7 @@ func (q *QueryParams) BuildParameterizedQuery(sql string) (string, []interface{}
 			if i < len(parameters)-1 && !parameters[i+1].AscSort && !parameters[i+1].DescSort {
 				b.WriteString(and)
 			} else if i < len(parameters)-1 && (parameters[i+1].AscSort || parameters[i+1].DescSort) {
-				if !sorted {
-					b.WriteString(orderBy)
-					sorted = true
-				} else {
-					b.WriteString(", ")
-				}
+				b.WriteString(orderBy)
 			}
 		}
 	}

@@ -253,29 +253,8 @@ func TestQueryParams_build_sql_SortD(t *testing.T) {
 func TestQueryParams_build_sql_SortAandSortD(t *testing.T) {
 	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080", SortA: "endTs", SortD: "endTs"}
 	parameters, err := p.DecodeParameters()
-	assert.Nil(t, err)
-	assert.Equal(t, 6, len(parameters))
-
-	assert.Equal(t, "id", parameters[0].Column)
-	assert.Equal(t, "!=", parameters[0].Operator)
-	assert.Equal(t, int64(100), parameters[0].Value)
-
-	assert.Equal(t, "site_ref", parameters[1].Column)
-	assert.Equal(t, "=", parameters[1].Operator)
-	assert.Equal(t, "s.abc", parameters[1].Value)
-
-	assert.Equal(t, "ts", parameters[2].Column)
-	assert.Equal(t, "=", parameters[2].Operator)
-	assert.Equal(t, int64(1666797079), parameters[2].Value)
-
-	assert.Equal(t, "end_ts", parameters[3].Column)
-	assert.Equal(t, "=", parameters[3].Operator)
-	assert.Equal(t, int64(1666797080), parameters[3].Value)
-
-	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
-
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by end_ts asc, end_ts desc", sql)
-	assert.Equal(t, 4, len(args))
+	assert.NotNil(t, err)
+	assert.Nil(t, parameters)
 }
 
 func TestQueryParams_build_sql_MultipleSortA(t *testing.T) {
@@ -331,34 +310,6 @@ func TestQueryParams_build_sql_MultipleSortD(t *testing.T) {
 	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
 
 	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by ts desc, end_ts desc", sql)
-	assert.Equal(t, 4, len(args))
-}
-
-func TestQueryParams_build_sql_MultipleSortAAndSortD(t *testing.T) {
-	p := QueryParams{SiteRef: "<eq>s.abc", Id: "<nq>100", Ts: "1666797079", EndTs: "1666797080", SortA: "id,siteRef", SortD: "ts,endTs"}
-	parameters, err := p.DecodeParameters()
-	assert.Nil(t, err)
-	assert.Equal(t, 6, len(parameters))
-
-	assert.Equal(t, "id", parameters[0].Column)
-	assert.Equal(t, "!=", parameters[0].Operator)
-	assert.Equal(t, int64(100), parameters[0].Value)
-
-	assert.Equal(t, "site_ref", parameters[1].Column)
-	assert.Equal(t, "=", parameters[1].Operator)
-	assert.Equal(t, "s.abc", parameters[1].Value)
-
-	assert.Equal(t, "ts", parameters[2].Column)
-	assert.Equal(t, "=", parameters[2].Operator)
-	assert.Equal(t, int64(1666797079), parameters[2].Value)
-
-	assert.Equal(t, "end_ts", parameters[3].Column)
-	assert.Equal(t, "=", parameters[3].Operator)
-	assert.Equal(t, int64(1666797080), parameters[3].Value)
-
-	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
-
-	assert.Equal(t, "Select * from hello where id != $1 and site_ref = $2 and ts = to_timestamp($3) and end_ts = to_timestamp($4) order by id asc, site_ref asc, ts desc, end_ts desc", sql)
 	assert.Equal(t, 4, len(args))
 }
 

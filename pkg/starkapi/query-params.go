@@ -28,6 +28,7 @@ const (
 	nullSql         = "NULL"
 	nullVal         = "null"
 	between         = "BETWEEN"
+	multiSortErr    = "cannot sort in multiple directions"
 )
 
 var operatorMap = map[string]string{
@@ -95,8 +96,6 @@ type QueryParams struct {
 	Unit                string `json:"unit" schema:"unit" sqlColumn:"unit" sqlType:"text"`
 	Category            string `json:"category" schema:"category" sqlColumn:"category" sqlType:"text"`
 	Batch               string `json:"batch" schema:"batch" sqlColumn:"batch" sqlType:"text"`
-	SortA               string `json:"sortA" schema:"sortA"`
-	SortD               string `json:"sortD" schema:"sortD"`
 	WebAppMeta          string `json:"webAppMeta" schema:"webAppMeta" sqlColumn:"web_app_meta" sqlType:"text"`
 	FirstName           string `json:"firstName" schema:"firstName" sqlColumn:"first_name" sqlType:"text"`
 	PhoneNumber         string `json:"phoneNumber" schema:"phoneNumber" sqlColumn:"phone_number" sqlType:"text"`
@@ -111,6 +110,8 @@ type QueryParams struct {
 	AccountExpired      string `json:"accountExpired" schema:"accountExpired" sqlColumn:"account_expired" sqlType:"boolean"`
 	AccountLocked       string `json:"accountLocked" schema:"accountLocked" sqlColumn:"account_locked" sqlType:"boolean"`
 	LastAuth            string `json:"lastAuth" schema:"lastAuth" sqlColumn:"last_auth" sqlType:"bigint"`
+	SortA               string `json:"sortA" schema:"sortA"`
+	SortD               string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams
@@ -203,9 +204,15 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 	t := reflect.TypeOf(q).Elem()
 	value := reflect.Indirect(reflect.ValueOf(q))
 
+	clauses := make([]Parameter, 0)
+
 	sorted := false
 
-	clauses := make([]Parameter, 0)
+	sorts := make([]string, 0)
+	var operator string
+	var sqlValue interface{}
+	var err error
+	var sqlTag string
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -215,24 +222,33 @@ func (q *QueryParams) DecodeParameters() ([]Parameter, error) {
 			typ := field.Tag.Get(sqlType)
 
 			if field.Name == "SortA" || field.Name == "SortD" {
-				sqlTag := getColumnNameByFieldName(val)
-				operator, sqlValue, err := decodeRightSide(&field, sqlTag)
-				if err != nil {
-					return nil, err
+				if sorted {
+					return nil, errors.New(multiSortErr)
+				}
+				vals := strings.Split(val, ",")
+				for _, tempVal := range vals {
+					sqlTag = getColumnNameByFieldName(tempVal)
+					operator, sqlValue, err = decodeRightSide(&field, sqlTag)
+					if err != nil {
+						return nil, err
+					}
+					sorts = append(sorts, sqlTag)
 				}
 				if field.Name == "SortA" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
-						Decorator: decorator, AscSort: true, DescSort: false, Type: typ})
+						Decorator: decorator, AscSort: true, DescSort: false, Type: typ, Sorts: sorts})
+					sorts = make([]string, 0)
 					sorted = true
 				} else if field.Name == "SortD" && !sorted {
 					clauses = append(clauses, Parameter{Column: sqlTag, Operator: operator, Value: sqlValue,
-						Decorator: decorator, AscSort: false, DescSort: true, Type: typ})
+						Decorator: decorator, AscSort: false, DescSort: true, Type: typ, Sorts: sorts})
+					sorts = make([]string, 0)
 					sorted = true
 				}
 			}
 			tag := field.Tag.Get(sqlColumn)
 			if len(tag) > 0 {
-				operator, sqlValue, err := decodeRightSide(&field, val)
+				operator, sqlValue, err = decodeRightSide(&field, val)
 				if sqlValue == nullVal {
 					typ = "text"
 				}
@@ -366,6 +382,7 @@ type Parameter struct {
 	Column    string
 	Operator  string
 	Value     interface{}
+	Sorts     []string
 	Type      string
 	Decorator string
 	AscSort   bool
@@ -403,10 +420,23 @@ func (p *Parameter) parameterizedClause(seedIndex int) string {
 		if p.Decorator != "" {
 			val = strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)
 		}
+		sortVal := ""
 		if p.AscSort {
-			return fmt.Sprintf("%s asc", p.Value)
+			for i, sort := range p.Sorts {
+				sortVal += fmt.Sprintf("%s asc", sort)
+				if i < len(p.Sorts)-1 {
+					sortVal += ", "
+				}
+			}
+			return sortVal
 		} else if p.DescSort {
-			return fmt.Sprintf("%s desc", p.Value)
+			for i, sort := range p.Sorts {
+				sortVal += fmt.Sprintf("%s desc", sort)
+				if i < len(p.Sorts)-1 {
+					sortVal += ", "
+				}
+			}
+			return sortVal
 		}
 		return fmt.Sprintf("%s %s %s", p.Column, p.Operator, val)
 	}

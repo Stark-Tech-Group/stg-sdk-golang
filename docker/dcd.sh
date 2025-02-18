@@ -1,1 +1,1 @@
-clear && docker-compose -f ./dev.docker-compose.yaml down --remove-orphans && docker-compose -f ./dev.docker-compose.yaml rm -fsv && docker rmi -f debezium/postgres:12 && docker rmi timescale/timescaledb:latest-pg12
+clear && docker compose down --remove-orphans && docker compose rm -fsv

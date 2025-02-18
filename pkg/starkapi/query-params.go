@@ -110,6 +110,7 @@ type QueryParams struct {
 	AccountExpired      string `json:"accountExpired" schema:"accountExpired" sqlColumn:"account_expired" sqlType:"boolean"`
 	AccountLocked       string `json:"accountLocked" schema:"accountLocked" sqlColumn:"account_locked" sqlType:"boolean"`
 	LastAuth            string `json:"lastAuth" schema:"lastAuth" sqlColumn:"last_auth" sqlType:"bigint"`
+	AssetType           string `json:"assetType" schema:"assetType" sqlColumn:"asset_type" sqlType:"text"`
 	SortA               string `json:"sortA" schema:"sortA"`
 	SortD               string `json:"sortD" schema:"sortD"`
 }

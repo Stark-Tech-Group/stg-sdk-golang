@@ -1,0 +1,1642 @@
+
+x-nyiso: &nyiso
+  image: ${REGISTRY}/${NYISO_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/nyiso.Dockerfile
+  container_name: nyiso-data-pump
+  ports:
+    - "${NYISO_PORT}:${NYISO_PORT}"
+  environment:
+    - NYISO_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - NYISO_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - NYISO_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - NYISO_PORT=${NYISO_PORT}
+    - LOG_LEVEL=${NYISO_LOG_LEVEL}
+    - NYISO_KAFKA_PRODUCER_GROUP_ID=${TELEMETRY_BUS_GROUP_ID}
+    - NYISO_KAFKA_PRODUCER_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - NYISO_KAFKA_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - NYISO_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+  networks:
+    - kafka
+  depends_on:
+    kafka:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${NYISO_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-telemetry-data-service: &telemetry-data-service
+  build:
+    context: .
+    dockerfile: docker/telemetry-data.Dockerfile
+  image: ${REGISTRY}/${TELEMETRY_DATA_SERVICE_IMAGE}
+  container_name: telemetry-data-service
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+    auth-service:
+      condition: service_started
+    search-service:
+      condition: service_healthy
+  networks:
+    - backend
+    - redisnet
+  environment:
+    - TELEMETRY_DATA_SERVICE_PORT=${TELEMETRY_DATA_SERVICE_PORT}
+    - TELEMETRY_DATA_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - TELEMETRY_DATA_DB_PORT=${DEV_DB_PORT}
+    - TELEMETRY_DATA_DB_NAME=${DEV_DB_NAME}
+    - TELEMETRY_DATA_DB_USER=${DEV_DB_USERNAME}
+    - TELEMETRY_DATA_DB_PW=${DEV_DB_PASSWORD}
+    - TELEMETRY_DATA_STARK_API_HOST=${API_HOST}:${API_PORT}
+    - TELEMETRY_DATA_LOG_LEVEL=${TELEMETRY_DATA_SERVICE_LOG_LEVEL}
+    - TELEMETRY_DATA_JWT_SECRET=${AUTH_JWT_SECRET}
+    - TELEMETRY_DATA_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - TELEMETRY_DATA_CACHE_HOST=${REDIS_HOSTS}
+    - TELEMETRY_DATA_SEARCH_HOST=${SEARCH_HOST_URL}:${SEARCH_PORT}
+  ports:
+    - "${TELEMETRY_DATA_SERVICE_PORT}:${TELEMETRY_DATA_SERVICE_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${TELEMETRY_DATA_SERVICE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-tag-api: &tag-api
+  build:
+    context: .
+    dockerfile: docker/tag-api.Dockerfile
+  image: ${REGISTRY}/${TAG_API_IMAGE}
+  container_name: tag-api
+  networks:
+    - backend
+  ports:
+    - "${TAG_API_PORT}:${TAG_API_PORT}"
+  environment:
+    - STARK_TAG_API_PORT=${TAG_API_PORT}
+    - STARK_TAG_API_DB_FILEPATH=${TAG_API_DB_FILEPATH}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${TAG_API_PORT}/status"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+
+
+x-event-message-bus: &event-message-bus
+  build:
+    context: .
+    dockerfile: docker/event-message-bus.Dockerfile
+  image: ${REGISTRY}/${EVENT_MESSAGE_BUS_IMAGE}
+  container_name: event-message-bus
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    kafka: 
+      condition: service_healthy
+  networks:
+    - backend
+    - kafka
+  restart: always
+  ports:
+    - "${EVENT_MESSAGE_BUS_PORT}:${EVENT_MESSAGE_BUS_PORT}"
+  environment:
+    - EVENT_MESSAGE_BUS_SERVICE_PORT=${EVENT_MESSAGE_BUS_PORT}
+    - EVENT_MESSAGE_BUS_LOG_LEVEL=${EVENT_MESSAGE_BUS_LOG_LEVEL}
+    - EVENT_MESSAGE_BUS_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - EVENT_MESSAGE_BUS_DB_PORT=${DEV_DB_PORT}
+    - EVENT_MESSAGE_BUS_DB_USER=${DEV_DB_USERNAME}
+    - EVENT_MESSAGE_BUS_DB_PW=${DEV_DB_PASSWORD}
+    - EVENT_MESSAGE_BUS_DB_NAME=${DEV_DB_NAME}
+    - EVENT_MESSAGE_BUS_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - EVENT_MESSAGE_BUS_CONSUMER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - EVENT_MESSAGE_BUS_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - EVENT_MESSAGE_BUS_CONSUMER_GROUP_ID=${KAFKA_EVENTS_GROUP_ID}-ss
+    - EVENT_MESSAGE_BUS_CONSUMER_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - EVENT_MESSAGE_BUS_PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - EVENT_MESSAGE_BUS_KAFKA_SECURITY_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - EVENT_MESSAGE_BUS_CONSUMER_TOPIC=${KAFKA_EVENTS_TOPIC}
+    - EVENT_MESSAGE_BUS_PRODUCER_TOPIC=${KAFKA_PERSISTED_EVENTS_TOPIC}
+    - EVENT_MESSAGE_BUS_HOST=${EVENT_MESSAGE_BUS_HOST}
+    - EVENT_MESSAGE_BUS_PLATFORM=${EVENT_LOG_PLATFORM}
+    - EVENT_MESSAGE_BUS_LOG_RULE_ID_1=${EVENT_LOG_TWO_G_RULE_ID}
+    - EVENT_MESSAGE_BUS_LOG_RULE_ID_2=${EVENT_LOG_THREE_G_RULE_ID}
+    - EVENT_MESSAGE_BUS_LOG_RULE_ID_3=${EVENT_LOG_STORED_CALIBRATION_RULE_ID}
+    - EVENT_MESSAGE_BUS_LOG_RULE_ID_4=${EVENT_LOG_LATEST_CALIBRATION_RULE_ID}
+    - EVENT_MESSAGE_BUS_CONSUMER_JAAS_CONFIG=${KAFKA_CONSUMER_JAAS_CONFIG}
+    - EVENT_MESSAGE_BUS_PRODUCER_JAAS_CONFIG=${KAFKA_PRODUCER_JAAS_CONFIG}
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${EVENT_MESSAGE_BUS_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-data-quality: &data-quality
+  build:
+    context: .
+    dockerfile: docker/data-quality.Dockerfile
+  image: ${REGISTRY}/${DATA_QUALITY_IMAGE}
+  container_name: data-quality
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    kafka:
+      condition: service_healthy
+  networks:
+    - backend
+    - kafka
+  restart: always
+  environment:
+    - PRODUCER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - PRODUCER_USER=${KAFKA_USERNAME}
+    - PRODUCER_TOPIC=${KAFKA_EVENTS_TOPIC}
+    - PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - LOG_LEVEL=${DATA_QUALITY_LOG_LEVEL}
+    - PORT=${DATA_QUALITY_PORT}
+    - MISSING_TASK_DURATION=${DATA_QUALITY_MISSING_TASK_DURATION}
+  ports:
+    - "${DATA_QUALITY_PORT}:${DATA_QUALITY_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${DATA_QUALITY_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-stark-search-service: &search-service
+  build:
+    context: .
+    dockerfile: docker/search.Dockerfile
+  image: ${REGISTRY}/${SEARCH_IMAGE}
+  container_name: search
+  depends_on:
+    db:
+      condition: service_healthy
+    es01:
+      condition: service_healthy
+    permission:
+      condition: service_healthy
+    auth-service:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+  networks:
+    - elastic
+    - kafka
+    - backend
+  restart: always
+  environment:
+    - SEARCH_ELASTIC_SSL_MODE=${SEARCH_ELASTIC_SSL_MODE}
+    - SEARCH_ELASTIC_PORT=${ELASTIC_PORT}
+    - SEARCH_ELASTIC_HOST=${ELASTIC_HOST}
+    - SEARCH_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - LOG_LEVEL=trace
+    - SEARCH_PORT=${SEARCH_PORT}
+    - SEARCH_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - SEARCH_KAFKA_PRODUCER_TOPIC=${KAFKA_CDC_INDEXED_TOPIC}
+    - SEARCH_KAFKA_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - SEARCH_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - SEARCH_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - SEARCH_SERVICE_JWT_SECRET=${AUTH_JWT_SECRET}
+    - SEARCH_SERVICE_PERMISSIONS_URL=${PERMISSION_SERVICE_HOST}:${PERMISSION_SERVICE_PORT}
+
+  ports:
+    - "${SEARCH_PORT}:${SEARCH_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${SEARCH_PORT}/status"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+
+
+x-zookeeper: &zookeeper
+  image: confluentinc/cp-zookeeper:${KAFKA_VERSION}
+  container_name: zookeper
+  networks:
+    - kafka
+  ports:
+    - '2181:2181'
+  environment:
+    - ALLOW_ANONYMOUS_LOGIN=yes
+    - ZOOKEEPER_CLIENT_PORT=2181
+    - ZOOKEEPER_TICK_TIME=2000
+
+
+x-report-scheduler: &report-scheduler
+  build:
+    context: .
+    dockerfile: docker/report-scheduler.Dockerfile
+  image: ${REGISTRY}/${REPORT_SCHEDULER_IMAGE}
+  container_name: report-scheduler
+  ports:
+    - "${REPORT_SCHEDULER_PORT}:${REPORT_SCHEDULER_PORT}"
+  networks:
+    - backend
+  restart: always
+  environment:
+    - REPORT_SCHEDULER_PORT=${REPORT_SCHEDULER_PORT}
+    - DB_URL=${DEV_DB_URL}
+    - DB_PASSWORD=${DEV_DB_PASSWORD}
+    - DB_USERNAME=${DEV_DB_USERNAME}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - REPORT_SCHEDULER_LOG_LEVEL=${REPORT_SCHEDULER_LOG_LEVEL}
+    - REPORT_SCHEDULER_IMAGE=${REPORT_SCHEDULER_IMAGE}
+    - REPORT_SCHEDULER_HOST_URL=${REPORT_SCHEDULER_HOST_URL}
+    - REPORT_SCHEDULER_HOST=${REPORT_SCHEDULER_HOST}
+    - REPORT_SCHEDULER_EMAIL=${REPORT_SCHEDULER_EMAIL}
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${REPORT_SCHEDULER_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-kafka: &kafka
+  image: confluentinc/cp-kafka:${KAFKA_VERSION}
+  hostname: ${KAFKA_BOOTSTRAP_SERVER}
+  container_name: kafka
+  networks:
+    - kafka
+  ports:
+    - '${KAFKA_PORT}:9092'
+    - '29092:29092'
+  environment:
+    - KAFKA_BROKER_ID=1
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_ADVERTISED_HOST_NAME=${KAFKA_BOOTSTRAP_SERVER}
+    - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT},PLAINTEXT_HOST://localhost:29092
+    - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+    - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+    - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+    - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    - KAFKA_NUM_PARTITIONS=3
+    - KAFKA_DEFAULT_REPLICATIOLN_FACTOR=1
+
+  healthcheck:
+    test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server=kafka:9092"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+  depends_on:
+    - zookeeper
+
+
+x-diagnostics: &diagnostics
+  build:
+    context: .
+    dockerfile: docker/diagnostics.Dockerfile
+  image: ${REGISTRY}/${DIAGNOSTICS_IMAGE}
+  container_name: diagnostics
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    auth-service:
+      condition: service_healthy
+    api:
+      condition: service_healthy
+    asset-api:
+      condition: service_healthy
+  networks:
+    - backend
+  restart: always
+  environment:
+    - PORT=${DIAGNOSTICS_PORT}
+    - LOG_LEVEL=${DIAGNOSTICS_LOG_LEVEL}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - ASSET_API_HOST=${ASSET_API_HOST}
+    - ASSET_API_PORT=${ASSET_API_PORT}
+    - API_HOST=${API_HOST}
+    - API_PORT=${API_PORT}
+  ports:
+    - "${DIAGNOSTICS_PORT}:${DIAGNOSTICS_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${DIAGNOSTICS_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-ksqldb-cli: &ksqldb-cli
+  image: confluentinc/cp-ksqldb-cli:${KAFKA_VERSION}
+  container_name: ksqldb-cli
+  depends_on:
+    - kafka
+    - ksqldb
+  entrypoint: /bin/sh
+  tty: true
+  networks:
+    - kafka
+  environment:
+    KSQL_CONFIG_DIR: "/etc/ksql"
+  volumes:
+    - ./src:/opt/app/src
+
+x-kafka-connect: &kafka-connect
+  build:
+    context: .
+    dockerfile: docker/connect.Dockerfile
+  image: ${REGISTRY}/${CONNECT_IMAGE}
+  container_name: kafka-connect
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    kafka:
+      condition: service_healthy
+  ports:
+    - "${CONNECT_PORT}:${CONNECT_PORT}"
+  environment:
+    - CONNECT_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - CONNECT_REST_ADVERTISED_HOST_NAME=${CONNECT_ADVERTISED_HOST}
+    - CONNECT_GROUP_ID=${KAFKA_CDC_GROUP_ID}
+    - CONNECT_KEY_CONVERTER=${CONNECT_KEY_CONVERTER}
+    - CONNECT_VALUE_CONVERTER=${CONNECT_VALUE_CONVERTER}
+    - CONNECT_CONFIG_STORAGE_TOPIC=${CONNECT_STORAGE_TOPIC}
+    - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_OFFSET_STORAGE_TOPIC=${CONNECT_OFFSET_TOPIC}
+    - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_STATUS_STORAGE_TOPIC=${CONNECT_STATUS_TOPIC}
+    - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=${CONNECT_REPLICATION_FACTOR}
+    - CONNECT_INTERNAL_KEY_CONVERTER=${CONNECT_INTERNAL_KEY_CONVERTER}
+    - CONNECT_INTERNAL_VALUE_CONVERTER=${CONNECT_INTERNAL_VALUE_CONVERTER}
+    - CONNECT_INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE=${CONNECT_INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE}
+    - CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE=${CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE}
+    - CONNECT_PLUGIN_PATH=${CONNECT_PLUGIN_PATH}
+  networks:
+    - kafka
+    - backend
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:${CONNECT_PORT}/"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+
+x-pjm: &pjm
+  image: ${REGISTRY}/${PJM_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/pjm.Dockerfile
+  container_name: pjm-data-pump
+  ports:
+    - "${PJM_PORT}:${PJM_PORT}"
+  environment:
+    - PJM_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - PJM_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - PJM_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - PJM_PORT=${PJM_PORT}
+    - PJM_LOG_LEVEL=${PJM_LOG_LEVEL}
+    - PJM_KAFKA_PRODUCER_GROUP_ID=${TELEMETRY_BUS_GROUP_ID}
+    - PJM_KAFKA_PRODUCER_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - PJM_KAFKA_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - PJM_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+  networks:
+    - kafka
+  depends_on:
+    kafka:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${PJM_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-asset-api: &asset-api
+  build:
+    context: .
+    dockerfile: docker/stark-asset-api.Dockerfile
+  image: ${REGISTRY}/${ASSET_API_IMAGE}
+  container_name: asset-api
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+    auth-service:
+      condition: service_started
+  networks:
+    - backend
+    - redisnet
+  restart: always
+  environment:
+    - PORT=${ASSET_API_PORT}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - LOG_LEVEL=${ASSET_API_LOG_LEVEL}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - STG_GEO_URL=${STG_API_GEO_HOST_URL}:${STG_GEO_PORT}
+    - REQUEST_LIMIT=${ASSET_API_REQUEST_LIMIT}
+    - REQUEST_BURST_LIMIT=${ASSET_API_BURST_LIMIT}
+    - CACHE_HOST=${REDIS_HOSTS}
+  ports:
+    - "${ASSET_API_PORT}:${ASSET_API_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${ASSET_API_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-go-template: &go-template
+  image: local/${GO_TEMPLATE_IMAGE}
+  build:
+    context: .
+    dockerfile: go-template-repo.Dockerfile
+  container_name: go-template
+  networks:
+    - backend
+    - redisnet
+    - kafka
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+    auth-service:
+      condition: service_started
+  ports:
+    - "${GO_TEMPLATE_PORT}:${GO_TEMPLATE_PORT}"
+  environment:
+    - LOG_LEVEL=${GO_TEMPLATE_LOG_LEVEL}
+    - PORT=${GO_TEMPLATE_PORT}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - CACHE_HOST=${REDIS_HOSTS}
+    - PRODUCER_TOPIC=${KAFKA_GO_TEMPLATE_TOPIC}
+    - PRODUCER_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - PRODUCER_USER=${KAFKA_USERNAME}
+    - PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${GO_TEMPLATE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-stg-geo: &geo-service
+  image: ${REGISTRY}/${STG_GEO_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/geo.Dockerfile
+  container_name: geo
+  networks:
+    - backend
+  restart: always
+  environment:
+    - STG_GEO_PORT=${STG_GEO_PORT}
+    - STG_GEO_API_KEY=${STG_GEO_API_KEY}
+    - STG_GEO_JWT_SECRET=${AUTH_JWT_SECRET}
+  ports:
+    - "${STG_GEO_PORT}:${STG_GEO_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${STG_GEO_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-notification-router: &notification-router
+  image: ${REGISTRY}/${NOTIFICATION_ROUTER_IMAGE}
+  build:
+    context: .
+    dockerfile: ${NOTIFICATION_ROUTER_DOCKER_FILE}
+  container_name: notification-router
+  networks:
+    - kafka
+    - backend
+  restart: always
+  environment:
+    - STG_NOTIFICATION_ROUTER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - STG_NOTIFICATION_ROUTER_PRODUCER_TOPIC=${NOTIFICATION_ROUTER_PRODUCER_TOPIC}
+    - STG_NOTIFICATION_ROUTER_JAAS_CONFIG=${NOTIFICATION_ROUTER_JAAS_CONFIG}
+    - STG_NOTIFICATION_ROUTER_SECURITY_PROTOCOL=${NOTIFICATION_ROUTER_SEC_PROTOCOL}
+    - STG_NOTIFICATION_ROUTER_LOG_LEVEL=${NOTIFICATION_ROUTER_LOG_LEVEL}
+    - STG_NOTIFICATION_ROUTER_SHOW_SQL=${NOTIFICATION_ROUTER_SHOW_SQL}
+    - STG_NOTIFICATION_ROUTER_PROD_DB_URL=${DEV_DB_URL}
+    - STG_NOTIFICATION_ROUTER_PROD_DB_USERNAME=${DEV_DB_USERNAME}
+    - STG_NOTIFICATION_ROUTER_PROD_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_NOTIFICATION_ROUTER_SERVER_PORT=${NOTIFICATION_ROUTER_SERVER_PORT}
+    - STG_NOTIFICATION_ROUTER_SQL_DIALECT=${DEV_DB_DIALECT}
+
+  depends_on:
+    - zookeeper
+    - kafka
+    - db
+  command: sh -c "dockerize -wait tcp://${DEV_DB_PLAIN_HOST}:${DEV_DB_PORT} -timeout 600s -wait-retry-interval 10s stark-notification-router"
+
+x-finance: &finance
+  image: ${REGISTRY}/${FINANCE_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/finance.Dockerfile
+  container_name: finance-data-pump
+  ports:
+    - "${FINANCE_PORT}:${FINANCE_PORT}"
+  environment:
+    - FINANCE_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - FINANCE_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - FINANCE_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - FINANCE_PORT=${FINANCE_PORT}
+    - FINANCE_LOG_LEVEL=${FINANCE_LOG_LEVEL}
+    - FINANCE_KAFKA_PRODUCER_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - FINANCE_KAFKA_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - FINANCE_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - FINANCE_API_DOMAIN=${FINANCE_API_DOMAIN}
+  networks:
+    - kafka
+  depends_on:
+    kafka:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${FINANCE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-es01: &elasticsearch
+  image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_TAG}
+  container_name: es01
+  environment:
+    - xpack.security.enabled=false
+    - discovery.type=single-node
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 65536
+      hard: 65536
+  cap_add:
+    - IPC_LOCK
+  ports:
+    - "${ELASTIC_PORT}:9200"
+    - 9300:9300
+  networks:
+    - elastic
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${ELASTIC_PORT}"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+
+x-db: &db
+  build:
+    context: .
+    dockerfile: docker/timescaledb.Dockerfile
+  image: ${REGISTRY}/${DEV_DB_IMAGE}
+  container_name: db
+  networks:
+    - backend
+  restart: always
+  ports:
+    - '${DEV_DB_PORT}:5432'
+  environment:
+    - POSTGRES_PASSWORD=${DEV_DB_PASSWORD}
+    - POSTGRES_DB=${DEV_DB_NAME}
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+
+#API
+
+x-api: &api
+  image: ${REGISTRY}/${API_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/api.Dockerfile
+  container_name: dev-api
+  volumes:
+    - ./:/app
+    - gradle-cache:/root/.gradle #cause I/O errors but does work occasionally
+    - ${DEV_COMPOSE_M2_PATH}:/root/.m2
+    - ${DEV_COMPOSE_GRAILS_PATH}:/root/.grails
+  ports:
+    - "${API_PORT}:8080"
+  environment:
+    - "transport.host=localhost"
+    - "bootstrap.system_call_filter=false"
+    - STG_API_BLOB_STORAGE_ROOT_DIR=${API_BLOB_STORAGE_ROOT_DIR}
+    - STG_API_BLOB_STORAGE_MAX_SIZE=${API_BLOB_STORAGE_MAX_SIZE}
+    - STG_API_BLOB_STORAGE_AZURE_ACCOUNT=${API_BLOB_STORAGE_AZURE_ACCOUNT}
+    - STG_API_BLOB_STORAGE_AZURE_KEY=${API_BLOB_STORAGE_AZURE_KEY}
+    - STG_API_JWT_SECRET=${AUTH_JWT_SECRET}
+    - STG_API_JWT_ISSUER=${API_JWT_ISSUER}
+    - STG_API_PROD_DB_URL=${DEV_DB_URL}
+    - STG_API_PROD_DB_USERNAME=${DEV_DB_USERNAME}
+    - STG_API_PROD_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_API_PROD_DB_DRIVER=${DEV_DB_DRIVER_CLASS}
+    - STG_API_NOTIFICATION_ROUTER_URL=${API_NOTIFICATION_ROUTER_URL}
+    - STG_API_EVENT_ROUTER_USERNAME=${API_EVENT_ROUTER_USERNAME}
+    - STG_API_EVENT_ROUTER_PASSWORD=${API_EVENT_ROUTER_PASSWORD}
+    - STG_API_DIAG_ENGINE_URL=${API_DIAG_ENGINE_URL}
+    - STG_API_GEO_HOST_URL=${STG_API_GEO_HOST_URL}:${STG_GEO_PORT}/
+    - STG_API_SEARCH_HOST_URL=${SEARCH_HOST_URL}:${SEARCH_PORT}
+    - STG_TAG_API_URL=${TAG_API_HOST}:${TAG_API_PORT}
+    - STG_API_BUILD_VERSION=1
+    - STG_API_DEV_DB_USERNAME=${DEV_DB_USERNAME}
+    - STG_API_DEV_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_API_DEV_DB_URL=${DEV_DB_URL}
+    - STG_API_DEV_DB_DIALECT=${DEV_DB_DIALECT}
+    - STG_API_DEV_DB_DRIVER=${DEV_DB_DRIVER_CLASS}
+    - STG_API_DB_CONTEXTS=${STG_API_DB_CONTEXTS}
+    - STG_API_RUN_BOOTSTRAP_DATA_INIT=${API_RUN_BOOTSTRAP_DATA_INIT}
+    - STG_API_GEN_MON_HOST_URL=${GEN_SERVICE_HOST}:${GEN_SERVICE_PORT}
+    - STG_API_TDS_HOST=${TELEMETRY_DATA_SERVICE_HOST}
+    - STG_API_TDS_PORT=${TELEMETRY_DATA_SERVICE_PORT}
+    - STG_API_INDEX_URL=http://${INDEX_HOST}:${INDEX_PORT}
+    - STG_API_COMPUTE_HOST_URL=http://${BABBAGE_HOST}:${BABBAGE_PORT}
+    - STG_API_CLOUDFDD_URL=${CLOUD_FDD_SERVICE_HOST_URL}:${CLOUD_FDD_SERVICE_PORT}
+    - ISSUES_HOST_URL=${ISSUE_SERVICE_HOST}:${ISSUE_SERVICE_PORT}
+    - PERMISSIONS_HOST_URL=${PERMISSION_SERVICE_HOST}:${PERMISSION_SERVICE_PORT}
+    - REPORTING_SERVICE_URL=${REPORTING_SERVICE_HOST_URL}:${REPORTING_SERVICE_PORT}
+    - EVENT_LOG_URL=${EVENT_LOG_HOST}:${EVENT_LOG_PORT}
+    - SALESFORCE_SERVICE_URL=${SALESFORCE_SERVICE_HOST_URL}:${SALESFORCE_SERVICE_PORT}
+    - ASSET_API_URL=${ASSET_API_HOST}:${ASSET_API_PORT}
+    - DIAGNOSTICS_URL=${DIAGNOSTICS_HOST}:${DIAGNOSTICS_PORT}
+    - STG_API_FLINK_API_URL=DEPRECATED
+    - SUBSCRIPTIONS_URL=${SUBSCRIPTION_HOST}:${SUBSCRIPTION_PORT}/sub
+  networks:
+    - elastic
+    - backend
+    - kafka
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    search-service:
+      condition: service_healthy
+    index-service:
+      condition: service_healthy
+    auth-service:
+      condition: service_healthy
+
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${API_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-stark-index-service: &index-service
+  build:
+    context: .
+    dockerfile: docker/index.Dockerfile
+  image: ${REGISTRY}/${INDEX_IMAGE}
+  container_name: index
+  depends_on:
+    kafka:
+      condition: service_started
+    db:
+      condition: service_healthy
+    kafka-connect:
+      condition: service_started
+    search-service:
+      condition: service_healthy
+  networks:
+    - elastic
+    - backend
+    - kafka
+  restart: always
+  environment:
+    - INDEX_KAFKA_CONSUMER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - INDEX_KAFKA_CONSUMER_GROUP_ID=${KAFKA_CDC_GROUP_ID}-ss
+    - INDEX_KAFKA_CONSUMER_TOPIC=${KAFKA_CDC_TOPIC}
+    - INDEX_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - INDEX_DB_USERNAME=${DEV_DB_USERNAME}
+    - INDEX_DB_PORT=${DEV_DB_PORT}
+    - INDEX_DB_DATABASE=${DEV_DB_NAME}
+    - INDEX_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - INDEX_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - INDEX_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - LOG_LEVEL=${INDEX_LOG_LEVEL}
+    - INDEX_KAFKA_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - INDEX_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - INDEX_KAFKA_CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - INDEX_HOST=${INDEX_HOST}
+    - INDEX_PORT=${INDEX_PORT}
+    - INDEX_SEARCH_SERVICE_URL=http://${SEARCH_HOST}:${SEARCH_PORT}
+    - INDEX_CONSUMER_LOG_LEVEL=${KAFKA_LOG_CONSUMER}
+    - INDEX_WATERMARK_LIMIT_SECONDS=${INDEX_WATERMARK_LIMIT_SECONDS}
+  ports:
+    - "${INDEX_PORT}:${INDEX_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${INDEX_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-redis-cluster: &redis-cluster
+  image: redis:6.2.7
+  command: redis-cli -p 7001 --cluster create 10.0.0.11:7001 10.0.0.12:7002 10.0.0.13:7003  10.0.0.14:7004  10.0.0.15:7005  10.0.0.16:7006 --cluster-replicas 1 --cluster-yes
+  container_name: redis-cluster
+  depends_on:
+    - redis-node-1
+    - redis-node-2
+    - redis-node-3
+    - redis-node-4
+    - redis-node-5
+    - redis-node-6
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.10
+
+x-redis-node-1: &redis-node-1
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-1
+  container_name: redis-1
+  environment:
+    X_REDIS_PORT: 7001
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.11
+  ports:
+    - 7001:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.11", "-p", "7001", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-node-2: &redis-node-2
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-2
+  container_name: redis-2
+  environment:
+    X_REDIS_PORT: 7002
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.12
+  ports:
+    - 7002:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.12", "-p", "7002", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-node-3: &redis-node-3
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-3
+  container_name: redis-3
+  environment:
+    X_REDIS_PORT: 7003
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.13
+  ports:
+    - 7003:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.13", "-p", "7003", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-node-4: &redis-node-4
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-4
+  container_name: redis-4
+  environment:
+    X_REDIS_PORT: 7004
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.14
+  ports:
+    - 7004:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.14", "-p", "7004", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-node-5: &redis-node-5
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-5
+  container_name: redis-5
+  environment:
+    X_REDIS_PORT: 7005
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.15
+  ports:
+    - 7005:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.15", "-p", "7005", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-node-6: &redis-node-6
+  build:
+    context: .
+    dockerfile: docker/redis.Dockerfile
+  image: redis-cluster-node-6
+  container_name: redis-6
+  environment:
+    X_REDIS_PORT: 7006
+  networks:
+    redisnet:
+      ipv4_address: 10.0.0.16
+  ports:
+    - 7006:6379
+  healthcheck:
+    test: ["CMD", "redis-cli", "-h", "10.0.0.16", "-p", "7006", "ping"]
+    interval: 20s
+    timeout: 10s
+    retries: 5 
+    start_period: 60s
+
+x-redis-network: &redis-network
+  redisnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/16
+
+x-kafka-connect-init: &kafka-connect-init
+  build:
+    context: .
+    dockerfile: docker/connect-init.Dockerfile
+  image: ${REGISTRY}/${CONNECT_INIT_IMAGE}
+  container_name: kafka-connect-init
+  depends_on:
+    kafka:
+      condition: service_healthy
+    migrations: 
+      condition: service_completed_successfully
+    kafka-connect:
+      condition: service_healthy
+  environment:
+    - CONNECT_JDBC_SOURCE_URL=${DEV_DB_URL}
+    - CONNECT_JDBC_SOURCE_HOSTNAME=${DEV_DB_PLAIN_HOST}
+    - CONNECT_JDBC_SOURCE_USER=${DEV_DB_USERNAME}
+    - CONNECT_JDBC_SOURCE_PORT=${DEV_DB_PORT}
+    - CONNECT_JDBC_SOURCE_DATABASE=${DEV_DB_NAME}
+    - CONNECT_JDBC_SOURCE_PASSWORD=${DEV_DB_PASSWORD}
+    - CONNECT_JDBC_SINK_URL=${DEV_DB_URL}
+    - CONNECT_JDBC_SINK_USER=${DEV_DB_USERNAME}
+    - CONNECT_ADVERTISED_HOST=${CONNECT_ADVERTISED_HOST}
+    - CONNECT_PORT=${CONNECT_PORT}
+    - CONNECT_SASL_USERNAME=''
+    - CONNECT_SASL_PASSWORD=''
+    - CONNECT_JDBC_SINK_PASSWORD=${DEV_DB_PASSWORD}
+    - CONNECT_CDC_TOPIC_REPLICATION_FACTOR=1
+    - CONNECT_CDC_TOPIC_PARTITIONS=1
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+  networks:
+    - kafka
+    - backend
+
+x-ksqldb: &ksqldb
+  image: confluentinc/cp-ksqldb-server:${KAFKA_VERSION}
+  hostname: ${KSQLDB_HOST}
+  container_name: ${KSQLDB_HOST}
+  networks:
+    - kafka
+  depends_on:
+    - kafka
+  ports:
+    - "${KSQLDB_PORT}:${KSQLDB_PORT}"
+  environment:
+    KSQL_LISTENERS: "http://0.0.0.0:${KSQLDB_PORT}"
+    KSQL_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+    KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+    KSQL_KSQL_CONNECT_URL: "http://${CONNECT_ADVERTISED_HOST}:${CONNECT_PORT}"
+    KSQL_KSQL_SERVICE_ID: stark-ksql-01
+    KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+
+x-event-log-message-bus: &event-log-message-bus
+  build:
+    context: .
+    dockerfile: docker/danfoss-event-log-message-bus.Dockerfile
+  image: ${REGISTRY}/${EVENT_LOG_IMAGE}
+  container_name: event-log-message-bus
+  networks:
+    - kafka
+  restart: always
+  ports:
+    - "${EVENT_LOG_PORT}:${EVENT_LOG_PORT}"
+  environment:
+    - PORT=${EVENT_LOG_PORT}
+    - LOG_LEVEL=${EVENT_LOG_LOG_LEVEL}
+    - CONSUMER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - PRODUCER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - CONSUMER_GROUP_ID=${KAFKA_EVENTS_LOG_GROUP_ID}-ss
+    - PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - CONSUMER_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - CONSUMER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - CONSUMER_TOPIC=${KAFKA_EVENT_LOG_TOPIC}
+    - PRODUCER_TOPIC=${KAFKA_EVENTS_TOPIC}
+    - PRODUCER_USER=${KAFKA_USERNAME}
+    - CONSUMER_USERNAME=${KAFKA_USERNAME}
+    - PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - TDS_URL=${TELEMETRY_DATA_SERVICE_HOST}:${TELEMETRY_DATA_SERVICE_PORT}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - THREE_G_EVENT_RULE_ID=${EVENT_LOG_THREE_G_RULE_ID}
+    - TWO_G_EVENT_RULE_ID=${EVENT_LOG_TWO_G_RULE_ID}
+    - THREE_G_SNAPSHOT_RULE_ID=${EVENT_LOG_THREE_G_SNAPSHOT_RULE_ID}
+    - TWO_G_SNAPSHOT_RULE_ID=${EVENT_LOG_TWO_G_SNAPSHOT_RULE_ID}
+    - THREE_G_EVENT_RULE_NAME=${EVENT_LOG_THREE_G_RULE_NAME}
+    - THREE_G_SNAPSHOT_RULE_NAME=${EVENT_LOG_THREE_G_SNAPSHOT_RULE_NAME}
+    - TWO_G_SNAPSHOT_RULE_NAME=${EVENT_LOG_TWO_G_SNAPSHOT_RULE_NAME}
+    - TWO_G_EVENT_RULE_NAME=${EVENT_LOG_TWO_G_RULE_NAME}
+    - THREE_G_EQUIP_TYPE_ID=${EVENT_LOG_THREE_G_EQUIP_TYPE_ID}
+    - TWO_G_EQUIP_TYPE_ID=${EVENT_LOG_TWO_G_EQUIP_TYPE_ID}
+  depends_on:
+    - api
+    - event-message-bus
+    - kafka
+
+
+x-event-router: &event-router
+  image: ${REGISTRY}/${EVENT_ROUTER_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/event-router.Dockerfile
+  container_name: event-router
+  networks:
+    - kafka
+    - backend
+  restart: always
+  environment:
+    - STG_EVENT_ROUTER_KAFKA_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - STG_EVENT_ROUTER_KAFKA_CONSUMER_GROUP_ID=${EVENT_ROUTER_CONSUMER_GROUP}
+    - STG_EVENT_ROUTER_KAFKA_CONSUMER_JAAS_CONFIG=${EVENT_ROUTER_JAAS_CONFIG}
+    - STG_EVENT_ROUTER_KAFKA_USERNAME=${KAFKA_USERNAME}
+    - STG_EVENT_ROUTER_KAFKA_CONSUMER_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - STG_EVENT_ROUTER_KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - STG_EVENT_ROUTER_LOG_LEVEL=${EVENT_ROUTER_LOG_LEVEL}
+    - STG_EVENT_ROUTER_API_HOST=${API_HOST}:${API_PORT}
+    - STG_EVENT_ROUTER_NOTIFICATION_ROUTER_HOST=${NOTIFICATION_ROUTER_HOST}
+    - STG_EVENT_ROUTER_NOTIFICATION_ROUTER_ENDPOINT=${NOTIFICATION_ROUTER_NOTIFICATIONS_ENDPOINT}
+    - STG_EVENT_ROUTER_API_UN=${API_EVENT_ROUTER_USERNAME}
+    - STG_EVENT_ROUTER_API_PW=${API_EVENT_ROUTER_PASSWORD}
+    - STG_SDK_LOG_LEVEL=${EVENT_ROUTER_LOG_LEVEL}
+    - STG_EVENT_ROUTER_SERVER_PORT=${EVENT_ROUTER_SERVER_PORT}
+
+  depends_on:
+    - zookeeper
+    - kafka
+    - api
+  command: sh -c "dockerize -wait http://${API_HOST}:${API_PORT} -timeout 600s -wait-retry-interval 10s stark-event-router"
+
+
+x-issue-service: &issue-service
+  build:
+    context: .
+    dockerfile: docker/issue-service.Dockerfile
+  image: ${REGISTRY}/${ISSUE_SERVICE_IMAGE}
+  container_name: issue
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+  networks:
+    - backend
+  restart: always
+  environment:
+    - ISSUE_SERVICE_PORT=${ISSUE_SERVICE_PORT}
+    - ISSUE_SERVICE_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - ISSUE_SERVICE_DB_PORT=${DEV_DB_PORT}
+    - ISSUE_SERVICE_DB_NAME=${DEV_DB_NAME}
+    - ISSUE_SERVICE_DB_USER=${DEV_DB_USERNAME}
+    - ISSUE_SERVICE_DB_PW=${DEV_DB_PASSWORD}
+    - ISSUE_SERVICE_LOG_LEVEL=${ISSUE_SERVICE_LOG_LEVEL}
+    - ISSUE_SERVICE_JWT_SECRET=${AUTH_JWT_SECRET}
+    - ISSUE_SERVICE_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - ISSUE_SERVICE_CACHE_HOST=${REDIS_HOSTS}
+  ports:
+    - "${ISSUE_SERVICE_PORT}:${ISSUE_SERVICE_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${ISSUE_SERVICE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+x-cloudfdd-service: &cloudfdd-service
+  build:
+    context:  .
+    dockerfile: docker/cloudfdd-service.Dockerfile
+  image: ${REGISTRY}/${CLOUD_FDD_SERVICE_IMAGE}
+  container_name: cloudfdd-service
+  depends_on:
+    search-service:
+      condition: service_healthy
+    asset-api:
+      condition: service_healthy
+    migrations:
+      condition: service_completed_successfully
+  networks:
+    - backend
+  restart: always
+  environment:
+    - PORT=${CLOUD_FDD_SERVICE_PORT}
+    - LOG_LEVEL=${CLOUD_FDD_SERVICE_LOG_LEVEL}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - SEARCH_HOST=${SEARCH_HOST_URL}:${SEARCH_PORT}
+    - ASSET_API_HOST=${ASSET_API_HOST}:${ASSET_API_PORT}
+  ports:
+    - "${CLOUD_FDD_SERVICE_PORT}:${CLOUD_FDD_SERVICE_PORT}"
+
+x-auth-service: &auth-service
+  build:
+    context: .
+    dockerfile: docker/auth-service.Dockerfile
+  image: ${REGISTRY}/${AUTH_SERVICE_IMAGE}
+  container_name: auth
+  ports:
+    - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
+  networks:
+    - backend
+  restart: always
+  environment:
+    - STG_DATABASE_URL=${DEV_DB_URL}
+    - STG_DATABASE_USER=${DEV_DB_USERNAME}
+    - STG_DATABASE_PASSWORD=${DEV_DB_PASSWORD}
+    - STG_DATABASE_DIALECT=${DEV_DB_DIALECT}
+    - STG_JWT_SECRET=${AUTH_JWT_SECRET}
+    - STG_JWT_EXPIRATION_MS=${AUTH_JWT_EXPIRATION}
+    - STG_PORT=${AUTH_SERVICE_PORT}
+    - STG_LOG_LEVEL=${AUTH_SERVICE_LOG_LEVEL}
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${AUTH_SERVICE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-telemetry-bus: &telemetry-bus
+  build:
+    context: .
+    dockerfile: docker/telemetry-bus.Dockerfile
+  image: ${REGISTRY}/${TELEMETRY_BUS_IMAGE}
+  container_name: telemetry-bus
+  networks:
+    - backend
+    - redisnet
+    - kafka
+  restart: always
+  environment:
+    - TELEMETRY_BUS_PORT=${TELEMETRY_BUS_PORT}
+    - TELEMETRY_BUS_LOG_LEVEL=${TELEMETRY_BUS_LOG_LEVEL}
+    - DEV_DB_PLAIN_HOST=${DEV_DB_PLAIN_HOST}
+    - DEV_DB_PORT=${DEV_DB_PORT}
+    - DEV_DB_NAME=${DEV_DB_NAME}
+    - DEV_DB_USER=${DEV_DB_USERNAME}
+    - DEV_DB_PW=${DEV_DB_PASSWORD}
+    - DEV_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - KAFKA_TELEMETRY_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - KAFKA_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - KAFKA_TELEMETRY_CONSUMER_GROUP=${KAFKA_TELEMETRY_CONSUMER_GROUP}
+    - KAFKA_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - KAFKA_CONSUMER_SASL=${KAFKA_CONSUMER_SASL}
+    - KAFKA_CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - KAFKA_USERNAME=${KAFKA_USERNAME}
+    - REDIS_HOSTS=${REDIS_HOSTS}
+    - IS_PROD=${TELEMETRY_BUS_IS_PROD}
+  ports:
+    - "${TELEMETRY_BUS_PORT}:${TELEMETRY_BUS_PORT}"
+  depends_on:
+    kafka:
+      condition: service_healthy
+    migrations:
+      condition: service_completed_successfully
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+  healthcheck:
+    test: [ "CMD", "curl", "-f","http://localhost:${TELEMETRY_BUS_PORT}/status" ]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-notification: &notification
+  image: ${REGISTRY}/${NOTIFICATION_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/notification.Dockerfile
+  container_name: notification
+  networks:
+    - backend
+    - kafka
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    auth-service:
+      condition: service_healthy
+    permission:
+      condition: service_healthy
+    asset-api:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+  ports:
+    - "${NOTIFICATION_PORT}:${NOTIFICATION_PORT}"
+  environment:
+    - LOG_LEVEL=${NOTIFICATION_LOG_LEVEL}
+    - PORT=${NOTIFICATION_PORT}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - CONSUMER_TOPIC=${KAFKA_NOTIFICATIONS_TOPIC}
+    - CONSUMER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - CONSUMER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - CONSUMER_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - CONSUMER_USER=${KAFKA_USERNAME}
+    - CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - CONSUMER_GROUP_ID=${KAFKA_NOTIFICATION_GROUP_ID}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+  healthcheck:
+      test: ["CMD", "curl", "-f","http://localhost:${NOTIFICATION_PORT}/status"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+x-migrations: &migrations
+  build:
+    context: .
+    dockerfile: docker/migrations.Dockerfile
+  image: ${REGISTRY}/${MIGRATIONS_IMAGE}
+  container_name: migrations
+  depends_on:
+    db:
+      condition: service_healthy
+  networks:
+    - backend
+  environment:
+    - LIQUIBASE_COMMAND_USERNAME=${DEV_DB_USERNAME}
+    - LIQUIBASE_COMMAND_CONTEXTS=${STG_API_DB_CONTEXTS}
+    - LIQUIBASE_COMMAND_URL=${DEV_DB_URL}
+    - LIQUIBASE_COMMAND_PASSWORD=${DEV_DB_PASSWORD}
+    - LIQUIBASE_COMMAND_CHANGELOG_FILE=/changesets/changelog.xml
+  entrypoint: ["liquibase" ,"update"]
+
+
+
+x-babbage: &babbage
+  build:
+    context: .
+    dockerfile: docker/babbage.Dockerfile
+  container_name: babbage
+  image: ${REGISTRY}/${BABBAGE_IMAGE}
+  networks:
+    - backend
+    - redisnet
+    - kafka
+  restart: always
+  ports:
+    - "${BABBAGE_PORT}:${BABBAGE_PORT}"
+  environment:
+    - SERVICE_PORT=${BABBAGE_PORT}
+    - LOG_LEVEL=${BABBAGE_LOG_LEVEL}
+    - STG_TELEMETRY_MESSAGE_BUS_JAAS_CONFIG=${TELEMETRY_BUS_JAAS_CONFIG}
+    - STG_TELEMETRY_MESSAGE_BUS_SECURITY_PROTOCOL=${TELEMETRY_BUS_SEC_PROTOCOL}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - CACHE_HOST=${REDIS_MASTER_HOST}
+    - CACHE_PORT=${REDIS_MASTER_PORT}
+    - PRODUCER_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - PRODUCER_SERVER=${KAFKA_BOOTSTRAP_SERVER}
+    - PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - PRODUCER_USER=${KAFKA_USERNAME}
+    - PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+  depends_on:
+    kafka:
+      condition: service_healthy
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+    telemetry-bus:
+      condition: service_started
+    telemetry-data-service:
+      condition: service_healthy
+    migrations:
+      condition: service_completed_successfully
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${BABBAGE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-reporting-service: &reporting-service
+  build:
+    context: .
+    dockerfile: docker/reporting.Dockerfile
+  image: ${REGISTRY}/${REPORTING_SERVICE_IMAGE}
+  container_name: reporting
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+  networks:
+    - backend
+  restart: always
+  environment:
+    - REPORTING_SERVICE_PORT=${REPORTING_SERVICE_PORT}
+    - REPORTING_SERVICE_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - REPORTING_SERVICE_DB_PORT=${DEV_DB_PORT}
+    - REPORTING_SERVICE_DB_NAME=${DEV_DB_NAME}
+    - REPORTING_SERVICE_DB_USER=${DEV_DB_USERNAME}
+    - REPORTING_SERVICE_DB_PW=${DEV_DB_PASSWORD}
+    - REPORTING_SERVICE_STARK_API_HOST=${API_HOST}:${API_PORT}
+    - REPORTING_SERVICE_LOG_LEVEL=${REPORTING_SERVICE_LOG_LEVEL}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - REPORTING_SERVICE_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - CACHE_HOST=${REDIS_HOSTS}
+  ports:
+    - "${REPORTING_SERVICE_PORT}:${REPORTING_SERVICE_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${REPORTING_SERVICE_PORT}/status"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+
+
+x-iot-hub-message-bus: &iot-hub-message-bus
+  build:
+    context: .
+    dockerfile: docker/iot-hub-message-bus.Dockerfile
+  image: ${REGISTRY}/${IOT_HUB_MESSAGE_BUS_IMAGE}
+  container_name: iot-hub-message-bus
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    kafka:
+      condition: service_healthy
+  networks:
+    - backend
+    - kafka
+  restart: always
+  environment:
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_BOOTSTRAP_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_GROUP_ID=${KAFKA_IOT_HUB_GROUP_ID}-ss
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_TOPIC=${KAFKA_IOT_HUB_TOPIC}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_TOPIC=${KAFKA_TELEMETRY_TOPIC}
+    - IOT_HUB_MESSAGE_BUS_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - IOT_HUB_MESSAGE_BUS_DB_USERNAME=${DEV_DB_USERNAME}
+    - IOT_HUB_MESSAGE_BUS_DB_PORT=${DEV_DB_PORT}
+    - IOT_HUB_MESSAGE_BUS_DB_DATABASE=${DEV_DB_NAME}
+    - IOT_HUB_MESSAGE_BUS_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - IOT_HUB_MESSAGE_BUS_DB_PASSWORD=${DEV_DB_PASSWORD}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_USERNAME=${KAFKA_USERNAME}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_USERNAME=${KAFKA_USERNAME}
+    - IOT_HUB_MESSAGE_BUS_LOG_LEVEL=${IOT_HUB_MESSAGE_BUS_LOG_LEVEL}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_SASL_MECHANISM=${KAFKA_CONSUMER_SASL}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_CONSUMER_PASSWORD=${KAFKA_CONSUMER_PASSWORD}
+    - IOT_HUB_MESSAGE_BUS_KAFKA_PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - IOT_HUB_MESSAGE_BUS_HOST=${IOT_HUB_MESSAGE_BUS_HOST}
+    - IOT_HUB_MESSAGE_BUS_PORT=${IOT_HUB_MESSAGE_BUS_PORT}
+    - IOT_HUB_MESSAGE_BUS_LOGGING_FILE_PATH=${IOT_HUB_MESSAGE_BUS_LOGGING_FILE_PATH}
+    - IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_SIZE=${IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_SIZE}
+    - IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_BACKUPS=${IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_BACKUPS}
+    - IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_AGE=${IOT_HUB_MESSAGE_BUS_LOGGING_FILE_MAX_AGE}
+    - IOT_HUB_MESSAGE_BUS_LOGGING_FILE_COMPRESS=${IOT_HUB_MESSAGE_BUS_LOGGING_FILE_COMPRESS}
+  ports:
+    - "${IOT_HUB_MESSAGE_BUS_PORT}:${IOT_HUB_MESSAGE_BUS_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${IOT_HUB_MESSAGE_BUS_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+x-subscription: &subscription
+  image: ${REGISTRY}/${SUBSCRIPTION_IMAGE}
+  build:
+    context: .
+    dockerfile: docker/subscription.Dockerfile
+  container_name: subscription
+  networks:
+    - backend
+    - kafka
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    search-service:
+      condition: service_healthy
+    auth-service:
+      condition: service_healthy
+    permission:
+      condition: service_healthy
+  ports:
+    - "${SUBSCRIPTION_PORT}:${SUBSCRIPTION_PORT}"
+  environment:
+    - LOG_LEVEL=${SUBSCRIPTION_LOG_LEVEL}
+    - PORT=${SUBSCRIPTION_PORT}
+    - DB_HOST=${DEV_DB_PLAIN_HOST}
+    - DB_PORT=${DEV_DB_PORT}
+    - DB_NAME=${DEV_DB_NAME}
+    - DB_USER=${DEV_DB_USERNAME}
+    - DB_PW=${DEV_DB_PASSWORD}
+    - DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - PRODUCER_TOPIC=${KAFKA_NOTIFICATIONS_TOPIC}
+    - PRODUCER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - PRODUCER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - PRODUCER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - PRODUCER_USER=${KAFKA_USERNAME}
+    - PRODUCER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - CONSUMER_TOPIC=${KAFKA_PERSISTED_EVENTS_TOPIC}
+    - CONSUMER_SERVER=${KAFKA_BOOTSTRAP_SERVER}:${KAFKA_PORT}
+    - CONSUMER_SEC_PROTOCOL=${KAFKA_SEC_PROTOCOL}
+    - CONSUMER_SASL_MECHANISM=${KAFKA_PRODUCER_SASL}
+    - CONSUMER_USER=${KAFKA_USERNAME}
+    - CONSUMER_PASSWORD=${KAFKA_PRODUCER_PASSWORD}
+    - CONSUMER_GROUP_ID=${KAFKA_SUBSCRIPTION_GROUP_ID}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - SEARCH_HOST=${SEARCH_HOST_URL}:${SEARCH_PORT}
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${SUBSCRIPTION_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+x-permission: &permission
+  build:
+    context: .
+    dockerfile: docker/permission.Dockerfile
+  image: ${REGISTRY}/${PERMISSION_SERVICE_IMAGE}
+  container_name: permission
+  depends_on:
+    migrations:
+      condition: service_completed_successfully
+    redis-cluster:
+      condition: service_completed_successfully
+    redis-node-1:
+      condition: service_healthy
+    redis-node-2:
+      condition: service_healthy
+    auth-service:
+      condition: service_started
+  networks:
+    - backend
+    - redisnet
+  restart: always
+  environment:
+    - PERMISSION_SERVICE_PORT=${PERMISSION_SERVICE_PORT}
+    - PERMISSION_SERVICE_DB_HOST=${DEV_DB_PLAIN_HOST}
+    - PERMISSION_SERVICE_DB_PORT=${DEV_DB_PORT}
+    - PERMISSION_SERVICE_DB_NAME=${DEV_DB_NAME}
+    - PERMISSION_SERVICE_DB_USER=${DEV_DB_USERNAME}
+    - PERMISSION_SERVICE_DB_PW=${DEV_DB_PASSWORD}
+    - PERMISSION_SERVICE_STARK_API_HOST=${API_HOST}:${API_PORT}
+    - PERMISSION_SERVICE_LOG_LEVEL=${PERMISSION_SERVICE_LOG_LEVEL}
+    - JWT_SECRET=${AUTH_JWT_SECRET}
+    - PERMISSION_SERVICE_DB_SSL_MODE=${DEV_DB_SSL_MODE}
+    - PERMISSION_SERVICE_CACHE_HOST=${REDIS_HOSTS}
+  ports:
+    - "${PERMISSION_SERVICE_PORT}:${PERMISSION_SERVICE_PORT}"
+  healthcheck:
+    test: ["CMD", "curl", "-f","http://localhost:${PERMISSION_SERVICE_PORT}/status"]
+    interval: 20s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+
+
+
+services:
+  api:
+    platform: linux/amd64
+    <<: *api
+    env_file:
+      - ./docker/.my.env
+  es01:
+    <<: *elasticsearch
+  db:
+    platform: linux/amd64
+    <<: *db
+  geo:
+    platform: linux/amd64
+    <<: *geo-service
+  zookeeper:
+    <<: *zookeeper
+  kafka:
+    platform: linux/amd64
+    <<: *kafka
+  telemetry-bus:
+    platform: linux/amd64
+    <<: *telemetry-bus
+  event-message-bus:
+    platform: linux/amd64
+    <<: *event-message-bus
+  search-service:
+    platform: linux/amd64
+    <<: *search-service
+  index-service:
+    platform: linux/amd64
+    <<: *index-service
+  event-router:
+    platform: linux/amd64
+    <<: *event-router
+  redis-cluster:
+    <<: *redis-cluster
+  redis-node-1:
+    <<: *redis-node-1
+  redis-node-2:
+    <<: *redis-node-2
+  redis-node-3:
+    <<: *redis-node-3
+  redis-node-4:
+    <<: *redis-node-4
+  redis-node-5:
+    <<: *redis-node-5
+  redis-node-6:
+    <<: *redis-node-6
+  babbage:
+    platform: linux/amd64
+    <<: *babbage
+  kafka-connect:
+    platform: linux/amd64
+    <<: *kafka-connect
+  kafka-connect-init:
+    platform: linux/amd64
+    <<: *kafka-connect-init
+  telemetry-data-service:
+    platform: linux/amd64
+    <<: *telemetry-data-service
+  issue-service:
+    platform: linux/amd64
+    <<: *issue-service
+  report-scheduler:
+    platform: linux/amd64
+    <<: *report-scheduler
+    env_file:
+      - ./docker/.my.env
+  reporting:
+    platform: linux/amd64
+    <<: *reporting-service
+  asset-api:
+    platform: linux/amd64
+    <<: *asset-api
+  permission:
+    platform: linux/amd64
+    <<: *permission
+  auth-service:
+    platform: linux/amd64
+    <<: *auth-service
+  diagnostics:
+    platform: linux/amd64
+    <<: *diagnostics
+  cloudfdd-service:
+    platform: linux/amd64
+    <<: *cloudfdd-service
+  migrations:
+    platform: linux/amd64
+    <<: *migrations
+  data-quality:
+    platform: linux/amd64
+    <<: *data-quality
+  finance:
+    platform: linux/amd64
+    <<: *finance
+  nyiso:
+    platform: linux/amd64
+    <<: *nyiso
+  pjm:
+    platform: linux/amd64
+    <<: *pjm
+  tag-api:
+    platform: linux/amd64
+    <<: *tag-api
+  iot-hub-message-bus:
+    platform: linux/amd64
+    <<: *iot-hub-message-bus
+  subscription:
+    platform: linux/amd64
+    <<: *subscription
+  notification:
+    platform: linux/amd64
+    <<: *notification
+  go-template:
+    platform: linux/amd64
+    <<: *go-template
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+  kafka:
+    driver: bridge
+  elastic:
+    driver: bridge
+  <<: *redis-network
+
+volumes:
+  gradle-cache:
+    driver: local
+

@@ -52,5 +52,3 @@ Thumbs.db
 .env.test
 .secrets/
 .local
-/cmd
-docker-compose.yml

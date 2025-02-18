@@ -1012,3 +1012,27 @@ func TestQueryParmas_SortByLastAuth(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello order by last_auth asc", sql)
 }
+
+func TestQueryParams_AssetType(t *testing.T) {
+	p := QueryParams{
+		AssetType: "equip",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where asset_type = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, "equip", args[0])
+}
+
+func TestQueryParams_SortByAssetType(t *testing.T) {
+	p := QueryParams{
+		SortA: "assetType",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello order by asset_type asc", sql)
+}

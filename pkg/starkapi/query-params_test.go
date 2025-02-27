@@ -1036,3 +1036,27 @@ func TestQueryParams_SortByAssetType(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello order by asset_type asc", sql)
 }
+
+func TestQueryParams_NotificationStatusId(t *testing.T) {
+	p := QueryParams{
+		NotificationStatusId: "1",
+	}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where notification_status_id = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.Equal(t, int64(1), args[0])
+}
+
+func TestQueryParams_SortByNotificationStatusId(t *testing.T) {
+	p := QueryParams{
+		SortA: "notificationStatusId",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello order by notification_status_id asc", sql)
+}

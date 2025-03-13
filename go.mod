@@ -1,6 +1,6 @@
 module github.com/Stark-Tech-Group/stg-sdk-golang
 
-go 1.21
+go 1.23
 
 require (
 	github.com/Azure/azure-event-hubs-go/v3 v3.6.1

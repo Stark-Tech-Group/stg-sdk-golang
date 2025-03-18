@@ -9,6 +9,8 @@ jobs:
   dev-build:
     if: ${{ github.event_name == 'push' }}
     uses: ./.github/workflows/_build.yml
+    with:
+      projectName: stg-sdk-golang
 
   dev-release:
     needs: [ "dev-build" ]

@@ -112,13 +112,15 @@ type QueryParams struct {
 	LastAuth             string `json:"lastAuth" schema:"lastAuth" sqlColumn:"last_auth" sqlType:"bigint"`
 	AssetType            string `json:"assetType" schema:"assetType" sqlColumn:"asset_type" sqlType:"text"`
 	NotificationStatusId string `json:"notificationStatusId" schema:"notificationStatusId" sqlColumn:"notification_status_id" sqlType:"bigint"`
+	Verified string `json:"verified" schema:"verified" sqlColumn:"verified" sqlType:"boolean"`
+
 	SortA                string `json:"sortA" schema:"sortA"`
 	SortD                string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams
 func (q *QueryParams) HashKey() string {
-	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s-%s",
+	return fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%v-%v-%s-%s-%s-%s",
 		q.RequestName,
 		q.Id,
 		q.Ref,
@@ -135,6 +137,7 @@ func (q *QueryParams) HashKey() string {
 		q.EventRef,
 		q.Limit,
 		q.Offset,
+		q.Verified,
 		q.SortA,
 		q.SortD,
 		q.ProfileRef)

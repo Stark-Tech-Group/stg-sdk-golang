@@ -112,10 +112,14 @@ type QueryParams struct {
 	LastAuth             string `json:"lastAuth" schema:"lastAuth" sqlColumn:"last_auth" sqlType:"bigint"`
 	AssetType            string `json:"assetType" schema:"assetType" sqlColumn:"asset_type" sqlType:"text"`
 	NotificationStatusId string `json:"notificationStatusId" schema:"notificationStatusId" sqlColumn:"notification_status_id" sqlType:"bigint"`
-	Verified string `json:"verified" schema:"verified" sqlColumn:"verified" sqlType:"boolean"`
+	Verified             string `json:"verified" schema:"verified" sqlColumn:"verified" sqlType:"boolean"`
+	ProfileCount         string `json:"profileCount" schema:"profileCount" sqlColumn:"profile_count" sqlType:"bigint"`
+	SiteCount            string `json:"siteCount" schema:"siteCount" sqlColumn:"site_count" sqlType:"bigint"`
+	EquipCount           string `json:"equipCount" schema:"equipCount" sqlColumn:"equip_count" sqlType:"bigint"`
+	PointCount           string `json:"pointCount" schema:"pointCount" sqlColumn:"point_count" sqlType:"bigint"`
 
-	SortA                string `json:"sortA" schema:"sortA"`
-	SortD                string `json:"sortD" schema:"sortD"`
+	SortA string `json:"sortA" schema:"sortA"`
+	SortD string `json:"sortD" schema:"sortD"`
 }
 
 // HashKey creates a compounded string of the current QueryParams

@@ -1074,3 +1074,51 @@ func TestQueryParams_SortByNotificationStatusId(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello order by notification_status_id asc", sql)
 }
+
+func TestQueryParams_SortByProfileCount(t *testing.T) {
+	p := QueryParams{
+		Verified: "true",
+		SortA:    "profileCount",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where verified = $1 order by profile_count asc", sql)
+}
+
+func TestQueryParams_SortBySiteCount(t *testing.T) {
+	p := QueryParams{
+		Verified: "true",
+		SortA:    "siteCount",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where verified = $1 order by site_count asc", sql)
+}
+
+func TestQueryParams_SortByEquipCount(t *testing.T) {
+	p := QueryParams{
+		Verified: "true",
+		SortA:    "equipCount",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where verified = $1 order by equip_count asc", sql)
+}
+
+func TestQueryParams_SortByPointCount(t *testing.T) {
+	p := QueryParams{
+		Verified: "true",
+		SortA:    "pointCount",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where verified = $1 order by point_count asc", sql)
+}

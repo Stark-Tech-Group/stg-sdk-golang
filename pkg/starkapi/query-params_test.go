@@ -1122,3 +1122,15 @@ func TestQueryParams_SortByPointCount(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello where verified = $1 order by point_count asc", sql)
 }
+
+func TestQueryParams_SortByCountryCode(t *testing.T) {
+	p := QueryParams{
+		Verified: "true",
+		SortA:    "countryCode",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where verified = $1 order by country_code asc", sql)
+}

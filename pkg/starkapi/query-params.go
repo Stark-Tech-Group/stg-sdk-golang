@@ -117,6 +117,7 @@ type QueryParams struct {
 	SiteCount            string `json:"siteCount" schema:"siteCount" sqlColumn:"site_count" sqlType:"bigint"`
 	EquipCount           string `json:"equipCount" schema:"equipCount" sqlColumn:"equip_count" sqlType:"bigint"`
 	PointCount           string `json:"pointCount" schema:"pointCount" sqlColumn:"point_count" sqlType:"bigint"`
+	CountryCode          string `json:"countryCode" schema:"countryCode" sqlColumn:"country_code" sqlType:"text"`
 
 	SortA string `json:"sortA" schema:"sortA"`
 	SortD string `json:"sortD" schema:"sortD"`

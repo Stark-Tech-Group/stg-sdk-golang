@@ -6,9 +6,9 @@ type Assets struct {
 }
 
 type Asset struct {
-	Id          int32      `json:"id,omitempty"`
-	Ref         string     `json:"ref,omitempty"`
-	Url        	string     `json:"url,omitempty"`
-	Name        string     `json:"name,omitempty"`
-	Type        string     `json:"type,omitempty"`
+	Id   int32  `json:"id,omitempty"`
+	Ref  string `json:"ref,omitempty"`
+	Url  string `json:"url,omitempty"`
+	Name string `json:"name,omitempty"`
+	Type string `json:"type,omitempty"`
 }

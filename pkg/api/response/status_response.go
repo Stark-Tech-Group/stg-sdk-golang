@@ -5,5 +5,3 @@ type StatusResponse struct {
 	Version  string `json:"version"`
 	Build    int    `json:"build"`
 }
-
-

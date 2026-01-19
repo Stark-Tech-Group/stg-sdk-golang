@@ -6,7 +6,7 @@ import (
 	"github.com/Stark-Tech-Group/stg-sdk-golang/pkg/domain"
 )
 
-type ConnApi struct{
+type ConnApi struct {
 	client *Client
 }
 
@@ -19,10 +19,14 @@ func (connApi *ConnApi) GetOne(id uint32) (domain.Conn, error) {
 
 	var conn domain.Conn
 	resp, err := connApi.client.get(url)
-	if err != nil { return conn, err }
+	if err != nil {
+		return conn, err
+	}
 
 	err = json.Unmarshal(resp, &conn)
-	if err != nil { return conn, err }
+	if err != nil {
+		return conn, err
+	}
 
 	return conn, nil
 }
@@ -32,10 +36,14 @@ func (connApi *ConnApi) GetAll() (domain.Conns, error) {
 	url := connApi.BaseUrl() + "/"
 
 	resp, err := connApi.client.get(url)
-	if err != nil { return conns, err }
+	if err != nil {
+		return conns, err
+	}
 
 	err = json.Unmarshal(resp, &conns)
-	if err != nil { return conns, err }
+	if err != nil {
+		return conns, err
+	}
 
 	return conns, nil
 }

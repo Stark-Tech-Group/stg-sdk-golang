@@ -22,19 +22,17 @@ func (authApi *authApi) login(un string, pw string) (*response.AuthResponse, err
 		password: pw,
 	})
 
-  
 	if err != nil {
 		return nil, err
 	}
 
-
-  host := loginUrl(authApi.client.host)
+	host := loginUrl(authApi.client.host)
 
 	resp, err := authApi.client.post(host, requestBody)
 
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
 	login := response.AuthResponse{}
 	err = json.Unmarshal(resp, &login)
@@ -54,7 +52,7 @@ func meUrl(host string) string {
 	return fmt.Sprintf("%s/core/persons/me", host)
 }
 
-//RefreshKeychain refreshes the user's keychain
+// RefreshKeychain refreshes the user's keychain
 func (authApi *authApi) RefreshKeychain() error {
 	url := meUrl(authApi.client.host) + "/refreshKeychain"
 

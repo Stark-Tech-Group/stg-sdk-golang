@@ -2,11 +2,11 @@ package domain
 
 type Audit struct {
 	CreatedBy struct {
-			Name string `json:"name"`
+		Name string `json:"name"`
 	} `json:"createdBy"`
-	DateCreated	int64 `json:"dateCreated"`
+	DateCreated   int64 `json:"dateCreated"`
 	LastUpdatedBy struct {
-			Name string `json:"name"`
-		} `json:"lastUpdatedBy"`
+		Name string `json:"name"`
+	} `json:"lastUpdatedBy"`
 	LastUpdated int64 `json:"lastUpdated"`
 }

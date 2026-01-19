@@ -145,7 +145,7 @@ func (client *Client) get(url string) ([]byte, error) {
 func (client *Client) post(url string, requestBody []byte) ([]byte, error) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
-  req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func (client *Client) post(url string, requestBody []byte) ([]byte, error) {
 func (client *Client) put(url string, requestBody []byte) ([]byte, error) {
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
 
-  req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}

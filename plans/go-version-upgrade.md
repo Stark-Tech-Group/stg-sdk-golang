@@ -95,10 +95,10 @@ Update Go version in CI workflows from `^1.23` to `^1.25` or `1.25`.
 - [x] Run `go build ./cmd/stg-sdk-golang` - success
 
 ### Phase 4: Ship
-- [ ] Commit changes
-- [ ] Push to remote
-- [ ] Create PR to dev
-- [ ] Update master plan
+- [x] Commit changes
+- [x] Push to remote
+- [x] Create PR to dev → [PR #145](https://github.com/Stark-Tech-Group/stg-sdk-golang/pull/145)
+- [x] Update master plan
 
 ### Phase 5: Release (Post-Merge)
 - [ ] Merge PR to dev

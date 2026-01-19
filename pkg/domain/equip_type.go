@@ -1,8 +1,8 @@
 package domain
 
 type EquipTypes struct {
-	Count	int32 		`json:"count"`
-	EquipTypes 	[]EquipType	`json:"equipTypeList"`
+	Count      int32       `json:"count"`
+	EquipTypes []EquipType `json:"equipTypeList"`
 }
 
 type EquipType struct {

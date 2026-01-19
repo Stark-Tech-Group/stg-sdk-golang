@@ -10,7 +10,7 @@ type jsonError struct {
 	Error string
 }
 
-//JSONError writes a simple json formatted error
+// JSONError writes a simple json formatted error
 func JSONError(w http.ResponseWriter, err string, code int) {
 	template := jsonError{}
 	template.Code = code

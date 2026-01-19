@@ -135,7 +135,7 @@ func (equipApi *EquipApi) AddNewTag(equip domain.Equip, name string, value strin
 	return nil
 }
 
-//GetAllTags returns all tags for the provided domain.Point
+// GetAllTags returns all tags for the provided domain.Point
 func (equipApi *EquipApi) GetAllTags(equip domain.Equip) (domain.TagRefs, error) {
 	url := fmt.Sprintf("%s/%v/tags", equipApi.BaseUrl(), equip.Id)
 
@@ -153,7 +153,7 @@ func (equipApi *EquipApi) GetAllTags(equip domain.Equip) (domain.TagRefs, error)
 	return tags, nil
 }
 
-//DeleteTag deletes a domain.TagRef from the provided domain.Equip
+// DeleteTag deletes a domain.TagRef from the provided domain.Equip
 func (equipApi *EquipApi) DeleteTag(equip domain.Equip, tagRef domain.TagRef) error {
 	url := fmt.Sprintf("%s/%v/tags/%v", equipApi.BaseUrl(), equip.Id, tagRef.Id)
 

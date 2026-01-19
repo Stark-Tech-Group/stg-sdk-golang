@@ -27,7 +27,8 @@ func (searchApi *SearchApi) SearchText(query string, page uint16, size uint16) (
 	})
 }
 
-/**
+/*
+*
 Search using a query
 */
 func (searchApi *SearchApi) Search(query Query) (*response.SearchResponse, error) {

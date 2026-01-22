@@ -3,6 +3,7 @@
 **Review Date**: 2026-01-22
 **Reference**: `tsp/plans/project-structure.md`
 **Status**: FULLY COMPLIANT
+**Jira Task**: [OP-2994](https://controlfreak.atlassian.net/browse/OP-2994)
 **Branch**: `feature/project-structure-compliance`
 
 ---

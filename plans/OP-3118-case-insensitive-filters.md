@@ -51,11 +51,10 @@ Clarity Datagrid filter input ("smith")
 - **Minimal change surface** - One line in the SDK, zero lines in stark-web
 - **Universal fix** - Every existing `<sw>` filter becomes case-insensitive automatically
 - **No API contract change** - `<sw>` parameter name stays the same
-- **PostgreSQL `ILIKE` performance** - Equivalent to `LIKE` when a `gin_trgm` index exists; for prefix matching, it can use btree indexes with `text_pattern_ops`
+- **PostgreSQL `ILIKE` performance** - Equivalent to `LIKE` for small datasets; for large tables, a `pg_trgm` GIN index or functional index on `LOWER(column)` can be added if needed
 
 #### Backend Change (stg-sdk-golang)
 
-**Repo**: `/Volumes/data/projects/tsp/stg-sdk-golang`
 **File**: `pkg/starkapi/query-params.go`
 
 Two lines to change in `parameterizedClause()`:
@@ -83,8 +82,6 @@ return fmt.Sprintf("%s ilike $%d", p.Column, seedIndex+1)
 - `TestQueryParams_EndLikeWithEventType` (line 632): Update expected SQL from `like` to `ilike`
 
 #### Consuming Service Update (stark-asset-api)
-
-**Repo**: `/Volumes/data/projects/tsp/stark-asset-api`
 
 After the SDK change is merged and tagged:
 - Update `go.mod` to reference the new SDK version
@@ -173,7 +170,7 @@ Then add a `_defaultContainsFields` list in `QueryModel` for fields that should 
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| `ILIKE` performance on large tables | Low | PostgreSQL `ILIKE` with prefix patterns uses btree indexes with `text_pattern_ops`; for mid-string, `pg_trgm` GIN indexes can be added if needed |
+| `ILIKE` performance on large tables | Low | Admin list datasets are small (hundreds to low thousands of rows); if applied to 100K+ row tables, a `pg_trgm` GIN index or functional index on `LOWER(column)` can be added |
 | Behavioral change surprises | Low | Case-insensitive search is strictly more permissive (superset of results), unlikely to break anything |
 | SDK version bump coordination | Medium | Requires deployment of updated API services before frontend benefits |
 

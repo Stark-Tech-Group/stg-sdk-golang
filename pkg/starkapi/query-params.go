@@ -408,13 +408,13 @@ func (p *Parameter) parameterizedClause(seedIndex int) string {
 			return fmt.Sprintf("%s IS "+nullSql, p.Column)
 		}
 		p.Value = p.Value.(string) + "%"
-		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
+		return fmt.Sprintf("%s ilike $%d", p.Column, seedIndex+1)
 	} else if p.Operator == endLike {
 		if p.nullValCheck() {
 			return fmt.Sprintf("%s IS "+nullSql, p.Column)
 		}
 		p.Value = "%" + p.Value.(string)
-		return fmt.Sprintf("%s like $%d", p.Column, seedIndex+1)
+		return fmt.Sprintf("%s ilike $%d", p.Column, seedIndex+1)
 	} else if p.Operator == between {
 		if p.Decorator != "" {
 			val1 := strings.Replace(p.Decorator, "%", fmt.Sprintf("$%d", seedIndex+1), 1)

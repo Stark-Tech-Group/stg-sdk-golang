@@ -6,9 +6,13 @@ on:
       - "bug/**"
       - "bugfix/**"
 
+permissions: read-all
+
 jobs:
   feature-bug-build:
     if: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/_build.yml
     with:
       projectName: stg-sdk-golang

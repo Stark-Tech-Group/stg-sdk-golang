@@ -5,9 +5,13 @@ on:
     branches:
       - dev
 
+permissions: read-all
+
 jobs:
   dev-build:
     if: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/_build.yml
     with:
       projectName: stg-sdk-golang
@@ -15,6 +19,8 @@ jobs:
   dev-release:
     needs: [ "dev-build" ]
     if: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/_release.yml
     with:
       major: 1

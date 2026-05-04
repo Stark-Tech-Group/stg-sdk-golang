@@ -6,6 +6,9 @@ on:
       - "feature/**"
       - "bug/**"
       - "bugfix/**"
+
+permissions: read-all
+
 jobs:
   sonarcloud:
     name: SonarCloud

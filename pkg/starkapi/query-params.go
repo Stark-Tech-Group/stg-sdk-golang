@@ -119,7 +119,7 @@ type QueryParams struct {
 	EquipCount           string `json:"equipCount" schema:"equipCount" sqlColumn:"equip_count" sqlType:"bigint"`
 	PointCount           string `json:"pointCount" schema:"pointCount" sqlColumn:"point_count" sqlType:"bigint"`
 	CountryCode          string `json:"countryCode" schema:"countryCode" sqlColumn:"country_code" sqlType:"text"`
-	Archived             bool   `json:"archived" schema:"archived" sqlColumn:"archived" sqlType:"boolean"`
+	Archived             string `json:"archived" schema:"archived" sqlColumn:"archived" sqlType:"boolean"`
 
 	SortA string `json:"sortA" schema:"sortA"`
 	SortD string `json:"sortD" schema:"sortD"`

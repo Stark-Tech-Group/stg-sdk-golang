@@ -1134,3 +1134,48 @@ func TestQueryParams_SortByCountryCode(t *testing.T) {
 
 	assert.Equal(t, "Select * from hello where verified = $1 order by country_code asc", sql)
 }
+
+func TestQueryParams_Archived(t *testing.T) {
+	p := QueryParams{Archived: "1"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where archived = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Archived_True(t *testing.T) {
+	p := QueryParams{Archived: "True"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where archived = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.True(t, args[0].(bool))
+}
+
+func TestQueryParams_Archived_False(t *testing.T) {
+	p := QueryParams{Archived: "<eq>false"}
+
+	sql, args, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where archived = $1", sql)
+	assert.Equal(t, 1, len(args))
+	assert.False(t, args[0].(bool))
+}
+
+func TestQueryParams_SortByArchived(t *testing.T) {
+	p := QueryParams{
+		Archived: "true",
+		SortA:    "archived",
+	}
+
+	sql, _, err := p.BuildParameterizedQuery("Select * from hello")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Select * from hello where archived = $1 order by archived asc", sql)
+}

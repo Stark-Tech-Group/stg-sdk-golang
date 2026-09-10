@@ -186,42 +186,6 @@ func (pointApi *PointApi) GetAllByRef(ref string) (domain.Points, error) {
 	return points, nil
 }
 
-func (pointApi *PointApi) CurVal(id uint32) (domain.CurVal, error) {
-	url := fmt.Sprintf("%s/%v/%s", pointApi.BaseUrl(), id, "curVal")
-
-	var curVal domain.CurVal
-
-	resp, err := pointApi.client.get(url)
-	if err != nil {
-		return curVal, err
-	}
-
-	err = json.Unmarshal(resp, &curVal)
-	if err != nil {
-		return curVal, err
-	}
-
-	return curVal, nil
-}
-
-func (pointApi *PointApi) HisRead(id uint32, limit uint16, start uint64, end uint64) (domain.HisRead, error) {
-	url := fmt.Sprintf("%s/%v/%s?limit=%v&start=%v&end=%v", pointApi.BaseUrl(), id, "hisRead", limit, start, end)
-
-	var hisRead domain.HisRead
-
-	resp, err := pointApi.client.get(url)
-	if err != nil {
-		return hisRead, err
-	}
-
-	err = json.Unmarshal(resp, &hisRead)
-	if err != nil {
-		return hisRead, err
-	}
-
-	return hisRead, nil
-}
-
 func (pointApi *PointApi) GetAllPointTypes() (domain.PointTypes, error) {
 	url := fmt.Sprintf("%s", pointApi.ListPointTypeUrl())
 

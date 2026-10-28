@@ -1,4 +1,4 @@
-FROM redis:6.2.7
+FROM redis:6.2-bookworm
 USER root
 
 RUN apt-get update
